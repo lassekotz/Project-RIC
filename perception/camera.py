@@ -1,11 +1,9 @@
-from device.base_camera import BaseCamera #Switchout
-import cv2
+from device.base_camera import BaseCamera
 import util
 
 from picamera import PiCamera
 from picamera.array import PiRGBArray
 
-# RES IS 3280x2464 on raw image default 
 
 class Camera(BaseCamera): #ändra
     '''
