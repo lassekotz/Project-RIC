@@ -11,31 +11,24 @@ from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
 
-def main(motor1, motor2, ang_lim, camera):
+def main(motor1, ang_lim, camera):
     IMU_datalist = []
-    gauth = GoogleAuth()
-    drive = GoogleDrive(gauth)
-    folderURL = '1ldfh7h8yc_y4OBUwetNmSMDhMoZPCeIC?fbclid=IwAR07nNB8vSknC7Zf3IiOnHT6xpZux-ftqv00UjPydDV7ITjQBhTWc3TxXnE'
 
-    file_list = drive.ListFile(
-        {'q': "'{}' in parents and trashed=false".format(folderURL)}).GetList()
-    j = len(file_list)
 
+
+    j = 1
     imlist = []
     for i in range(round(ang_lim / 0.18)): #.18 is stepsize in degrees
         motor1.run(False)
-        motor2.run(True)
+        #motor2.run(True)
         ext = '.jpg'
         imgname = 'picture%s%s' %(j, ext) #format image name string
         print(imgname)
-        camera.capture(imgname)
+        camera.capture("Images", imgname)
         
         time.sleep(1)
         j += 1
-        imlist.append(imgname)
-        
-        
-    return imlist
+
         #TODO PRINT IMU-DATA
         #TODO CAPTURE IMAGE
         
@@ -43,9 +36,11 @@ def main(motor1, motor2, ang_lim, camera):
 
 
 motor1 = Motor([24,25,8,7])
-motor2 = Motor([])
+#motor2 = Motor([])
 camera = PiCamera()
 
 
 imlist = main(motor1, motor2, 10, camera)
-drive_upload(imlist)
+imlist = main(motor1, 10, camera)
+
+drive_upload()

@@ -1,12 +1,15 @@
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
+import os
 
-def drive_upload(file_list):
+def drive_upload(path = r"/home/ric/Documents/projectRIC/actuation/Images"):
     gauth = GoogleAuth()
     drive = GoogleDrive(gauth)
+    gauth.LocalWebserverAuth()
 
-    for upload_file in file_list:
-        gfile = drive.CreateFile({'parents': [{'id': '1pzschX3uMbxU0lB5WZ6IlEEeAUE8MZ-t'}]})
-        # Read file and set it as the content of this instance.
-        gfile.SetContentFile(upload_file)
-        gfile.Upload() # Upload the file.
+    for x in os.listdir(path):
+        f = drive.CreateFile({'title': x})
+        f.SetContentFile(os.path.join(path, x))
+        f.Upload()
+
+        f = None
