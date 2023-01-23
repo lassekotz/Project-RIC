@@ -1,15 +1,6 @@
-class Motor(): # REPLACE WITH BaseMotor and seperate
-    def __init__(PINOUT):
-        pass #self.PINOUT = PINOUT
-
-
-    def initialize():
-        self.pins = [24, 25, 8, 7]
-
-        # Declare an named instance of class pass a name and motor type
-        self.motor = RpiMotorLib.BYJMotor("Motor", "28BYJ")
-
-        return True
+class Motor():
+    def __init__(self, pinout):
+        self.pinout = pinout
 
     def run(self, counterclockwise=False):
         '''
