@@ -24,7 +24,8 @@ def main(motor1, ang_lim, camera):
         ext = '.jpg'
         imgname = 'picture%s%s' %(j, ext) #format image name string
         print(imgname)
-        camera.capture("/Images", imgname)
+        #camera.capture("/Images", imgname)
+        camera.capture(imgname)
         
         time.sleep(1)
         j += 1
