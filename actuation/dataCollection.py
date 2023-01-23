@@ -1,27 +1,36 @@
-#import RPi.GPIO as GPIO
-#from RpiMotorLib import RpiMotorLib
+import RPi.GPIO as GPIO
+from RpiMotorLib import RpiMotorLib
 import importlib
 import time as time
 from BaseMotor import Motor
 import sys
-from BaseMotor import Motor
+from picamera import PiCamera
+from camera import Camera
 
-#camera = BaseCamera()
-
-def main(Motor, ang_lim, Camera):
+def main(motor, ang_lim, camera):#, Camera):
     IMU_datalist = []
-    Camera.initialize()
+    #camera.initialize()
+    j = 1
     for i in range(round(ang_lim / 0.18)): #.18 is stepsize in degrees
-        run()
-        Camera.capture_image()
-        time.sleep(.5)
-
+        motor.run()
+        ext = '.jpg'
+        imname = 'picture%s%s' %(j, ext)
+        print(imname)
+        camera.capture(imname)
+        
+        time.sleep(1)
+        j += 1
+        
+        
+        
         #TODO PRINT IMU-DATA
         #TODO CAPTURE IMAGE
         
         #IMU_datalist.append(imu_datapoint)
-        #
 
 
 motor = Motor([24,25,8,7])
-motor.shutdown()
+camera = PiCamera()
+
+
+main(motor, 10, camera)

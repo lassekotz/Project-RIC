@@ -1,6 +1,10 @@
+import RPi.GPIO as GPIO
+from RpiMotorLib import RpiMotorLib
+
 class Motor():
-    def __init__(self, pinout):
-        self.pinout = pinout
+    def __init__(self, pins):
+        self.pins = pins
+        self.motor = RpiMotorLib.BYJMotor("Motor", "28BYJ")
 
     def run(self, counterclockwise=False):
         '''
