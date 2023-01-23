@@ -39,7 +39,7 @@ camera = PiCamera()
 
 
 #imlist = main(motor1, motor2, 10, camera)
-anglim = sys.argv[1]
+anglim = float(sys.argv[1])
 main(motor1, anglim, camera)
 
 drive_upload()
