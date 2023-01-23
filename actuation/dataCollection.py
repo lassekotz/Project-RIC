@@ -41,6 +41,6 @@ camera = PiCamera()
 
 
 #imlist = main(motor1, motor2, 10, camera)
-imlist = main(motor1, 10, camera)
+main(motor1, 10, camera)
 
 drive_upload()
