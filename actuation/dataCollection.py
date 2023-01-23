@@ -22,7 +22,7 @@ def main(motor1, ang_lim, camera):
         motor1.run(False)
         #motor2.run(True)
         ext = '.jpg'
-        imgname = 'picture%s%s' %(j, ext) #format image name string
+        imgname = 'Images/picture%s%s' %(j, ext) #format image name string
         print(imgname)
         #camera.capture("/Images", imgname)
         camera.capture(imgname)
