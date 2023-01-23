@@ -6,31 +6,45 @@ from BaseMotor import Motor
 import sys
 from picamera import PiCamera
 from camera import Camera
+from driveUpload import drive_upload
+from pydrive import drive
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
 
-def main(motor, ang_lim, camera):#, Camera):
+folderURL = '1ldfh7h8yc_y4OBUwetNmSMDhMoZPCeIC?fbclid=IwAR07nNB8vSknC7Zf3IiOnHT6xpZux-ftqv00UjPydDV7ITjQBhTWc3TxXnE'
+
+def main(motor1, motor2, ang_lim, camera):
     IMU_datalist = []
-    #camera.initialize()
-    j = 1
+
+    file_list = drive.ListFile(
+        {'q': "'{}' in parents and trashed=false".format(folderURL)}).GetList()
+    j = len(file_list)
+
+    imlist = []
     for i in range(round(ang_lim / 0.18)): #.18 is stepsize in degrees
-        motor.run()
+        motor1.run(False)
+        motor2.run(True)
         ext = '.jpg'
-        imname = 'picture%s%s' %(j, ext)
-        print(imname)
-        camera.capture(imname)
+        imgname = 'picture%s%s' %(j, ext) #format image name string
+        print(imgname)
+        camera.capture(imgname)
         
         time.sleep(1)
         j += 1
+        imlist.append(imgname)
         
         
-        
+    return imlist
         #TODO PRINT IMU-DATA
         #TODO CAPTURE IMAGE
         
         #IMU_datalist.append(imu_datapoint)
 
 
-motor = Motor([24,25,8,7])
+motor1 = Motor([24,25,8,7])
+motor2 = Motor([])
 camera = PiCamera()
 
 
-main(motor, 10, camera)
+imlist = main(motor1, motor2, 10, camera)
+drive_upload(imlist)
