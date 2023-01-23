@@ -7,14 +7,14 @@ import sys
 from picamera import PiCamera
 from camera import Camera
 from driveUpload import drive_upload
-from pydrive import drive
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
-folderURL = '1ldfh7h8yc_y4OBUwetNmSMDhMoZPCeIC?fbclid=IwAR07nNB8vSknC7Zf3IiOnHT6xpZux-ftqv00UjPydDV7ITjQBhTWc3TxXnE'
 
 def main(motor1, motor2, ang_lim, camera):
     IMU_datalist = []
+    drive = GoogleDrive(gauth)
+    folderURL = '1ldfh7h8yc_y4OBUwetNmSMDhMoZPCeIC?fbclid=IwAR07nNB8vSknC7Zf3IiOnHT6xpZux-ftqv00UjPydDV7ITjQBhTWc3TxXnE'
 
     file_list = drive.ListFile(
         {'q': "'{}' in parents and trashed=false".format(folderURL)}).GetList()
