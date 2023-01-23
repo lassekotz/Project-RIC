@@ -9,13 +9,10 @@ from camera import Camera
 from driveUpload import drive_upload
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
-
+import sys
 
 def main(motor1, ang_lim, camera):
     IMU_datalist = []
-
-
-
     j = 1
     imlist = []
     for i in range(round(ang_lim / 0.18)): #.18 is stepsize in degrees
@@ -42,6 +39,7 @@ camera = PiCamera()
 
 
 #imlist = main(motor1, motor2, 10, camera)
-main(motor1, 10, camera)
+anglim = sys.argv[1]
+main(motor1, anglim, camera)
 
 drive_upload()
