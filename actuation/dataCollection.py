@@ -13,6 +13,7 @@ from pydrive.drive import GoogleDrive
 
 def main(motor1, motor2, ang_lim, camera):
     IMU_datalist = []
+    gauth = GoogleAuth()
     drive = GoogleDrive(gauth)
     folderURL = '1ldfh7h8yc_y4OBUwetNmSMDhMoZPCeIC?fbclid=IwAR07nNB8vSknC7Zf3IiOnHT6xpZux-ftqv00UjPydDV7ITjQBhTWc3TxXnE'
 
