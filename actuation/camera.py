@@ -1,11 +1,11 @@
-from device.base_camera import BaseCamera
-import util
+#from device.base_camera import BaseCamera
+#import util
 
 from picamera import PiCamera
 from picamera.array import PiRGBArray
 
 
-class Camera(BaseCamera): #instantiate camera
+class Camera(): #instantiate camera
     '''
     Implementation of the base camera interface for the raspberry pi
     V2 camera module.
@@ -35,7 +35,9 @@ class Camera(BaseCamera): #instantiate camera
         '''
         raw_capture = PiRGBArray(self.camera)
 
-        self.camera.capture(raw_capture, format="bgr") #SEND TO FILE
+        #self.camera.capture(raw_capture, format="bgr") #SEND TO FILE
         image = raw_capture.array
 
-        return image
+        self.camera.capture('picture.jpg')
+
+        #return image
