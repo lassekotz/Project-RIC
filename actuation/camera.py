@@ -5,7 +5,7 @@ from picamera import PiCamera
 from picamera.array import PiRGBArray
 
 
-class Camera(BaseCamera): #ändra
+class Camera(BaseCamera): #instantiate camera
     '''
     Implementation of the base camera interface for the raspberry pi
     V2 camera module.
