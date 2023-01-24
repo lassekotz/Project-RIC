@@ -6,7 +6,7 @@ class Motor():
         self.pins = pins
         self.motor = RpiMotorLib.BYJMotor("Motor", "28BYJ")
 
-    def run(self, steps, counterclockwise=False):
+    def run(self, counterclockwise=False):
         '''
         Run the motor. 
 
@@ -15,7 +15,7 @@ class Motor():
                   verbose=False, steptype="half", initdelay=.001):
         '''
         # call the function pass the parameters
-        self.motor.motor_run(self.pins, .01, steps,
+        self.motor.motor_run(self.pins, .01, 5,
                              counterclockwise, False, "full", .05)
 
     def shutdown(self) -> bool:

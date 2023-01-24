@@ -16,7 +16,7 @@ def main(motor1, ang_lim, camera):
     j = 1
     imlist = []
     for i in range(round(ang_lim / 0.18)): #.18 is stepsize in degrees
-        motor1.run(5, False)
+        motor1.run()
         #motor2.run(True)
         ext = '.jpg'
         imgname = 'Images/picture%s%s' %(j, ext) #format image name string
@@ -42,4 +42,4 @@ camera = PiCamera()
 anglim = float(sys.argv[1])
 main(motor1, anglim, camera)
 
-drive_upload()
+#drive_upload()
