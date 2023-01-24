@@ -10,10 +10,11 @@ from driveUpload import drive_upload
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
-def main(motor, ang_lim, camera):
+def main(motor1, motor2, ang_lim, camera):
     j = 1
     for i in range(round(ang_lim / 0.18)): #.18 is stepsize in degrees
-        motor.run()
+        motor1.run()
+        motor2.run()
         ext = '.jpg'
         imgname = 'Images/picture%s%s' %(j, ext) #format image name string
         print(imgname)
@@ -27,11 +28,10 @@ def main(motor, ang_lim, camera):
         
         #IMU_datalist.append(imu_datapoint)
 
-
-motor1 = Motor([24,25,8,7])
+motor1 = Motor([14, 15, 18, 23])
+motor2 = Motor([24,25,8,7])
 camera = PiCamera()
 
-
 anglim = float(sys.argv[1])
-main(motor1, anglim, camera)
+main(motor1, motor2, anglim, camera)
 
