@@ -98,7 +98,7 @@ def setupGyroTheta(): #Initialises gyro value as accelerometer value to speed up
 	return theta
 
 
-currAngle = setupGyroTheta():
+currAngle = setupGyroTheta()
 while(1):
 	currAngle = Update_angle(currAngle)
 	sleep(0.1)
