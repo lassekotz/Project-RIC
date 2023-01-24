@@ -16,7 +16,7 @@ def main(motor1, ang_lim, camera):
     j = 1
     imlist = []
     for i in range(round(ang_lim / 0.18)): #.18 is stepsize in degrees
-        motor1.run(False)
+        motor1.run(5, False)
         #motor2.run(True)
         ext = '.jpg'
         imgname = 'Images/picture%s%s' %(j, ext) #format image name string
