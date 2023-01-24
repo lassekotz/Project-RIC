@@ -1,7 +1,7 @@
 import sys
 from BaseMotor import Motor
 
-steps = sys.argv[1]
+steps = str(sys.argv[1])
 rotation = sys.argv[2]
 motor = Motor()
 
