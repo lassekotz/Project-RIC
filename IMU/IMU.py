@@ -2,9 +2,11 @@
 		Read Gyro and Accelerometer by Interfacing Raspberry Pi with MPU6050 using Python
 	http://www.electronicwings.com
 '''
-import smbus					#import SMBus module of I2C
+import smbus2					#import SMBus module of I2C
 from time import sleep          #import
 import math
+
+
 
 #some MPU6050 Registers and their Address
 PWR_MGMT_1   = 0x6B
@@ -97,9 +99,12 @@ def setupGyroTheta(): #Initialises gyro value as accelerometer value to speed up
 	theta = 180/3.1415* math.atan2(-AccX,math.sqrt(math.pow(AccY,2)+ math.pow(AccZ,2))) #Acceleromter angle 
 	return theta
 
-
+"""
+bus = smbus2.SMBus(1) 	# or bus = smbus.SMBus(0) for older version boards
+Device_Address = 0x68   # MPU6050 device address
 currAngle = setupGyroTheta()
 while(1):
 	currAngle = Update_angle(currAngle)
 	sleep(0.1)
 	print("Current angle: "+currAngle)
+"""
