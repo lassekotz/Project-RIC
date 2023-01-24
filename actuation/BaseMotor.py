@@ -2,7 +2,7 @@ import RPi.GPIO as GPIO
 from RpiMotorLib import RpiMotorLib
 
 class Motor():
-    def __init__(self, pins):
+    def __init__(self, pins = [24, 25, 8, 7]):
         self.pins = pins
         self.motor = RpiMotorLib.BYJMotor("Motor", "28BYJ")
 
