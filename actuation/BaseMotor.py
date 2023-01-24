@@ -2,11 +2,14 @@ import RPi.GPIO as GPIO
 from RpiMotorLib import RpiMotorLib
 
 class Motor():
-    def __init__(self, pins = [24, 25, 8, 7]):
+    def __init__(self, pins):
+        
         self.pins = pins
         self.motor = RpiMotorLib.BYJMotor("Motor", "28BYJ")
+        
 
-    def run(self, counterclockwise=False):
+
+    def run(self,nr_of_steps = 20, counterclockwise=False):
         '''
         Run the motor. 
 
@@ -15,8 +18,10 @@ class Motor():
                   verbose=False, steptype="half", initdelay=.001):
         '''
         # call the function pass the parameters
-        self.motor.motor_run(self.pins, .01, 5,
-                             counterclockwise, False, "full", .05)
+        self.motor.motor_run(self.pins, .01, nr_of_steps,
+                             counterclockwise, False, "full", .01)
+                        
+        return nr_of_steps
 
     def shutdown(self) -> bool:
         '''
