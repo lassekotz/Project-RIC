@@ -62,6 +62,7 @@ def Update_angle(thetaOld,dt):
 	acc_x = read_raw_data(ACCEL_XOUT_H)
 	acc_y = read_raw_data(ACCEL_YOUT_H)
 	acc_z = read_raw_data(ACCEL_ZOUT_H)
+	print(acc_x)
 	
 	#Read Gyroscope raw value
 	gyro_x = read_raw_data(GYRO_XOUT_H)
@@ -70,7 +71,7 @@ def Update_angle(thetaOld,dt):
 	
 	#Full scale range +/- 250 degree/C as per sensitivity scale factor
 	AccX = acc_x/16384.0
-	AccX = acc_y/16384.0
+	AccY = acc_y/16384.0
 	AccZ = acc_z/16384.0
 	
 	GyroX = gyro_x/131.0
@@ -93,7 +94,7 @@ def setupGyroTheta(): #Initialises gyro value as accelerometer value to speed up
 
 	#Full scale range +/- 250 degree/C as per sensitivity scale factor
 	AccX = acc_x/16384.0
-	AccX = acc_y/16384.0
+	AccY = acc_y/16384.0
 	AccZ = acc_z/16384.0
 
 	theta = 180/3.1415* math.atan2(-AccX,math.sqrt(math.pow(AccY,2)+ math.pow(AccZ,2))) #Acceleromter angle 
@@ -103,8 +104,11 @@ def setupGyroTheta(): #Initialises gyro value as accelerometer value to speed up
 bus = smbus2.SMBus(1) 	# or bus = smbus.SMBus(0) for older version boards
 Device_Address = 0x68   # MPU6050 device address
 currAngle = setupGyroTheta()
+MPU_Init()
 while(1):
-	currAngle = Update_angle(currAngle)
+	currAngle = Update_angle(currAngle,0.1)
 	sleep(0.1)
-	print("Current angle: "+currAngle)
+	print("Current angle: "+ str(currAngle))
+	
+	print(currAngle)
 """
