@@ -8,7 +8,7 @@ from picamera.array import PiRGBArray
 class Camera(): #instantiate camera
     '''
     Implementation of the base camera interface for the raspberry pi
-    V2 camera module.
+    V2.1 camera module.
     '''
 
     def __init__(self) -> None:
@@ -29,15 +29,15 @@ class Camera(): #instantiate camera
 
         return True
 
-    def capture_image(self, encode_jpg=True):
+    def capture_image(self, img_number):
         '''
         Performs capture from the camera.
         '''
-        raw_capture = PiRGBArray(self.camera)
 
-        #self.camera.capture(raw_capture, format="bgr") #SEND TO FILE
-        image = raw_capture.array
+        ext = '.jpg'
+        imgname = 'Images/picture%s%s' % (img_number, ext)  # format image name string
+        print(imgname)
 
-        self.camera.capture('picture.jpg')
+        self.camera.capture(imgname)
 
         #return image
