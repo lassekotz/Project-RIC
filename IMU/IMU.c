@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <wiringPi.h>
+#include <time.h>
 
 #define MPU 0x68	/*Device Address/Identifier for MPU6050*/
 
@@ -50,11 +51,17 @@ int main(){
 	float Gyro_x,Gyro_y,Gyro_z;
 	float Ax=0, Ay=0, Az=0;
 	float Gx=0, Gy=0, Gz=0;
+	float theta,thetaG
 	fd = wiringPiI2CSetup(Device_Address);   /*Initializes I2C with device Address*/
 	MPU6050_Init();		                 /* Initializes MPU6050 */
+	struct timeval t1, t2;
+    double elapsedTime;
+	gettimeofday(&t1, NULL);
 	
+
 	while(1)
 	{
+		
 		/*Read raw value of Accelerometer and gyroscope from MPU6050*/
 		Acc_x = read_raw_data(ACCEL_XOUT_H);
 		Acc_y = read_raw_data(ACCEL_YOUT_H);
@@ -72,10 +79,37 @@ int main(){
 		Gx = Gyro_x/131;
 		Gy = Gyro_y/131;
 		Gz = Gyro_z/131;
+		gettimeofday(&t2, NULL);
 		
-		printf("\n Gx=%.3f °/s\tGy=%.3f °/s\tGz=%.3f °/s\tAx=%.3f g\tAy=%.3f g\tAz=%.3f g\n",Gx,Gy,Gz,Ax,Ay,Az);
-		delay(500);
+
+		elapsedTime = (t2.tv_sec - t1.tv_sec)
+		thetaG = theta + GyroY * elapsedTime; // deg/s * s = deg
+
+  
+		// Complementary filter - combine acceleromter and gyro angle values
+
+		theta = 0.95 * thetaG + 0.05 * thetaA;
+
+		t1 = t2;
+
+		printf("\n Theta=%.3f °\tThetaG=%.3f °\tThetaA=%.3f °\ttime=%.3d s\n",theta,thetaG,thetaA,elapsedTime);
+		delay(100);
 		
 	}
 	return 0;
 }
+
+/*struct timeval t1, t2;
+    double elapsedTime;
+
+    // start timer
+    gettimeofday(&t1, NULL);
+
+    // do something
+    // ...
+
+    // stop timer
+    gettimeofday(&t2, NULL);
+
+    // compute and print the elapsed time in sec
+    elapsedTime = (t2.tv_sec - t1.tv_sec) 
