@@ -8,6 +8,7 @@ import IMU.IMU as imu
 import smbus2					#import SMBus module of I2C
 import math
 import actuation.dataCollection as actu
+import actuation.camera as cam
 
 
 
@@ -23,6 +24,7 @@ scheduler = sched.scheduler(time.time,
 imu_event = scheduler.enter(dt,1,
     currAngle=imu.Update_angle(currAngle,dt))
 
+snap_event = scheduler.enter(1,10,cam.camera.capture("shit.jpg"))
 
 #Insert shitty Lasse event functions here 
 
