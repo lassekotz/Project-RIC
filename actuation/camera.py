@@ -29,7 +29,7 @@ class Camera(): #instantiate camera
 
         return True
 
-    def capture_image(self, img_number):
+    def capture_image(self, img_number, resolution = (1920, 1080)):
         '''
         Performs capture from the camera.
         '''
@@ -37,7 +37,7 @@ class Camera(): #instantiate camera
         ext = '.jpg'
         imgname = 'Images/picture%s%s' % (img_number, ext)  # format image name string
         print(imgname)
-
+        self.camera.resolution = resolution
         self.camera.capture(imgname)
 
         #return image
