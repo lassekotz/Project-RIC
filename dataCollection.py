@@ -6,7 +6,7 @@ import time
 import IMU.IMU as imu
 import smbus2					#import SMBus module of I2C
 import math
-import actuation.dataCollection as actu
+#import actuation.dataCollection as actu
 import actuation.camera as cam
 from time import sleep
 import datetime
@@ -29,6 +29,6 @@ while(True):
     
     print(currAngle)
     t1 = t2
-    sleep(0.1)
+    sleep(0.001)
     
 

@@ -21,7 +21,8 @@ GYRO_XOUT_H  = 0x43
 GYRO_YOUT_H  = 0x45
 GYRO_ZOUT_H  = 0x47
 thetaOld = 0
-
+bus = smbus2.SMBus(1) 
+Device_Address = 0x68
 
 def MPU_Init():
 	#write to sample rate register
@@ -62,7 +63,7 @@ def Update_angle(thetaOld,dt):
 	acc_x = read_raw_data(ACCEL_XOUT_H)
 	acc_y = read_raw_data(ACCEL_YOUT_H)
 	acc_z = read_raw_data(ACCEL_ZOUT_H)
-	print(acc_x)
+
 	
 	#Read Gyroscope raw value
 	gyro_x = read_raw_data(GYRO_XOUT_H)
