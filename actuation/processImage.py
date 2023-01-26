@@ -23,16 +23,16 @@ def process_image(img, displayEdges = True):
 
     return canny_image #numpy.ndarray type
 
-def save_csv(image_array):
-    array_shape = image_array.shape
-    flattened_image = image_array.reshape(1, array_shape[0]*array_shape[1])
-    print(flattened_image.shape)
-    np.savetxt("../data/images.csv", flattened_image, delimiter=",")
+def save_data(image_array, image_nr):
+    ext = '.jpg'
+    savepath = "../ML/Train/Images/picture%s%s" % (image_nr, ext)
+    im = Image.fromarray(image_array)
+    im.save("../ML/Train/Images/picture%s%s" % (image_nr, ext))
+    print("Saved processed image to " + savepath)
 
 
 ##EXAMPLE:
-
-image_array = process_image('picture1.jpg', False)
-#save_csv(image_array)
-plt.imshow(image_array)
-plt.show()
+'''
+img = process_image('picture1.jpg', displayEdges = False)
+save_data(img, image_nr = 3)
+'''
