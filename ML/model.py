@@ -1,15 +1,30 @@
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
+import torch
+from torch import nn
 import numpy as np
+import pandas as pd
 
-model = tf.keras.Sequential([
-    tf.keras.layers.InputLayer(input_shape=(4,)),
-    tf.keras.layers.Dense(8)
-])
+#df = pd.read_csv('../data/images.csv')
+#print("shape is " + str(df.shape))
+#print(type(df.loc[0]))
+#print(df.head(2))
 
-model.compile(tf.keras.optimizers.RMSprop(0.001), loss='mse')
-model.fit(np.zeros((10, 4)),
-          np.ones((10, 8)))
+'''
+#df = pd.read_csv('../data/images.csv', sep=',', header=None)
+#print(type(df.loc[0]))
 
-model.summary()
+class Model(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.layer1 = nn.Conv2d(1, 1, (2,2))
+        #self.layer2
+        #self.layer3
+
+    def forward(self, x):
+        x = self.layer1(x)
+
+        return x
+
+
+#model = Model()
+#model.forward(x)
+'''
