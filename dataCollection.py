@@ -2,28 +2,68 @@
     Script to collect data needed for ML
 """
 
-import sched
 import time
 import IMU.IMU as imu
 import smbus2					#import SMBus module of I2C
 import math
-import actuation.dataCollection as actu
+import actuation.camera as cam
+from time import sleep
+import datetime
+from multiprocessing import Process
 
-
-
+'''
 bus = smbus2.SMBus(1) 	# or bus = smbus.SMBus(0) for older version boards
 Device_Address = 0x68   # MPU6050 device address
+imu.MPU_Init()
 currAngle = imu.setupGyroTheta()
-dt = 0.1 #Time step IMU
+time1 = datetime.datetime.now()
+#dt = 0.1 #Time step IMU
+camera = cam.Camera()
+camera.initialize()
+'''
+i = 0
+"""
+while(True):
+    t2 = datetime.datetime.now()
+    dt = (t2 - t1)
+    currAngle = imu.Update_angle(currAngle,dt.total_seconds())
+    
+    #
+    
+    print(currAngle)
+    t1 = t2
+    sleep(0.1)
+    i += 1
+   """ 
 
-scheduler = sched.scheduler(time.time,
-                            time.sleep)
+def runA():
+    bus = smbus2.SMBus(1) 	# or bus = smbus.SMBus(0) for older version boards
+    Device_Address = 0x68   # MPU6050 device address
+    imu.MPU_Init()
+    currAngle = imu.setupGyroTheta()
+    time1 = datetime.datetime.now()
+    while True:
+            time2 = datetime.datetime.now()
+            dt = (time2 - time1)
+            currAngle = imu.Update_angle(currAngle,dt.total_seconds())
+    
+            print(currAngle)
+            time1 = time2
+            sleep(0.001)
 
+def runB():
+    camera = cam.Camera()
+    camera.initialize()
+    i = 0
+    while True:
+        camera.capture_image(i , resolution = (960, 540))
+        i +=1
+        sleep(1)
 
-imu_event = scheduler.enter(dt,1,
-    currAngle=imu.Update_angle(currAngle,dt))
-
-
-#Insert shitty Lasse event functions here 
-
-scheduler.run()
+if __name__ == "__main__":
+    t1 = Process(target = runA)
+    t2 = Process(target = runB)
+    t1.start()
+    t2.start()
+    while True:
+        pass

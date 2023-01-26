@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <wiringPi.h>
-#include <time.h>
+#include <math.h>
 
 #define MPU 0x68	/*Device Address/Identifier for MPU6050*/
 
@@ -21,6 +21,12 @@
 #define GYRO_ZOUT_H  0x47
 
 int fd;
+	float Acc_x,Acc_y,Acc_z;
+	float Gyro_x,Gyro_y,Gyro_z;
+	float Ax=0, Ay=0, Az=0;
+	float Gx=0, Gy=0, Gz=0;
+	fd = wiringPiI2CSetup(0x68);   /*Initializes I2C with device Address*/                 /* Initializes MPU6050 */
+	double theta,thetaA,thetaG;
 
 void MPU6050_Init(){
 	
@@ -45,23 +51,12 @@ void ms_delay(int val){
 		for(j=0;j<1200;j++);
 }
 
-int main(){
-	
-	float Acc_x,Acc_y,Acc_z;
-	float Gyro_x,Gyro_y,Gyro_z;
-	float Ax=0, Ay=0, Az=0;
-	float Gx=0, Gy=0, Gz=0;
-	float theta,thetaG
-	fd = wiringPiI2CSetup(Device_Address);   /*Initializes I2C with device Address*/
-	MPU6050_Init();		                 /* Initializes MPU6050 */
-	struct timeval t1, t2;
-    double elapsedTime;
-	gettimeofday(&t1, NULL);
+
+
+int update_angle(thetaOld,dt){
 	
 
-	while(1)
-	{
-		
+	
 		/*Read raw value of Accelerometer and gyroscope from MPU6050*/
 		Acc_x = read_raw_data(ACCEL_XOUT_H);
 		Acc_y = read_raw_data(ACCEL_YOUT_H);
@@ -76,40 +71,23 @@ int main(){
 		Ay = Acc_y/16384.0;
 		Az = Acc_z/16384.0;
 		
-		Gx = Gyro_x/131;
-		Gy = Gyro_y/131;
-		Gz = Gyro_z/131;
-		gettimeofday(&t2, NULL);
-		
+		Gx = Gyro_x/131.0;
+		Gy = Gyro_y/131.0;
+		Gz = Gyro_z/131.0;
 
-		elapsedTime = (t2.tv_sec - t1.tv_sec)
-		thetaG = theta + GyroY * elapsedTime; // deg/s * s = deg
+		// Acc angle
+		thetaA = 180.0/3.1415* atan2(-AccX,sqrt(pow(AccY,2)+ pow(AccZ,2)));
 
-  
-		// Complementary filter - combine acceleromter and gyro angle values
+		// Gyro angle
+		thetaG = thetaOld + GyroY * dt; // deg/s * s = deg
 
+		// Complementary filter
 		theta = 0.95 * thetaG + 0.05 * thetaA;
-
-		t1 = t2;
-
-		printf("\n Theta=%.3f °\tThetaG=%.3f °\tThetaA=%.3f °\ttime=%.3d s\n",theta,thetaG,thetaA,elapsedTime);
-		delay(100);
 		
-	}
-	return 0;
+		printf("\n Theta=%.3d °\tThetaG=%.3d °\tThetaA=%.3d °\n",theta,thetaG,thetaA);
+		
+	return theta;
 }
 
-/*struct timeval t1, t2;
-    double elapsedTime;
 
-    // start timer
-    gettimeofday(&t1, NULL);
-
-    // do something
-    // ...
-
-    // stop timer
-    gettimeofday(&t2, NULL);
-
-    // compute and print the elapsed time in sec
-    elapsedTime = (t2.tv_sec - t1.tv_sec) 
+//gcc IMU.c -o IMU -l wiringPi -lm
