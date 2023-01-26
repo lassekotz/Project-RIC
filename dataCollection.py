@@ -6,7 +6,6 @@ import time
 import IMU.IMU as imu
 import smbus2					#import SMBus module of I2C
 import math
-#import actuation.dataCollection as actu
 import actuation.camera as cam
 from time import sleep
 import datetime
@@ -20,15 +19,19 @@ imu.MPU_Init()
 currAngle = imu.setupGyroTheta()
 t1 = datetime.datetime.now()
 #dt = 0.1 #Time step IMU
-
-
+camera = cam.Camera()
+camera.initialize()
+i = 0
 while(True):
     t2 = datetime.datetime.now()
     dt = (t2 - t1)
     currAngle = imu.Update_angle(currAngle,dt.total_seconds())
     
+    #camera.capture_image(i , resolution = (960, 540))
+    
     print(currAngle)
     t1 = t2
-    sleep(0.001)
+    sleep(0.1)
+    i += 1
     
 
