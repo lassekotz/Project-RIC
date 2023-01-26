@@ -33,4 +33,6 @@ def save_csv(image_array):
 ##EXAMPLE:
 
 image_array = process_image('picture1.jpg', False)
-save_csv(image_array)
+#save_csv(image_array)
+plt.imshow(image_array)
+plt.show()
