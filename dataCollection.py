@@ -9,7 +9,7 @@ import math
 import actuation.camera as cam
 from time import sleep
 import datetime
-from multiprocessing import Process
+from multiprocessing import Process, Value
 import serial
 ser = serial.Serial('/dev/ttyACM0',9600, timeout =.1)
 
@@ -23,6 +23,7 @@ def runA():
     bus = smbus2.SMBus(1) 	# or bus = smbus.SMBus(0) for older version boards
     Device_Address = 0x68   # MPU6050 device address
     imu.MPU_Init()
+    global currAngle
     currAngle = imu.setupGyroTheta()
     time1 = datetime.datetime.now()
     while True:
@@ -44,15 +45,28 @@ def runB():
         #writeToSerial("INSERT STEPS TO SEND HERE")
         sleep(1)
 
+def setupPendulum(angle, threshold):
+    while (abs(angle) > threshold):
+        if (angle < 0):
+            writeToSerial(1)
+        else:
+            writeToSerial(-1)
+            
+
+
+
 
 
 
 
 
 if __name__ == "__main__":
+    currAngle = Value('d', 0.0)
     t1 = Process(target = runA)
     t2 = Process(target = runB)
     t1.start()
+    setupPendulum(currAngle, 10)
+    t1.join()
     t2.start()
     while True:
         pass
