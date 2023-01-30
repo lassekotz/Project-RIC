@@ -9,8 +9,11 @@ import math
 import actuation.camera as cam
 from time import sleep
 import datetime
-from multiprocessing import Process, Value
+from multiprocessing import Process, Value, Manager, Pool, SimpleQueue
 import serial
+import random as rd
+
+
 ser = serial.Serial('/dev/ttyACM0',9600, timeout =.1)
 
 def writeToSerial(x): #Input a simple string with a number i.e "20"
@@ -19,21 +22,25 @@ def writeToSerial(x): #Input a simple string with a number i.e "20"
     return 0
 
 
-def runA():
+def runA(currAngle):
     bus = smbus2.SMBus(1) 	# or bus = smbus.SMBus(0) for older version boards
     Device_Address = 0x68   # MPU6050 device address
     imu.MPU_Init()
-    global currAngle
-    currAngle = imu.setupGyroTheta()
+    
+    #global currAngle
+    #currAngle = imu.setupGyroTheta()
     time1 = datetime.datetime.now()
     while True:
-            time2 = datetime.datetime.now()
-            dt = (time2 - time1)
-            currAngle = imu.Update_angle(currAngle,dt.total_seconds())
+        #print(currAngle)
+        time2 = datetime.datetime.now()
+        dt = (time2 - time1)
+        currAngle = imu.Update_angle(currAngle,dt.total_seconds())
     
-            print(currAngle)
-            time1 = time2
-            sleep(0.001)
+        time1 = time2
+        currAngleG.value = currAngle
+        sleep(0.001)
+        
+        
 
 def runB():
     camera = cam.Camera()
@@ -45,28 +52,41 @@ def runB():
         #writeToSerial("INSERT STEPS TO SEND HERE")
         sleep(1)
 
-def setupPendulum(angle, threshold):
-    while (abs(angle) > threshold):
-        if (angle < 0):
-            writeToSerial(1)
+def setupPendulum(currAngle, threshold):
+    while (abs(currAngle) > threshold):
+        #currAngle = imu.setupGyroTheta()
+        #print(currAngleG.value)
+        if (currAngleG.value <= 0):
+            writeToSerial(str(-10))
         else:
-            writeToSerial(-1)
+            writeToSerial(str(10))
             
-
-
-
-
-
-
-
+        time.sleep(1)
+        
+def gaussianMovement():
+    anglist = rd.gauss(0, 5)
+    
 
 if __name__ == "__main__":
-    currAngle = Value('d', 0.0)
-    t1 = Process(target = runA)
-    t2 = Process(target = runB)
+    threshold = Value('d', 10.0)
+    currAngleG = Value('d', imu.setupGyroTheta())
+        
+    t1 = Process(target = runA, args = (currAngleG.value, ))
+    t3 = Process(target = setupPendulum, args = (currAngleG.value, threshold.value))
+    t4 = 
+    
     t1.start()
-    setupPendulum(currAngle, 10)
-    t1.join()
-    t2.start()
+    t3.start()
+    t3.terminate()
+    t4.start()
+    
+    
+    
+    #t1.join()
+    #t3.join()
+
+    #t2.start()
     while True:
         pass
+
+
