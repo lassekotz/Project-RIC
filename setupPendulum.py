@@ -33,14 +33,21 @@ def runB():
 def reset_pendulum(threshold):
     imu.MPU_Init()
     currAngle = imu.setupGyroTheta()
-    #time1 = datetime.datetime.now()
+    time1 = datetime.datetime.now()
 
     t1 = Process(target=runA)
     #t2 = Process(target=runB)
 
     #while (abs(currAngle) > threshold):
     while True:
-        currAngle = t1.start()
+        time2 = datetime.datetime.now()
+        dt = (time2 - time1)
+        currAngle = imu.Update_angle(currAngle, dt.total_seconds())
+
+        sleep(0.001)
+
+        #return currAngle
+        
         if (abs(currAngle) > threshold):
             print("False")
         else:
