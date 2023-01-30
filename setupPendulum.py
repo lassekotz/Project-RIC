@@ -41,7 +41,9 @@ def reset_pendulum(threshold):
     #while (abs(currAngle) > threshold):
     while True:
         currAngle = t1.start()
-        if (abs(currAngle) > 5):
+        if (abs(currAngle) > threshold):
             print("False")
         else:
             print("True")
+
+reset_pendulum(10)
