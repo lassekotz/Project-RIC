@@ -9,11 +9,10 @@ const int stepsPerRevolution = 2038;
 Stepper motor1(stepsPerRevolution, 8, 10, 9, 11);
 Stepper motor2(stepsPerRevolution, 4,6,5,7); 
 
-int process[] = {300,-300,500,-500,100,-100};
-int j = 0;
+//int process[] = {300,-300,500,-500,100,-100};
+//int j = 0;
 
 
-// Choose speed
 
 
 
@@ -21,16 +20,11 @@ void setup() {
 	// Nothing to do (Stepper Library sets pins as outputs)
   motor1.setSpeed(5);
   motor2.setSpeed(5);
+  Serial.begin(9600);
 }
 
 void loop() {
-	// Rotate CW slowly at 5 RPM
-	move_steps(process[j]);
-  j++;
-  if(j==6){
-    j = 0;
-  }
-  delay(1000);
+
 }
 
 void move_steps(int num_steps){
@@ -50,6 +44,20 @@ void move_steps(int num_steps){
     }
   }
 }
+
+void serialEvent()
+{
+   while(Serial.available()) 
+   {
+      String desAngle = Serial.readString();
+      Serial.println(desAngle.toInt());
+      move_steps(desAngle.toInt());
+     
+   }
+}
+
+
+
 
 
 
