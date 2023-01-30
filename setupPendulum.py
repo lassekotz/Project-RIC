@@ -47,10 +47,10 @@ def reset_pendulum(threshold):
         sleep(0.001)
 
         #return currAngle
-        
+
         if (abs(currAngle) > threshold):
-            print("False")
+            print(currAngle)
         else:
-            print("True")
+            print(currAngle)
 
 reset_pendulum(10)
