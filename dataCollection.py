@@ -14,7 +14,7 @@ import serial
 import random as rd
 
 
-ser = serial.Serial('/dev/ttyACM0',9600, timeout =.1)
+ser = serial.Serial('/dev/ttyACM0',9600, timeout =.1, rtscts = True)
 
 def writeToSerial(x): #Input a simple string with a number i.e "20"
     ser.write( (x).encode())
@@ -52,7 +52,7 @@ def runB():
         #writeToSerial("INSERT STEPS TO SEND HERE")
         sleep(1)
 
-def setupPendulum(threshold):
+def setupPendulum(threshold, nr_of_samples):
     print("starting setup process")
     while (abs(currAngleG.value) > threshold):
 
@@ -63,9 +63,8 @@ def setupPendulum(threshold):
         print(currAngleG.value)
         time.sleep(1)
     print("finished setup process")
-        
-def gaussianMovement(nr_of_samples):
-    print("in gauss process")
+    
+    print("starting gauss process")
     anglist = []
     i = 0
     while (i < nr_of_samples):
@@ -82,25 +81,18 @@ def gaussianMovement(nr_of_samples):
         time.sleep(5)
         
         i += 1
-        
             
-
-
 if __name__ == "__main__":
-    threshold = Value('d', 0.0)
+    threshold = Value('d', 10.0)
     currAngleG = Value('d', imu.setupGyroTheta())
         
     t1 = Process(target = runA, args = (currAngleG.value, ))
-    t3 = Process(target = setupPendulum, args = (threshold.value,))
-    t4 = Process(target = gaussianMovement, args = (3,))
+    t3 = Process(target = setupPendulum, args = (threshold.value, 3))
     
     t1.start()
     t3.start()
-    t3.join() 
-    #t3.terminate()
-    #t3.close()
-    
-    t4.start()
+
+
     
     #t2.start()
     while True:
