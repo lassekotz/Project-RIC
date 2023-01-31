@@ -51,7 +51,7 @@ void serialEvent()
    {
       String desAngle = Serial.readString();
       Serial.println(desAngle.toInt());
-      if (abs(desAngle.toInt()) < 15)
+      if (abs(desAngle.toInt()) < 1000)
       {
         move_steps(desAngle.toInt());
      }

@@ -26,18 +26,16 @@ def runA(currAngle):
     bus = smbus2.SMBus(1) 	# or bus = smbus.SMBus(0) for older version boards
     Device_Address = 0x68   # MPU6050 device address
     imu.MPU_Init()
-    
-    #global currAngle
-    #currAngle = imu.setupGyroTheta()
+
     time1 = datetime.datetime.now()
     while True:
-        #print(currAngle)
         time2 = datetime.datetime.now()
         dt = (time2 - time1)
         currAngle = imu.Update_angle(currAngle,dt.total_seconds())
     
         time1 = time2
         currAngleG.value = currAngle
+                
         sleep(0.001)
         
         
@@ -52,42 +50,46 @@ def runB():
         #writeToSerial("INSERT STEPS TO SEND HERE")
         sleep(1)
 
-def setupPendulum(threshold, nr_of_samples):
-    print("starting setup process")
+def movePendulum(threshold, nr_of_samples):
+    step_tick_size = 5
+    mu = 0
+    std = 5
+    
+    print("Calibrating pendulum to invert... please stand by")
     while (abs(currAngleG.value) > threshold):
 
         if (currAngleG.value <= 0):
-            writeToSerial(str(-10))
+            writeToSerial(str(step_tick_size))
         else:
-            writeToSerial(str(10))
-        print(currAngleG.value)
+            writeToSerial(str(-step_tick_size))
         time.sleep(1)
-    print("finished setup process")
+    print("Finished calibration")
     
-    print("starting gauss process")
-    anglist = []
-    i = 0
+    i = 0 #nr of samples
     while (i < nr_of_samples):
-        nextPos = rd.gauss(0, 5)
+        time.sleep(3)
+        nextPos = rd.gauss(mu, std)
         while (abs(nextPos) > 85):
             nextPos = rd.gauss(0,5)
-        angDist = currAngleG.value - nextPos
+        angDist = nextPos - currAngleG.value
         nr_of_steps = angDist/(360/2048)
-        print("Current angle: " + str(currAngleG.value) + " degrees.")
-        print("Next gaussian-generated position: " + str(nextPos) + " degrees.")
-        print("Moving " + str(angDist) + " degrees")
-        print()
-        writeToSerial(str(round(nr_of_steps)))
-        time.sleep(5)
-        
+        nr_of_ticks = nr_of_steps/step_tick_size
+
+        j = 0 #nr of tick
+        print("=============")
+        while (j < abs(nr_of_steps)/step_tick_size):
+            print("Sample " + str(i + 1) + "   |   " + "tick: " + str(j) + "/" + str(round(abs(nr_of_steps)/step_tick_size)))
+            writeToSerial(str(round(nr_of_ticks)))
+            time.sleep(1)
+            j += 1
         i += 1
             
 if __name__ == "__main__":
-    threshold = Value('d', 10.0)
+    threshold = Value('d', 1.0)
     currAngleG = Value('d', imu.setupGyroTheta())
         
     t1 = Process(target = runA, args = (currAngleG.value, ))
-    t3 = Process(target = setupPendulum, args = (threshold.value, 3))
+    t3 = Process(target = movePendulum, args = (threshold.value, 20))
     
     t1.start()
     t3.start()
