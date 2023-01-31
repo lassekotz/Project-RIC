@@ -52,41 +52,57 @@ def runB():
         #writeToSerial("INSERT STEPS TO SEND HERE")
         sleep(1)
 
-def setupPendulum(currAngle, threshold):
-    while (abs(currAngle) > threshold):
-        #currAngle = imu.setupGyroTheta()
-        #print(currAngleG.value)
+def setupPendulum(threshold):
+    print("starting setup process")
+    while (abs(currAngleG.value) > threshold):
+
         if (currAngleG.value <= 0):
             writeToSerial(str(-10))
         else:
             writeToSerial(str(10))
-            
+        print(currAngleG.value)
         time.sleep(1)
+    print("finished setup process")
         
-def gaussianMovement():
-    anglist = rd.gauss(0, 5)
-    
+def gaussianMovement(nr_of_samples):
+    print("in gauss process")
+    anglist = []
+    i = 0
+    while (i < nr_of_samples):
+        nextPos = rd.gauss(0, 5)
+        while (abs(nextPos) > 85):
+            nextPos = rd.gauss(0,5)
+        angDist = currAngleG.value - nextPos
+        nr_of_steps = angDist/(360/2048)
+        print("Current angle: " + str(currAngleG.value) + " degrees.")
+        print("Next gaussian-generated position: " + str(nextPos) + " degrees.")
+        print("Moving " + str(angDist) + " degrees")
+        print()
+        writeToSerial(str(round(nr_of_steps)))
+        time.sleep(5)
+        
+        i += 1
+        
+            
+
 
 if __name__ == "__main__":
-    threshold = Value('d', 10.0)
+    threshold = Value('d', 0.0)
     currAngleG = Value('d', imu.setupGyroTheta())
         
     t1 = Process(target = runA, args = (currAngleG.value, ))
-    t3 = Process(target = setupPendulum, args = (currAngleG.value, threshold.value))
-    t4 = 
+    t3 = Process(target = setupPendulum, args = (threshold.value,))
+    t4 = Process(target = gaussianMovement, args = (3,))
     
     t1.start()
     t3.start()
-    t3.terminate()
+    t3.join() 
+    #t3.terminate()
+    #t3.close()
+    
     t4.start()
     
-    
-    
-    #t1.join()
-    #t3.join()
-
     #t2.start()
     while True:
         pass
-
 
