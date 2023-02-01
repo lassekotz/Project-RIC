@@ -54,6 +54,8 @@ def movePendulum(threshold, nr_of_samples):
     step_tick_size = 5
     mu = 0
     std = 5
+    camera = cam.Camera()
+    camera.initialize()
     
     print("Calibrating pendulum to invert... please stand by")
     while (abs(currAngleG.value) > threshold):
@@ -66,6 +68,7 @@ def movePendulum(threshold, nr_of_samples):
     print("Finished calibration")
     
     i = 0 #nr of samples
+    f = open('anglesList.txt', 'w')
     while (i < nr_of_samples):
         time.sleep(3)
         nextPos = rd.gauss(mu, std)
@@ -77,11 +80,17 @@ def movePendulum(threshold, nr_of_samples):
 
         j = 0 #nr of tick
         print("=============")
-        while (j < abs(nr_of_steps)/step_tick_size):
+        while (j < abs(nr_of_ticks)):
             print("Sample " + str(i + 1) + "   |   " + "tick: " + str(j) + "/" + str(round(abs(nr_of_steps)/step_tick_size)))
-            writeToSerial(str(round(nr_of_ticks)))
+            if (nr_of_ticks < 0):
+                writeToSerial(str(-step_tick_size))
+            else:
+                writeToSerial(str(step_tick_size))
             time.sleep(1)
             j += 1
+        
+        camera.capture_image(i , resolution = (960, 540))
+        f.write(str(currAngleG.value) + "\n")
         i += 1
             
 if __name__ == "__main__":
@@ -89,14 +98,12 @@ if __name__ == "__main__":
     currAngleG = Value('d', imu.setupGyroTheta())
         
     t1 = Process(target = runA, args = (currAngleG.value, ))
-    t3 = Process(target = movePendulum, args = (threshold.value, 20))
+    t3 = Process(target = movePendulum, args = (threshold.value, 1000))
     
     t1.start()
     t3.start()
 
 
-    
-    #t2.start()
     while True:
         pass
 
