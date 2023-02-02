@@ -1,3 +1,4 @@
+import pickle
 from torch.utils.data import Dataset, DataLoader
 from itertools import chain
 from pathlib import Path
@@ -87,3 +88,5 @@ class ImagesDataset(Dataset):
 
 data_transforms = Compose([ToTensor()])
 example_dataset = ImagesDataset('./Train', data_transforms)
+f = open('Train/dataobject.obj', 'wb')
+pickle.dump(example_dataset, f)

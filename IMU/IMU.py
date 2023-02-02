@@ -80,9 +80,9 @@ def Update_angle(thetaOld,dt):
 	GyroZ = gyro_z/131.0
 
 
-	thetaA = 180/3.1415* math.atan2(-AccX,math.sqrt(math.pow(AccY,2)+ math.pow(AccZ,2))) #Acceleromter angle 
+	thetaA = 180/3.1415* math.atan2(-AccY,math.sqrt(math.pow(AccX,2)+ math.pow(AccZ,2))) #Acceleromter angle 
 
-	thetaG = thetaOld + GyroY * dt # Gyro angle [deg/s * s = deg]
+	thetaG = thetaOld + GyroX * dt # Gyro angle [deg/s * s = deg]
 
 	theta = 0.95 * thetaG + 0.05 * thetaA #Complementary filter 
 	return theta
