@@ -6,6 +6,8 @@ from torchvision.transforms import Compose, ToTensor
 from torchvision import transforms
 import os
 import matplotlib.pyplot as plt
+from torch.optim.lr_scheduler import StepLR
+import torch.nn.functional as F
 
 class ImagesDataset(Dataset):
 
@@ -160,34 +162,67 @@ class LinearModel(torch.nn.Module):
 
         return o
 
-def train_one_epoch(print_freq, train_dataloader, model, optim):
+class CNN(torch.nn.Module):
+    def __init__(self, channel_size = 3, kernel_size = 3, filter_size = 10, stride = 1, maxpool_size = 2):
+        super().__init__()
+
+        self.loss_fn = nn.L1Loss()
+
+        img_size = 64
+        padding_size = 0
+        f = lambda input_size: (input_size - kernel_size + 2 * padding_size) / stride + 1
+
+        self.conv1 = nn.Conv2d(channel_size, filter_size, kernel_size, stride)
+        self.conv2 = nn.Conv2d(filter_size, filter_size, kernel_size, stride)
+        self.pool = nn.MaxPool2d(maxpool_size, maxpool_size)
+        a = int(((f(f(img_size)) / maxpool_size) ** 2) * filter_size)
+        self.output = nn.Linear(a, 1)
+
+    def forward(self, input):
+        o = F.relu(self.conv1(input))
+        o = F.relu(self.conv2(o))
+        o = self.pool(o)
+        o = torch.flatten(o, 1)
+        size = o.size()
+        if input.size()[0] == 3:
+            o = torch.reshape(o, (size[0] * size[1], 1))
+            o = torch.transpose(o, 0, 1)
+        o = self.output(o)
+        o = torch.reshape(o, (-1,))
+        m = nn.Sigmoid()
+        o = m(o)
+        return o
+
+def train_one_epoch(print_freq, train_dataloader, model, optim, scheduler):
     cumulative_loss = 0
     current_loss = 0
 
     for i, datapoint in enumerate(train_dataloader):
         inputs, labels = datapoint
-        inputs = torch.flatten(inputs, start_dim=1, end_dim=-1)
-
+        #
+        #inputs = torch.flatten(inputs, start_dim=1, end_dim=-1)
+        #
         preds = model.forward(inputs)
         loss = model.loss_fn(preds, labels.float().unsqueeze(1))
         loss.backward()
         optim.step()
+        scheduler.step()
         cumulative_loss += loss.item()
 
         if (i%print_freq == 0):
             current_loss = cumulative_loss/print_freq
-            print('batch: {} loss: {}'.format(i+1, current_loss))
+            print('batch: {} training loss: {}'.format(i+1, current_loss))
 
             cumulative_loss = 0
 
     return current_loss
 
-def train_full_epochs(nr_of_epochs, print_freq, train_dataloader, model, optim):
+def train_full_epochs(nr_of_epochs, print_freq, train_dataloader, model, optim, scheduler):
     losslist = []
     for j in range(nr_of_epochs):
         print("======================")
-        print("EPOCH {}".format(j+1))
-        latest_loss = train_one_epoch(print_freq, train_dataloader, model, optim)
+        print("EP0CH {}".format(j+1))
+        latest_loss = train_one_epoch(print_freq, train_dataloader, model, optim, scheduler)
         losslist.append(latest_loss)
 
     return losslist
@@ -215,25 +250,30 @@ transform_resize_greyscale_normalize = transforms.Compose([
 
 all_transforms = [ImagesDataset(train_path, transform_resize_greyscale_normalize), ImagesDataset(train_path, transform_random), ImagesDataset(train_path, transform_center), ImagesDataset(train_path, Compose([ToTensor()]))]
 
+no_transform = ImagesDataset(train_path, Compose([ToTensor()]))
+
 for i in range(1):
     compare_transforms(all_transforms, i)
 
 
-train_dataset = ImagesDataset(train_path, transform_resize_greyscale_normalize)
-train_dataloader = DataLoader(train_dataset, batch_size=16, shuffle=True)
+#train_dataset = ImagesDataset(train_path, transform_resize_greyscale_normalize)
+train_dataset = ImagesDataset(train_path, Compose([ToTensor()]))
+train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 image_size = (train_dataset.__getitem__(0)[0]).numel()
-model = LinearModel(image_size)
-optim = torch.optim.Adam(model.parameters(), lr = 0.00001)
+linear_model = LinearModel(image_size)
+CNN_model = CNN()
+optim = torch.optim.Adam(linear_model.parameters(), lr = 0.0001)
 
-## TRAINING
-
-epochs = 20
+## HYPERPARAMETERS
+step_size = 10
+gamma = 0.5
+lr_scheduler_stepLR = StepLR(optim, step_size, gamma)
+epochs = 50
 print_freq = 1
-losslist = train_full_epochs(epochs, print_freq, train_dataloader, model, optim)
+losslist = train_full_epochs(epochs, print_freq, train_dataloader, CNN_model, optim, scheduler=lr_scheduler_stepLR)
 plt.plot(losslist)
 plt.show()
-'''
-test_x = train_dataset.__getitem__(1)[0].flatten()
-test_pred = model.forward(test_x)
-test_label = torch.Tensor(train_dataset.__getitem__(1)[])
-'''
+
+for name, parameter in CNN_model.named_parameters():
+    print(name, parameter)
+
