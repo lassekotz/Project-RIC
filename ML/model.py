@@ -7,7 +7,6 @@ from torchvision import transforms
 import os
 import matplotlib.pyplot as plt
 
-
 class ImagesDataset(Dataset):
 
     def __init__(self, root, transform):
@@ -183,12 +182,12 @@ def train_one_epoch(print_freq, train_dataloader, model, optim):
 
     return current_loss
 
-def train_full_epochs(nr_of_epochs, print_freq):
+def train_full_epochs(nr_of_epochs, print_freq, train_dataloader, model, optim):
     losslist = []
     for j in range(nr_of_epochs):
         print("======================")
         print("EPOCH {}".format(j+1))
-        latest_loss = train_one_epoch(print_freq)
+        latest_loss = train_one_epoch(print_freq, train_dataloader, model, optim)
         losslist.append(latest_loss)
 
     return losslist
@@ -215,25 +214,25 @@ transform_resize_greyscale_normalize = transforms.Compose([
 ])
 
 all_transforms = [ImagesDataset(train_path, transform_resize_greyscale_normalize), ImagesDataset(train_path, transform_random), ImagesDataset(train_path, transform_center), ImagesDataset(train_path, Compose([ToTensor()]))]
-compare_transforms(all_transforms, 1)
+
+for i in range(1):
+    compare_transforms(all_transforms, i)
 
 
-
-'''
+train_dataset = ImagesDataset(train_path, transform_resize_greyscale_normalize)
 train_dataloader = DataLoader(train_dataset, batch_size=16, shuffle=True)
-input_size = torch.numel(train_dataset.__getitem__(0)[0])
-
-model = LinearModel()
-optim = torch.optim.Adam(model.parameters(), lr = 0.00000001)
+image_size = (train_dataset.__getitem__(0)[0]).numel()
+model = LinearModel(image_size)
+optim = torch.optim.Adam(model.parameters(), lr = 0.00001)
 
 ## TRAINING
 
-epochs = 50
+epochs = 20
 print_freq = 1
-losslist = train_full_epochs(epochs, print_freq)
+losslist = train_full_epochs(epochs, print_freq, train_dataloader, model, optim)
 plt.plot(losslist)
 plt.show()
-
+'''
 test_x = train_dataset.__getitem__(1)[0].flatten()
 test_pred = model.forward(test_x)
 test_label = torch.Tensor(train_dataset.__getitem__(1)[])
