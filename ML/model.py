@@ -6,10 +6,7 @@ from torchvision.transforms import Compose, ToTensor
 from torchvision import transforms
 import os
 import matplotlib.pyplot as plt
-from torch.optim.lr_scheduler import StepLR
 import torch.nn.functional as F
-from torchvision.datasets import MNIST
-from torch.autograd import Variable
 
 class ImagesDataset(Dataset):
 
@@ -140,17 +137,58 @@ def compare_transforms(transformations, index):
     plt.show()
 
 class LinearModel(torch.nn.Module):
-    def __init__(self, input_size, out_size):
+    def __init__(self, dataset):
         super().__init__()
 
-        self.layer1 = nn.Linear(in_features=input_size, out_features= out_size)
-        self.loss_fn = nn.CrossEntropyLoss()
+        if dataset.__getitem__(0)[0].dim() == 3:
+            h, w = (dataset.__getitem__(0)[0]).size()[1], (dataset.__getitem__(0)[0]).size()[2]
+
+        self.layer1 = nn.Linear(in_features=h*w*3, out_features= 1)
+        self.loss_fn = nn.L1Loss()
 
     def forward(self, x):
         a1 = self.layer1(x)
         o = a1
 
         return o
+
+def generate_transforms(image_path):
+
+    # TRANSFORMS
+    transform_random = transforms.Compose([
+        transforms.RandomResizedCrop(64),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ])
+    transform_center = transforms.Compose([
+        transforms.CenterCrop(64),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ])
+    transform_resize_greyscale_normalize = transforms.Compose([
+        transforms.Resize((64, 64)),
+        transforms.Grayscale(3),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ])
+    all_transforms = [ImagesDataset(image_path, transform_resize_greyscale_normalize),
+                      ImagesDataset(image_path, transform_random), ImagesDataset(image_path, transform_center),
+                      ImagesDataset(image_path, Compose([ToTensor()]))]
+    no_transform = ImagesDataset(image_path, Compose([ToTensor()]))
+
+    return all_transforms, no_transform, transform_resize_greyscale_normalize
+
+def generate_dataloader(dataset, batch_size, props = [0.8, 0.1, 0.1]):
+
+
+    lengths = [int(p * len(dataset)) for p in props]
+    lengths[-1] = len(dataset) - sum(lengths[:-1])
+    train_set, val_set, test_set = random_split(dataset, lengths, generator=torch.Generator().manual_seed(42))
+    train_loader = DataLoader(train_set, batch_size, shuffle=True)
+    val_loader = DataLoader(val_set, batch_size, shuffle=False)
+    test_loader = DataLoader(test_set)
+
+    return train_loader, val_loader, test_loader
 
 class CNN(torch.nn.Module):
     def __init__(self, channel_size = 3, kernel_size = 3, filter_size = 10, stride = 1, maxpool_size = 2):
@@ -183,90 +221,61 @@ class CNN(torch.nn.Module):
         o = m(o)
         return o
 
-def train(val_freq, train_loader, model, optimizer, test_loader, val_loader):
-    iter = 0
+def train(val_freq, train_loader, model, optimizer, val_loader):
+    train_losses = []
+    val_losses = []
     for epoch in range(int(epochs)):
+        print("===================")
+        print("Epoch {} out of {}".format(epoch, epochs))
         running_loss = 0
+        iter = 0
         for i, (inputs, labels) in enumerate(train_loader):
-            #inputs = Variable(inputs.view(-1, 28*28))
-            inputs = inputs.flatten(1,3)
-            labels = Variable(labels)
+            inputs = inputs.flatten(2,3)
+            labels = torch.unsqueeze(labels, 0)
             optimizer.zero_grad()
-
-            preds = model.forward(inputs)
-
-            loss = model.loss_fn(preds, labels)
+            preds = model.forward(inputs.flatten(1,2))
+            loss = model.loss_fn(preds, torch.transpose(labels, 0, 1))
             loss.backward()
             optimizer.step()
-
             running_loss += loss.item()
-
             iter += 1
             if iter % val_freq == 0:
-                # calculate Accuracy
-                correct = 0
-                total = 0
+                total_mae = 0
+                s = 0
                 for inputs, labels in val_loader:
-                    inputs = Variable(inputs.view(-1, 28*28))
-                    outputs = model.forward(inputs)
-                    _, predicted = torch.max(outputs.data, 1)
-                    total += labels.size(0)
-                    # for gpu, bring the predicted and labels back to cpu fro python operations to work
-                    correct += (predicted == labels).sum()
-                accuracy = 100 * correct / total
-                print("Iteration: {}. Loss: {}. Accuracy: {}.".format(iter, loss.item(), accuracy))
+                    inputs = inputs.flatten(2,3)
+                    preds = model.forward(inputs.flatten(1,2))
+                    labels = torch.unsqueeze(labels, 0)
+                    mae = model.loss_fn(preds, torch.transpose(labels, 0, 1))
+                    total_mae += mae
+                    s += 1
 
-train_path = './Train'
-# TRANSFORMS
-transform_random = transforms.Compose([
-        transforms.RandomResizedCrop(64),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-        ])
-transform_center = transforms.Compose([
-        transforms.CenterCrop(64),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-        ])
-transform_resize_greyscale_normalize = transforms.Compose([
-    transforms.Resize((64, 64)),
-    #transforms.Grayscale(3),
-    transforms.ToTensor(),
-    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-])
-all_transforms = [ImagesDataset(train_path, transform_resize_greyscale_normalize), ImagesDataset(train_path, transform_random), ImagesDataset(train_path, transform_center), ImagesDataset(train_path, Compose([ToTensor()]))]
-no_transform = ImagesDataset(train_path, Compose([ToTensor()]))
+                iter_mae = total_mae/s
+                print("Iteration: {}. train_loss: {}. val_loss: {}.".format(iter, loss.item(), iter_mae))
 
-#for i in range(1):
-#    compare_transforms(all_transforms, i)
+                train_losses.append(loss.item())
+                val_losses.append(iter_mae.item())
 
-
-##SPLIT DATASET
-dataset = ImagesDataset(train_path, transform_resize_greyscale_normalize)
-props = [0.8, 0.1, 0.1]
-lengths = [int(p * len(dataset)) for p in props]
-lengths[-1] = len(dataset) - sum(lengths[:-1])
-train_set, val_set, test_set = random_split(dataset, lengths, generator=torch.Generator().manual_seed(42))
-#train_loader = DataLoader(train_set)
-#val_loader = DataLoader(val_set)
-test_loader = DataLoader(test_set)
+    return train_losses, val_losses
 
 batch_size = 32
-
-train_dataset = MNIST(root='./data', train=True, transform=transforms.ToTensor(), download=True)
-val_dataset = MNIST(root='./data', train=False, transform=transforms.ToTensor())
-train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
-val_loader = torch.utils.data.DataLoader(dataset=val_dataset, batch_size=batch_size, shuffle=False)
-
-#torch.save(dataloader, './dataloader.pth')
-
-linear_model = LinearModel(28*28, 10)
-
-## HYPERPARAMETERS
-optim = torch.optim.SGD(linear_model.parameters(), lr = 0.001)
+img_size = 64
 step_size = 10
 gamma = 0.5
-epochs = 50
+epochs = 2
 print_freq = 1
 
-train(100, train_loader, linear_model, optim, test_loader, val_loader)
+image_path = './Train'
+all_transforms, no_transform, transform_resize_greyscale_normalize = generate_transforms(image_path)
+dataset = ImagesDataset(image_path, transform_resize_greyscale_normalize)
+train_loader, val_loader, test_loader = generate_dataloader(dataset, batch_size, [.8, .1, .1])
+
+#TRAIN
+linear_model = LinearModel(dataset)
+optim = torch.optim.SGD(linear_model.parameters(), lr = 0.001)
+train_losses, val_losses = train(5, train_loader, linear_model, optim, val_loader)
+
+plt.plot(train_losses)
+plt.plot(val_losses)
+plt.legend(['MAE_train','MAE_val'])
+plt.show()
