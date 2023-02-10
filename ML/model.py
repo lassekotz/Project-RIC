@@ -136,22 +136,6 @@ def compare_transforms(transformations, index):
 
     plt.show()
 
-class LinearModel(torch.nn.Module):
-    def __init__(self, dataset):
-        super().__init__()
-
-        if dataset.__getitem__(0)[0].dim() == 3:
-            h, w = (dataset.__getitem__(0)[0]).size()[1], (dataset.__getitem__(0)[0]).size()[2]
-
-        self.layer1 = nn.Linear(in_features=h*w*3, out_features= 1)
-        self.loss_fn = nn.L1Loss()
-
-    def forward(self, x):
-        a1 = self.layer1(x)
-        o = a1
-
-        return o
-
 def generate_transforms(image_path):
 
     # TRANSFORMS
@@ -180,7 +164,6 @@ def generate_transforms(image_path):
 
 def generate_dataloader(dataset, batch_size, props = [0.8, 0.1, 0.1]):
 
-
     lengths = [int(p * len(dataset)) for p in props]
     lengths[-1] = len(dataset) - sum(lengths[:-1])
     train_set, val_set, test_set = random_split(dataset, lengths, generator=torch.Generator().manual_seed(42))
@@ -189,6 +172,22 @@ def generate_dataloader(dataset, batch_size, props = [0.8, 0.1, 0.1]):
     test_loader = DataLoader(test_set)
 
     return train_loader, val_loader, test_loader
+
+class LinearModel(torch.nn.Module):
+    def __init__(self, dataset):
+        super().__init__()
+
+        if dataset.__getitem__(0)[0].dim() == 3:
+            h, w = (dataset.__getitem__(0)[0]).size()[1], (dataset.__getitem__(0)[0]).size()[2]
+
+        self.layer1 = nn.Linear(in_features=h*w*3, out_features= 1)
+        self.loss_fn = nn.L1Loss()
+
+    def forward(self, x):
+        a1 = self.layer1(x)
+        o = a1
+
+        return o
 
 class CNN(torch.nn.Module):
     def __init__(self, channel_size = 3, kernel_size = 3, filter_size = 10, stride = 1, maxpool_size = 2):
@@ -221,12 +220,14 @@ class CNN(torch.nn.Module):
         o = m(o)
         return o
 
-def train(val_freq, train_loader, model, optimizer, val_loader):
+def training_loop(val_freq, train_loader, model, optimizer, val_loader):
     train_losses = []
     val_losses = []
     for epoch in range(int(epochs)):
         print("===================")
         print("Epoch {} out of {}".format(epoch, epochs))
+
+
         running_loss = 0
         iter = 0
         for i, (inputs, labels) in enumerate(train_loader):
@@ -265,7 +266,7 @@ gamma = 0.5
 epochs = 2
 print_freq = 1
 
-image_path = './Train'
+image_path = './Data/BigDataset'
 all_transforms, no_transform, transform_resize_greyscale_normalize = generate_transforms(image_path)
 dataset = ImagesDataset(image_path, transform_resize_greyscale_normalize)
 train_loader, val_loader, test_loader = generate_dataloader(dataset, batch_size, [.8, .1, .1])
@@ -273,7 +274,7 @@ train_loader, val_loader, test_loader = generate_dataloader(dataset, batch_size,
 #TRAIN
 linear_model = LinearModel(dataset)
 optim = torch.optim.SGD(linear_model.parameters(), lr = 0.001)
-train_losses, val_losses = train(5, train_loader, linear_model, optim, val_loader)
+train_losses, val_losses = training_loop(5, train_loader, linear_model, optim, val_loader)
 
 plt.plot(train_losses)
 plt.plot(val_losses)
