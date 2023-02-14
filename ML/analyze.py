@@ -15,6 +15,7 @@ def view_label_distr(filepath, bins = 10):
     plt.hist(vals_np, bins = bins)
 
     plt.legend(['mean = %.2f' %mean, 'label distr.'])
+    plt.title('Distribution of angles in dataset ' + str(filepath))
     plt.show()
 
 filepath = './Data/BigDataset/labels.txt'
