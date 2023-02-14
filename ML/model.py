@@ -176,7 +176,7 @@ def generate_dataloader(dataset, batch_size, props = [0.8, 0.1, 0.1]):
 class LinearModel(torch.nn.Module):
     def __init__(self, dataset):
         super().__init__()
-
+        print()
         if dataset.__getitem__(0)[0].dim() == 3:
             h, w = (dataset.__getitem__(0)[0]).size()[1], (dataset.__getitem__(0)[0]).size()[2]
 
@@ -184,99 +184,112 @@ class LinearModel(torch.nn.Module):
         self.loss_fn = nn.L1Loss()
 
     def forward(self, x):
+
+        x = torch.flatten(x, 1, 3)
         a1 = self.layer1(x)
         o = a1
 
         return o
 
+def conv_shape(x, k=1, p=0, s=1, d=1):
+    return int((x + 2 * p - d * (k - 1) - 1) / s + 1)  # helper function to have to generalize Linear layer in a CNN. Recursion needs to be implemented.
+
 class CNN(torch.nn.Module):
-    def __init__(self, channel_size = 3, kernel_size = 3, filter_size = 10, stride = 1, maxpool_size = 2):
+    def __init__(self, channel_size=3, kernel_size=3, filter_size=10, stride=1, maxpool_size=2):
         super().__init__()
 
         self.loss_fn = nn.L1Loss()
 
-        img_size = 64
-        padding_size = 0
-        f = lambda input_size: (input_size - kernel_size + 2 * padding_size) / stride + 1
+        #img_size = 64
+        #last_filter_size = 10
+        #padding_size = 0
 
         self.conv1 = nn.Conv2d(channel_size, filter_size, kernel_size, stride)
         self.conv2 = nn.Conv2d(filter_size, filter_size, kernel_size, stride)
         self.pool = nn.MaxPool2d(maxpool_size, maxpool_size)
-        a = int(((f(f(img_size)) / maxpool_size) ** 2) * filter_size)
-        self.output = nn.Linear(a, 1)
 
-    def forward(self, input):
-        o = F.relu(self.conv1(input))
-        o = F.relu(self.conv2(o))
+    def forward(self, x):
+        o = self.conv1(x)
+        o = F.relu(o)
+        o = self.conv2(o)
+        o = F.relu(o)
         o = self.pool(o)
-        o = torch.flatten(o, 1)
-        size = o.size()
-        if input.size()[0] == 3:
-            o = torch.reshape(o, (size[0] * size[1], 1))
-            o = torch.transpose(o, 0, 1)
-        o = self.output(o)
-        o = torch.reshape(o, (-1,))
-        m = nn.Sigmoid()
-        o = m(o)
+
+        if len(x.shape) == 4:
+            o = torch.flatten(o, 1, 3)
+            out_layer = nn.Linear(o.size(dim=1), 1)
+        elif len(x.shape) == 3:
+            o = torch.flatten(o, 0, 2)
+            out_layer = nn.Linear(o.size(dim = 0), 1)
+
+
+
+        o = out_layer(o)
         return o
 
-def training_loop(val_freq, train_loader, model, optimizer, val_loader):
+def validate(model, loss_fn, val_loader, device):
+    val_loss_cum = 0
+    model.eval()
+    with torch.no_grad():
+        for batch__index, (x,y) in enumerate(val_loader, 1):
+            inputs, labels = x.to(device), torch.transpose(torch.unsqueeze(y.to(device), 0), 1, 0)
+            z = model.forward(inputs)
+            batch_loss = loss_fn(z, labels)
+            val_loss_cum += batch_loss.item()
+
+    return val_loss_cum/len(val_loader)
+
+
+def train_epoch(model, optimizer, loss_fn, train_loader, device, val_loader, print_every):
+    model.train()
+    train_loss_batches = []
+    train_loss_cum = 0
+    num_batches = len(train_loader)
+
+    for batch_index, (x,y) in enumerate(train_loader, 1):
+        optimizer.zero_grad()
+        inputs, labels = x.to(device), torch.transpose(torch.unsqueeze(y.to(device), 0), 1, 0)
+        z = model.forward(inputs)
+        loss = loss_fn(z, labels)
+        loss.backward()
+        optimizer.step()
+
+        train_loss_cum += loss.item()
+        train_loss_batches.append(loss.item())
+
+        if (batch_index % print_every) == 0:
+            val_loss = validate(model, loss_fn, val_loader, device)
+            model.train() #validate() goes into model.eval() mode so we need to reset to train ehre
+            print(f"\tBatch {batch_index}/{num_batches}: "
+                  f"\tTrain loss: {sum(train_loss_batches[-print_every:]) / print_every:.3f}, "
+                  f"\tVal. loss: {val_loss:.3f}")
+
+    return model, train_loss_cum/num_batches, val_loss
+
+def training_loop(val_freq, train_loader, model, optimizer, val_loader, epochs):
     train_losses = []
     val_losses = []
     for epoch in range(int(epochs)):
         print("===================")
         print("Epoch {} out of {}".format(epoch, epochs))
+        model, latest_loss, val_loss = train_epoch(model, optimizer, model.loss_fn, train_loader, device, val_loader, val_freq)
 
-
-        running_loss = 0
-        iter = 0
-        for i, (inputs, labels) in enumerate(train_loader):
-            inputs = inputs.flatten(2,3)
-            labels = torch.unsqueeze(labels, 0)
-            optimizer.zero_grad()
-            preds = model.forward(inputs.flatten(1,2))
-            loss = model.loss_fn(preds, torch.transpose(labels, 0, 1))
-            loss.backward()
-            optimizer.step()
-            running_loss += loss.item()
-            iter += 1
-            if iter % val_freq == 0:
-                total_mae = 0
-                s = 0
-                for inputs, labels in val_loader:
-                    inputs = inputs.flatten(2,3)
-                    preds = model.forward(inputs.flatten(1,2))
-                    labels = torch.unsqueeze(labels, 0)
-                    mae = model.loss_fn(preds, torch.transpose(labels, 0, 1))
-                    total_mae += mae
-                    s += 1
-
-                iter_mae = total_mae/s
-                print("Iteration: {}. train_loss: {}. val_loss: {}.".format(iter, loss.item(), iter_mae))
-
-                train_losses.append(loss.item())
-                val_losses.append(iter_mae.item())
+        train_losses.append(latest_loss)
+        val_losses.append(val_loss)
 
     return train_losses, val_losses
 
-batch_size = 32
-img_size = 64
-step_size = 10
-gamma = 0.5
-epochs = 2
-print_freq = 1
 
 image_path = './Data/BigDataset'
 all_transforms, no_transform, transform_resize_greyscale_normalize = generate_transforms(image_path)
 dataset = ImagesDataset(image_path, transform_resize_greyscale_normalize)
+batch_size = 32
 train_loader, val_loader, test_loader = generate_dataloader(dataset, batch_size, [.8, .1, .1])
+model = LinearModel(dataset)
+#model = CNN()
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+optimizer = torch.optim.Adam(model.parameters(), lr = 0.005)
+epochs = 5
+val_freq = 5
 
-#TRAIN
-linear_model = LinearModel(dataset)
-optim = torch.optim.SGD(linear_model.parameters(), lr = 0.001)
-train_losses, val_losses = training_loop(5, train_loader, linear_model, optim, val_loader)
-
-plt.plot(train_losses)
-plt.plot(val_losses)
-plt.legend(['MAE_train','MAE_val'])
-plt.show()
+training_loop(val_freq, train_loader, model, optimizer, val_loader, epochs)
