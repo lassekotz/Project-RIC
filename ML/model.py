@@ -8,6 +8,8 @@ import os
 import matplotlib.pyplot as plt
 import torch.nn.functional as F
 
+# TODO: NORMALIZE TARGETS??
+
 class ImagesDataset(Dataset):
 
     def __init__(self, root, transform):
@@ -158,9 +160,13 @@ def generate_transforms(image_path):
     all_transforms = [ImagesDataset(image_path, transform_resize_greyscale_normalize),
                       ImagesDataset(image_path, transform_random), ImagesDataset(image_path, transform_center),
                       ImagesDataset(image_path, Compose([ToTensor()]))]
-    no_transform = ImagesDataset(image_path, Compose([ToTensor()]))
 
-    return all_transforms, no_transform, transform_resize_greyscale_normalize
+    reshape_transform = transforms.Compose([
+        transforms.Resize((128, 128)),
+        transforms.ToTensor()
+        ])
+
+    return all_transforms, reshape_transform, transform_resize_greyscale_normalize
 
 def generate_dataloader(dataset, batch_size, props = [0.8, 0.1, 0.1]):
 
@@ -180,7 +186,6 @@ class LinearModel(torch.nn.Module):
             h, w = (dataset.__getitem__(0)[0]).size()[1], (dataset.__getitem__(0)[0]).size()[2]
 
         self.layer1 = nn.Linear(in_features=h*w*3, out_features= 1)
-        self.loss_fn = nn.L1Loss()
 
     def forward(self, x):
 
@@ -197,10 +202,12 @@ class CNN(torch.nn.Module):
     def __init__(self, channel_size=3, kernel_size=3, filter_size=10, stride=1, maxpool_size=2):
         super().__init__()
 
-        self.loss_fn = nn.L1Loss()
+        padding = 0
 
-        self.conv1 = nn.Conv2d(channel_size, filter_size, kernel_size, stride)
+        self.conv1 = nn.Conv2d(channel_size, filter_size, kernel_size, stride, padding)
+        self.bn1 = nn.BatchNorm2d(filter_size)
         self.conv2 = nn.Conv2d(filter_size, filter_size, kernel_size, stride)
+        self.bn2 = nn.BatchNorm2d(filter_size)
         self.pool = nn.MaxPool2d(maxpool_size, maxpool_size)
 
         #TODO: Clean this solution up. Ugly way of defining output layer.
@@ -210,15 +217,16 @@ class CNN(torch.nn.Module):
 
     def forward(self, x):
         o = self.conv1(x)
-        o = F.relu(o)
+        o = self.bn1(o)
+        #o = F.relu(o)
         o = self.conv2(o)
-        o = F.relu(o)
+        o = self.bn2(o)
+        #o = F.relu(o)
         o = self.pool(o)
 
         o = torch.flatten(o, 1, 3)
         o = self.output(o)
 
-        print(o)
         return o
 
 def validate(model, loss_fn, val_loader, device):
@@ -240,10 +248,11 @@ def train_epoch(model, optimizer, loss_fn, train_loader, device, val_loader, pri
     num_batches = len(train_loader)
 
     for batch_index, (x, y) in enumerate(train_loader, 1):
-        optimizer.zero_grad()
         inputs, labels = x.to(device), torch.transpose(torch.unsqueeze(y.to(device), 0), 1, 0)
         z = model.forward(inputs).to(device)
         loss = loss_fn(z, labels)
+
+        optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
@@ -259,13 +268,13 @@ def train_epoch(model, optimizer, loss_fn, train_loader, device, val_loader, pri
 
     return model, train_loss_cum/num_batches, val_loss
 
-def training_loop(val_freq, train_loader, model, optimizer, val_loader, epochs):
+def training_loop(val_freq, train_loader, model, optimizer, val_loader, epochs, loss_fn):
     train_losses = []
     val_losses = []
     for epoch in range(int(epochs)):
         print("===================")
         print("Epoch {} out of {}".format(epoch, epochs))
-        model, latest_loss, val_loss = train_epoch(model, optimizer, model.loss_fn, train_loader, device, val_loader, val_freq)
+        model, latest_loss, val_loss = train_epoch(model, optimizer, loss_fn, train_loader, device, val_loader, val_freq)
 
         train_losses.append(latest_loss)
         val_losses.append(val_loss)
@@ -282,20 +291,20 @@ def plot_results(train_losses, val_losses):
 
 image_path = './Data/BigDataset'
 all_transforms, no_transform, transform_resize_greyscale_normalize = generate_transforms(image_path)
-dataset = ImagesDataset(image_path, transform_resize_greyscale_normalize)
-batch_size = 32
+dataset = ImagesDataset(image_path, no_transform)
+batch_size = 16
 train_loader, val_loader, test_loader = generate_dataloader(dataset, batch_size, [.8, .1, .1])
 #model = LinearModel(dataset)
 model = CNN()
-optimizer = torch.optim.Adam(model.parameters(), lr = 0.001)
+optimizer = torch.optim.SGD(model.parameters(), lr = 0.001)
+criterion = nn.L1Loss()
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 print("current device: " + str(device))
 
 ##TODO: TRAINING
-model.to(device)
 epochs, val_freq = 5, 5
-train_losses, val_losses = training_loop(val_freq, train_loader, model, optimizer, val_loader, epochs)
+train_losses, val_losses = training_loop(val_freq, train_loader, model, optimizer, val_loader, epochs, criterion)
 
 plot_results(train_losses, val_losses)
