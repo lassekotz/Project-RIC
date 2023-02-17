@@ -7,8 +7,9 @@ from torchvision import transforms
 import os
 import matplotlib.pyplot as plt
 import torch.nn.functional as F
-
-# TODO: NORMALIZE TARGETS??
+import torchvision.models as models
+from tqdm import tqdm
+import numpy as np
 
 class ImagesDataset(Dataset):
 
@@ -78,7 +79,6 @@ class ImagesDataset(Dataset):
         """
         id_index = [path.stem for (path, _) in self._samples].index(id_)
         return self[id_index]
-
 def display_image(axis, image_tensor):
     """Display a tensor as an image
 
@@ -101,7 +101,6 @@ def display_image(axis, image_tensor):
     # By convention when working with images, the origin is in the top left corner.
     # Therefore, we switch the order of the y limits.
     axis.set_ylim(height, 0)
-
 def compare_transforms(transformations, index):
     """Visually compare transformations side by side.
     Takes a list of DogsCatsData datasets with different compositions of transformations.
@@ -137,7 +136,6 @@ def compare_transforms(transformations, index):
         display_image(axis, image_tensor)
 
     plt.show()
-
 def generate_transforms(image_path):
 
     # TRANSFORMS
@@ -151,13 +149,18 @@ def generate_transforms(image_path):
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
-    transform_resize_greyscale_normalize = transforms.Compose([
-        transforms.Resize((64, 64)),
-        transforms.Grayscale(3),
+
+    mean_for_norm = np.array([0.485, 0.456, 0.406])
+    std_for_norm = np.array([0.229, 0.224, 0.225])
+
+    current_transform = transforms.Compose([
+        transforms.Resize((120, 120)),
+        transforms.RandomResizedCrop(120),
         transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        transforms.Normalize(mean_for_norm, std_for_norm),
+        transforms.RandomErasing()
     ])
-    all_transforms = [ImagesDataset(image_path, transform_resize_greyscale_normalize),
+    all_transforms = [ImagesDataset(image_path, current_transform),
                       ImagesDataset(image_path, transform_random), ImagesDataset(image_path, transform_center),
                       ImagesDataset(image_path, Compose([ToTensor()]))]
 
@@ -166,8 +169,7 @@ def generate_transforms(image_path):
         transforms.ToTensor()
         ])
 
-    return all_transforms, reshape_transform, transform_resize_greyscale_normalize
-
+    return all_transforms, reshape_transform, current_transform
 def generate_dataloader(dataset, batch_size, props = [0.8, 0.1, 0.1]):
 
     lengths = [int(p * len(dataset)) for p in props]
@@ -178,7 +180,6 @@ def generate_dataloader(dataset, batch_size, props = [0.8, 0.1, 0.1]):
     test_loader = DataLoader(test_set)
 
     return train_loader, val_loader, test_loader
-
 class LinearModel(torch.nn.Module):
     def __init__(self, dataset):
         super().__init__()
@@ -194,10 +195,8 @@ class LinearModel(torch.nn.Module):
         o = a1
 
         return o
-
 def conv_shape(x, k=1, p=0, s=1, d=1):
     return int((x + 2 * p - d * (k - 1) - 1) / s + 1)  # helper function to have to generalize Linear layer in a CNN. Recursion needs to be implemented.
-
 class CNN(torch.nn.Module):
     def __init__(self, channel_size=3, kernel_size=3, filter_size=10, stride=1, maxpool_size=2):
         super().__init__()
@@ -228,27 +227,26 @@ class CNN(torch.nn.Module):
         o = self.output(o)
 
         return o
-
 def validate(model, loss_fn, val_loader, device):
     val_loss_cum = 0
-    model.eval()
+    val_loss_batches = []
+
     with torch.no_grad():
         for batch__index, (x,y) in enumerate(val_loader, 1):
             inputs, labels = x.to(device), torch.transpose(torch.unsqueeze(y.to(device), 0), 1, 0)
             z = model.forward(inputs)
             batch_loss = loss_fn(z, labels)
             val_loss_cum += batch_loss.item()
+            val_loss_batches.append(batch_loss.item())
 
-    return val_loss_cum/len(val_loader)
-
-def train_epoch(model, optimizer, loss_fn, train_loader, device, val_loader, print_every):
-    model.train()
+    return val_loss_cum/len(val_loader), val_loss_batches
+def train_epoch(model, optimizer, loss_fn, train_loader, device, epoch):
     train_loss_batches = []
     train_loss_cum = 0
     num_batches = len(train_loader)
-
-    for batch_index, (x, y) in enumerate(train_loader, 1):
+    for (x, y) in tqdm(train_loader, desc=f'Epoch {epoch+1} Training'):
         inputs, labels = x.to(device), torch.transpose(torch.unsqueeze(y.to(device), 0), 1, 0)
+        labels = labels.float()
         z = model.forward(inputs).to(device)
         loss = loss_fn(z, labels)
 
@@ -259,28 +257,27 @@ def train_epoch(model, optimizer, loss_fn, train_loader, device, val_loader, pri
         train_loss_cum += loss.item()
         train_loss_batches.append(loss.item())
 
-        if (batch_index % print_every) == 0:
-            val_loss = validate(model, loss_fn, val_loader, device)
-            model.train() #validate() goes into model.eval() mode, so we need to reset to train here
-            print(f"\tBatch {batch_index}/{num_batches}: "
-                  f"\tTrain loss: {sum(train_loss_batches[-print_every:]) / print_every:.3f}, "
-                  f"\tVal. loss: {val_loss:.3f}")
-
-    return model, train_loss_cum/num_batches, val_loss
-
-def training_loop(val_freq, train_loader, model, optimizer, val_loader, epochs, loss_fn):
+    return train_loss_cum/num_batches, train_loss_batches
+def training_loop(train_loader, model, optimizer, val_loader, epochs, loss_fn):
     train_losses = []
     val_losses = []
+    train_losses_per_batch = []
+    val_losses_per_batch = []
     for epoch in range(int(epochs)):
-        print("===================")
-        print("Epoch {} out of {}".format(epoch, epochs))
-        model, latest_loss, val_loss = train_epoch(model, optimizer, loss_fn, train_loader, device, val_loader, val_freq)
+        model.train()
+        latest_train_loss, train_loss_batches = train_epoch(model, optimizer, loss_fn, train_loader, device, epoch)
+        model.eval()
+        latest_val_loss, val_loss_batches = validate(model, loss_fn, val_loader, device)
 
-        train_losses.append(latest_loss)
-        val_losses.append(val_loss)
+        train_losses.append(latest_train_loss)
+        val_losses.append(latest_val_loss)
+        train_losses_per_batch += train_loss_batches
+        val_losses_per_batch += val_loss_batches
 
-    return train_losses, val_losses
 
+        print(f'Epoch {epoch + 1} \ntrain MAE: {latest_train_loss:2.4}, validation MAE: {latest_val_loss:2.4}')
+
+    return train_losses, val_losses, train_losses_per_batch, val_losses_per_batch
 def plot_results(train_losses, val_losses):
     plt.plot(train_losses)
     plt.plot(val_losses)
@@ -288,23 +285,95 @@ def plot_results(train_losses, val_losses):
     plt.title('Training progress')
     plt.show()
 
-
 image_path = './Data/BigDataset'
-all_transforms, no_transform, transform_resize_greyscale_normalize = generate_transforms(image_path)
-dataset = ImagesDataset(image_path, no_transform)
-batch_size = 16
+all_transforms, no_transform, current_transform = generate_transforms(image_path)
+dataset = ImagesDataset(image_path, current_transform)
+batch_size = 32
 train_loader, val_loader, test_loader = generate_dataloader(dataset, batch_size, [.8, .1, .1])
-#model = LinearModel(dataset)
-model = CNN()
-optimizer = torch.optim.SGD(model.parameters(), lr = 0.001)
-criterion = nn.L1Loss()
 
+#model = LinearModel(dataset)
+#model = CNN()
+
+model = models.vgg16(pretrained=True)
+for param in model.features.parameters():
+    param.requires_grad = False
+num_features = model.classifier[6].in_features
+model.classifier[6] = nn.Linear(num_features, 1)
+
+#optimizer = torch.optim.Adam(model.parameters(), lr = 0.001)
+#criterion = nn.L1Loss()
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model.to(device)
+model.to(device, dtype= torch.float32)
 print("current device: " + str(device))
 
 ##TODO: TRAINING
-epochs, val_freq = 5, 5
-train_losses, val_losses = training_loop(val_freq, train_loader, model, optimizer, val_loader, epochs, criterion)
+epochs = 300
+lr = 0.001
 
-plot_results(train_losses, val_losses)
+loss_criterion = nn.L1Loss()
+optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+
+'''
+train_rmse_log = []
+val_rmse_log = []
+patience = 0
+
+for epoch in range(epochs):
+
+    model.train()
+    total_loss = 0
+    for images, labels in tqdm(train_loader, desc=f'Epoch {epoch+1} Training'):
+        images = images.to(device, dtype=torch.float32)
+        labels = labels.to(device, dtype=torch.float32)
+        #labels = torch.transpose(torch.unsqueeze(labels, 0), 1, 0)
+
+        preds = model(images).squeeze()
+        loss = loss_criterion(preds, labels)
+
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        total_loss += loss.item()*batch_size
+
+    avg_loss = total_loss/32000
+
+    train_rmse = np.sqrt(avg_loss)
+    train_rmse_log.append(train_rmse)
+
+    model.eval()
+    with torch.no_grad():
+        valid_loss = 0
+        for images_valid, labels_valid in tqdm(val_loader, desc=f'Epoch {epoch + 1} Evaluation'):
+            images_valid = images_valid.to(device, dtype=torch.float32)
+            labels_valid = labels_valid.to(device, dtype=torch.float32)
+            #labels_valid = torch.transpose(torch.unsqueeze())
+            pred_valid = model(images_valid).squeeze()
+            valid_loss += loss_criterion(pred_valid, labels_valid).item() * batch_size
+
+        avg_valid_loss = valid_loss/4000
+
+        val_rmse = np.sqrt(avg_valid_loss)
+        val_rmse_log.append(val_rmse)
+
+    print(f'Epoch {epoch + 1} \ntrain RMSE: {train_rmse:2.4}, validation RMSE: {val_rmse:2.4}')
+
+    if (val_rmse - train_rmse) >= 1.0:
+        patience += 1
+        if patience > 2:
+            print("Overfitting occured, training will stop")
+            break
+
+    else:
+        patience = 0
+
+    plateu_length = 15
+    if len(train_rmse_log) >= plateu_length:
+        range_last = max(train_rmse_log[-plateu_length:]) - min(train_rmse_log[-plateu_length:])
+        if range_last <= 0.5:
+            print("Model has plateud - training stops")
+            break
+'''
+print_freq = 10
+train_losses, val_losses, train_losses_per_epoch, val_losses_per_epoch = training_loop(train_loader, model, optimizer, val_loader, epochs, loss_criterion)
+#plot_results(train_losses, val_losses)
