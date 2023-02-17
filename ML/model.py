@@ -245,9 +245,9 @@ def train_epoch(model, optimizer, loss_fn, train_loader, device, epoch):
     train_loss_cum = 0
     num_batches = len(train_loader)
     for (x, y) in tqdm(train_loader, desc=f'Epoch {epoch+1} Training'):
-        inputs, labels = x.to(device), torch.transpose(torch.unsqueeze(y.to(device), 0), 1, 0)
+        inputs, labels = x.to(device), y.to(device)
         labels = labels.float()
-        z = model.forward(inputs).to(device)
+        z = model.forward(inputs).to(device).squeeze()
         loss = loss_fn(z, labels)
 
         optimizer.zero_grad()
