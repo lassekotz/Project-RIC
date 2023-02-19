@@ -154,8 +154,8 @@ def generate_transforms(image_path):
     std_for_norm = np.array([0.229, 0.224, 0.225])
 
     current_transform = transforms.Compose([
-        transforms.Resize((120, 120)),
-        transforms.RandomResizedCrop(120),
+        transforms.Resize((224, 224)),
+        transforms.RandomResizedCrop(224),
         transforms.ToTensor(),
         transforms.Normalize(mean_for_norm, std_for_norm),
         transforms.RandomErasing()
@@ -300,8 +300,6 @@ for param in model.features.parameters():
 num_features = model.classifier[6].in_features
 model.classifier[6] = nn.Linear(num_features, 1)
 
-#optimizer = torch.optim.Adam(model.parameters(), lr = 0.001)
-#criterion = nn.L1Loss()
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device, dtype= torch.float32)
 print("current device: " + str(device))
