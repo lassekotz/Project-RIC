@@ -4,6 +4,7 @@ from torch.utils.data import Dataset, DataLoader, random_split
 from PIL import Image
 from torchvision.transforms import Compose, ToTensor
 from torchvision import transforms
+import torchvision as torchvision
 import os
 import matplotlib.pyplot as plt
 import torch.nn.functional as F
@@ -59,7 +60,8 @@ class ImagesDataset(Dataset):
             imu_list = f.readlines()
 
         imu_list = [float(s.strip()) for s in imu_list]
-        image_list = [x for x in os.listdir(self.root)]
+        image_list = [(str(i) + ".jpg") for i in range(len(imu_list))]
+        #image_list = [x for x in os.listdir(self.root)]
 
         if (len(imu_list) != len(image_list)):
             raise TypeError("IMU data and image data have different sizes.")
@@ -175,7 +177,7 @@ def generate_dataloader(dataset, batch_size, props = [0.8, 0.1, 0.1]):
     lengths = [int(p * len(dataset)) for p in props]
     lengths[-1] = len(dataset) - sum(lengths[:-1])
     train_set, val_set, test_set = random_split(dataset, lengths, generator=torch.Generator().manual_seed(42))
-    train_loader = DataLoader(train_set, batch_size, shuffle=True)
+    train_loader = DataLoader(train_set, batch_size, shuffle=False)
     val_loader = DataLoader(val_set, batch_size, shuffle=True)
     test_loader = DataLoader(test_set)
 
@@ -234,8 +236,8 @@ def validate(model, loss_fn, val_loader, device):
     with torch.no_grad():
         for batch__index, (x,y) in enumerate(val_loader, 1):
             inputs, labels = x.to(device), torch.transpose(torch.unsqueeze(y.to(device), 0), 1, 0)
-            z = model.forward(inputs)
-            batch_loss = loss_fn(z, labels)
+            preds = model.forward(inputs)
+            batch_loss = loss_fn(preds, labels)
             val_loss_cum += batch_loss.item()
             val_loss_batches.append(batch_loss.item())
 
@@ -247,8 +249,8 @@ def train_epoch(model, optimizer, loss_fn, train_loader, device, epoch):
     for (x, y) in tqdm(train_loader, desc=f'Epoch {epoch+1} Training'):
         inputs, labels = x.to(device), y.to(device)
         labels = labels.float()
-        z = model.forward(inputs).to(device).squeeze()
-        loss = loss_fn(z, labels)
+        preds = model.forward(inputs).to(device).squeeze()
+        loss = loss_fn(preds, labels)
 
         optimizer.zero_grad()
         loss.backward()
@@ -373,5 +375,26 @@ for epoch in range(epochs):
             break
 '''
 print_freq = 10
+
+samples, targets = next(iter(train_loader))
+
+
+mean_for_norm = np.array([0.485, 0.456, 0.406])
+std_for_norm = np.array([0.229, 0.224, 0.225])
+grid = torchvision.utils.make_grid(samples, nrow=8)
+grid = grid.permute(1,2,0) * std_for_norm + mean_for_norm
+
+plt.figure(figsize=(15,15))
+plt.imshow(grid)
+plt.axis('off')
+
+print('targets:\n', targets.reshape(-1,8).numpy())
+plt.show()
+
+'''
+index = 100
+for i in range(index,index+5):
+    compare_transforms(all_transforms, i)
+'''
 train_losses, val_losses, train_losses_per_epoch, val_losses_per_epoch = training_loop(train_loader, model, optimizer, val_loader, epochs, loss_criterion)
 #plot_results(train_losses, val_losses)
