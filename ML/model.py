@@ -5,9 +5,7 @@ from PIL import Image
 from torchvision.transforms import Compose, ToTensor
 from torchvision import transforms
 import torchvision as torchvision
-import os
 import matplotlib.pyplot as plt
-import torch.nn.functional as F
 import torchvision.models as models
 from tqdm import tqdm
 import numpy as np
@@ -234,7 +232,7 @@ def validate(model, loss_fn, val_loader, device):
     val_loss_batches = []
 
     with torch.no_grad():
-        for batch__index, (x,y) in enumerate(val_loader, 1):
+        for (x, y) in tqdm(val_loader, desc=f'Validation'):
             inputs, labels = x.to(device), torch.transpose(torch.unsqueeze(y.to(device), 0), 1, 0)
             preds = model.forward(inputs)
             batch_loss = loss_fn(preds, labels)
@@ -277,7 +275,7 @@ def training_loop(train_loader, model, optimizer, val_loader, epochs, loss_fn):
         val_losses_per_batch += val_loss_batches
 
 
-        print(f'Epoch {epoch + 1} \ntrain MAE: {latest_train_loss:2.4}, validation MAE: {latest_val_loss:2.4}')
+        print(f'Epoch {epoch + 1} \ntrain MSE: {latest_train_loss:2.4}, validation MSE: {latest_val_loss:2.4}')
 
     return train_losses, val_losses, train_losses_per_batch, val_losses_per_batch
 def plot_results(train_losses, val_losses):
@@ -286,6 +284,15 @@ def plot_results(train_losses, val_losses):
     plt.legend('train_losses', 'val_losses')
     plt.title('Training progress')
     plt.show()
+
+def print_training_settings(device, loss_fn):
+    print()
+    print("CURRENT TRAINING SETTINGS:")
+    print("Loss function: " + str(loss_fn))
+    print("Device: " + str(device))
+    print()
+
+
 
 image_path = './Data/BigDataset'
 all_transforms, no_transform, current_transform = generate_transforms(image_path)
@@ -304,13 +311,13 @@ model.classifier[6] = nn.Linear(num_features, 1)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device, dtype= torch.float32)
-print("current device: " + str(device))
+#print("current device: " + str(device))
 
 ##TODO: TRAINING
-epochs = 300
+epochs = 15
 lr = 0.001
 
-loss_criterion = nn.L1Loss()
+loss_criterion = nn.L1Loss() #MAE
 optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
 '''
@@ -383,18 +390,21 @@ mean_for_norm = np.array([0.485, 0.456, 0.406])
 std_for_norm = np.array([0.229, 0.224, 0.225])
 grid = torchvision.utils.make_grid(samples, nrow=8)
 grid = grid.permute(1,2,0) * std_for_norm + mean_for_norm
-
+'''
 plt.figure(figsize=(15,15))
 plt.imshow(grid)
 plt.axis('off')
 
 print('targets:\n', targets.reshape(-1,8).numpy())
 plt.show()
-
+'''
 '''
 index = 100
 for i in range(index,index+5):
     compare_transforms(all_transforms, i)
 '''
+
+
+print_training_settings(device, loss_fn=loss_criterion)
 train_losses, val_losses, train_losses_per_epoch, val_losses_per_epoch = training_loop(train_loader, model, optimizer, val_loader, epochs, loss_criterion)
 #plot_results(train_losses, val_losses)
