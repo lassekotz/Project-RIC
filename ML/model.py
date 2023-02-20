@@ -104,7 +104,7 @@ def display_image(axis, image_tensor):
 def compare_transforms(transformations, index):
     """Visually compare transformations side by side.
     Takes a list of DogsCatsData datasets with different compositions of transformations.
-    It then display the `index`th image of the dataset for each transformed dataset in the list.
+    It then displays the `index`th image of the dataset for each transformed dataset in the list.
 
     Example usage:
         compare_transforms([dataset_with_transform_1, dataset_with_transform_2], 0)
@@ -170,7 +170,7 @@ def generate_transforms(image_path):
         ])
 
     return all_transforms, reshape_transform, current_transform
-def generate_dataloader(dataset, batch_size, props = [0.8, 0.1, 0.1]):
+def generate_dataloader(dataset, batch_size, props):
 
     lengths = [int(p * len(dataset)) for p in props]
     lengths[-1] = len(dataset) - sum(lengths[:-1])
@@ -259,6 +259,7 @@ def train_epoch(model, optimizer, loss_fn, train_loader, device, epoch):
 
     return train_loss_cum/num_batches, train_loss_batches
 def training_loop(train_loader, model, optimizer, val_loader, epochs, loss_fn):
+    #TODO: IMPLEMENT EARLY STOPPING
     train_losses = []
     val_losses = []
     train_losses_per_batch = []
@@ -275,7 +276,10 @@ def training_loop(train_loader, model, optimizer, val_loader, epochs, loss_fn):
         val_losses_per_batch += val_loss_batches
 
 
-        print(f'Epoch {epoch + 1} \ntrain MSE: {latest_train_loss:2.4}, validation MSE: {latest_val_loss:2.4}')
+        print(f'Epoch {epoch + 1} \ntrain MAE: {latest_train_loss:2.4}, validation MAE: {latest_val_loss:2.4}')
+
+
+    model.save('/trained_models/latest_model')
 
     return train_losses, val_losses, train_losses_per_batch, val_losses_per_batch
 def plot_results(train_losses, val_losses):
@@ -285,14 +289,6 @@ def plot_results(train_losses, val_losses):
     plt.title('Training progress')
     plt.show()
 
-def print_training_settings(device, loss_fn):
-    print()
-    print("CURRENT TRAINING SETTINGS:")
-    print("Loss function: " + str(loss_fn))
-    print("Device: " + str(device))
-    print()
-
-
 
 image_path = './Data/BigDataset'
 all_transforms, no_transform, current_transform = generate_transforms(image_path)
@@ -301,20 +297,19 @@ batch_size = 32
 train_loader, val_loader, test_loader = generate_dataloader(dataset, batch_size, [.8, .1, .1])
 
 #model = LinearModel(dataset)
-#model = CNN()
+model = CNN()
 
-model = models.vgg16(pretrained=True)
-for param in model.features.parameters():
-    param.requires_grad = False
-num_features = model.classifier[6].in_features
-model.classifier[6] = nn.Linear(num_features, 1)
+#model = models.vgg16(pretrained=True)
+#for param in model.features.parameters():
+#    param.requires_grad = False
+#num_features = model.classifier[6].in_features
+#model.classifier[6] = nn.Linear(num_features, 1)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device, dtype= torch.float32)
-#print("current device: " + str(device))
+#print("current device: " + str(device))#
 
-##TODO: TRAINING
-epochs = 15
+epochs = 5
 lr = 0.001
 
 loss_criterion = nn.L1Loss() #MAE
@@ -389,7 +384,7 @@ samples, targets = next(iter(train_loader))
 mean_for_norm = np.array([0.485, 0.456, 0.406])
 std_for_norm = np.array([0.229, 0.224, 0.225])
 grid = torchvision.utils.make_grid(samples, nrow=8)
-grid = grid.permute(1,2,0) * std_for_norm + mean_for_norm
+grid = grid.permute(1, 2, 0) * std_for_norm + mean_for_norm
 '''
 plt.figure(figsize=(15,15))
 plt.imshow(grid)
@@ -405,6 +400,5 @@ for i in range(index,index+5):
 '''
 
 
-print_training_settings(device, loss_fn=loss_criterion)
 train_losses, val_losses, train_losses_per_epoch, val_losses_per_epoch = training_loop(train_loader, model, optimizer, val_loader, epochs, loss_criterion)
 #plot_results(train_losses, val_losses)
