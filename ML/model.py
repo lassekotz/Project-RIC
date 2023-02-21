@@ -279,8 +279,6 @@ def training_loop(train_loader, model, optimizer, val_loader, epochs, loss_fn):
         print(f'Epoch {epoch + 1} \ntrain MAE: {latest_train_loss:2.4}, validation MAE: {latest_val_loss:2.4}')
 
 
-    model.save('/trained_models/latest_model')
-
     return train_losses, val_losses, train_losses_per_batch, val_losses_per_batch
 def plot_results(train_losses, val_losses):
     plt.plot(train_losses)
@@ -288,6 +286,12 @@ def plot_results(train_losses, val_losses):
     plt.legend('train_losses', 'val_losses')
     plt.title('Training progress')
     plt.show()
+
+def print_training_settings():
+    print()
+    print("CURRENT TRAINING SETTINGS:")
+    print("Device: " + str(device))
+    print("Loss fn: " + str(loss_criterion))
 
 
 image_path = './Data/BigDataset'
@@ -297,13 +301,13 @@ batch_size = 32
 train_loader, val_loader, test_loader = generate_dataloader(dataset, batch_size, [.8, .1, .1])
 
 #model = LinearModel(dataset)
-model = CNN()
+#model = CNN()
 
-#model = models.vgg16(pretrained=True)
-#for param in model.features.parameters():
-#    param.requires_grad = False
-#num_features = model.classifier[6].in_features
-#model.classifier[6] = nn.Linear(num_features, 1)
+model = models.vgg16(pretrained=True)
+for param in model.features.parameters():
+    param.requires_grad = False
+num_features = model.classifier[6].in_features
+model.classifier[6] = nn.Linear(num_features, 1)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device, dtype= torch.float32)
@@ -315,67 +319,6 @@ lr = 0.001
 loss_criterion = nn.L1Loss() #MAE
 optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-'''
-train_rmse_log = []
-val_rmse_log = []
-patience = 0
-
-for epoch in range(epochs):
-
-    model.train()
-    total_loss = 0
-    for images, labels in tqdm(train_loader, desc=f'Epoch {epoch+1} Training'):
-        images = images.to(device, dtype=torch.float32)
-        labels = labels.to(device, dtype=torch.float32)
-        #labels = torch.transpose(torch.unsqueeze(labels, 0), 1, 0)
-
-        preds = model(images).squeeze()
-        loss = loss_criterion(preds, labels)
-
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-        total_loss += loss.item()*batch_size
-
-    avg_loss = total_loss/32000
-
-    train_rmse = np.sqrt(avg_loss)
-    train_rmse_log.append(train_rmse)
-
-    model.eval()
-    with torch.no_grad():
-        valid_loss = 0
-        for images_valid, labels_valid in tqdm(val_loader, desc=f'Epoch {epoch + 1} Evaluation'):
-            images_valid = images_valid.to(device, dtype=torch.float32)
-            labels_valid = labels_valid.to(device, dtype=torch.float32)
-            #labels_valid = torch.transpose(torch.unsqueeze())
-            pred_valid = model(images_valid).squeeze()
-            valid_loss += loss_criterion(pred_valid, labels_valid).item() * batch_size
-
-        avg_valid_loss = valid_loss/4000
-
-        val_rmse = np.sqrt(avg_valid_loss)
-        val_rmse_log.append(val_rmse)
-
-    print(f'Epoch {epoch + 1} \ntrain RMSE: {train_rmse:2.4}, validation RMSE: {val_rmse:2.4}')
-
-    if (val_rmse - train_rmse) >= 1.0:
-        patience += 1
-        if patience > 2:
-            print("Overfitting occured, training will stop")
-            break
-
-    else:
-        patience = 0
-
-    plateu_length = 15
-    if len(train_rmse_log) >= plateu_length:
-        range_last = max(train_rmse_log[-plateu_length:]) - min(train_rmse_log[-plateu_length:])
-        if range_last <= 0.5:
-            print("Model has plateud - training stops")
-            break
-'''
 print_freq = 10
 
 samples, targets = next(iter(train_loader))
@@ -402,3 +345,7 @@ for i in range(index,index+5):
 
 train_losses, val_losses, train_losses_per_epoch, val_losses_per_epoch = training_loop(train_loader, model, optimizer, val_loader, epochs, loss_criterion)
 #plot_results(train_losses, val_losses)
+
+#SAVE MODEL:
+dummy_input = dummy_input = torch.randn(10, 3, 224, 224, device=device)
+torch.onnx.export(model, )
