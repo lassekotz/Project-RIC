@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import torchvision.models as models
 from tqdm import tqdm
 import numpy as np
+from tflite_conversion import save_and_convert_model
+import os
 
 class ImagesDataset(Dataset):
 
@@ -309,33 +311,12 @@ for param in model.features.parameters():
 num_features = model.classifier[6].in_features
 model.classifier[6] = nn.Linear(num_features, 1)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model.to(device, dtype= torch.float32)
+model.to(device, dtype=torch.float32)
 
 epochs = 5
 lr = 0.001
 loss_criterion = nn.L1Loss() #MAE
 optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-'''
-samples, targets = next(iter(train_loader))
-
-mean_for_norm = np.array([0.485, 0.456, 0.406])
-std_for_norm = np.array([0.229, 0.224, 0.225])
-grid = torchvision.utils.make_grid(samples, nrow=8)
-grid = grid.permute(1, 2, 0) * std_for_norm + mean_for_norm
-
-plt.figure(figsize=(15,15))
-plt.imshow(grid)
-plt.axis('off')
-
-print('targets:\n', targets.reshape(-1,8).numpy())
-plt.show()
-'''
-'''
-index = 100
-for i in range(index,index+5):
-    compare_transforms(all_transforms, i)
-'''
-
 
 #train_losses, val_losses, train_losses_per_epoch, val_losses_per_epoch = training_loop(train_loader, model, optimizer, val_loader, epochs, loss_criterion)
 #plot_results(train_losses, val_losses)
@@ -344,4 +325,4 @@ for i in range(index,index+5):
 dummy_input = torch.randn(32, 3, 224, 224, device=device)
 input_names = ['input_1']
 output_names = ['output_1']
-torch.onnx.export(model, dummy_input, 'vgg16.onnx', verbose=True, input_names=input_names, output_names=output_names)
+save_and_convert_model('vgg16', model, dummy_input, input_names, output_names)
