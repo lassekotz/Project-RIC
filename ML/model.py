@@ -4,12 +4,13 @@ from torch.utils.data import Dataset, DataLoader, random_split
 from PIL import Image
 from torchvision.transforms import Compose, ToTensor
 from torchvision import transforms
-import os
+import torchvision as torchvision
 import matplotlib.pyplot as plt
-import torch.nn.functional as F
 import torchvision.models as models
 from tqdm import tqdm
 import numpy as np
+from tflite_conversion import save_and_convert_model
+import os
 
 class ImagesDataset(Dataset):
 
@@ -59,7 +60,8 @@ class ImagesDataset(Dataset):
             imu_list = f.readlines()
 
         imu_list = [float(s.strip()) for s in imu_list]
-        image_list = [x for x in os.listdir(self.root)]
+        image_list = [(str(i) + ".jpg") for i in range(len(imu_list))]
+        #image_list = [x for x in os.listdir(self.root)]
 
         if (len(imu_list) != len(image_list)):
             raise TypeError("IMU data and image data have different sizes.")
@@ -104,7 +106,7 @@ def display_image(axis, image_tensor):
 def compare_transforms(transformations, index):
     """Visually compare transformations side by side.
     Takes a list of DogsCatsData datasets with different compositions of transformations.
-    It then display the `index`th image of the dataset for each transformed dataset in the list.
+    It then displays the `index`th image of the dataset for each transformed dataset in the list.
 
     Example usage:
         compare_transforms([dataset_with_transform_1, dataset_with_transform_2], 0)
@@ -154,8 +156,8 @@ def generate_transforms(image_path):
     std_for_norm = np.array([0.229, 0.224, 0.225])
 
     current_transform = transforms.Compose([
-        transforms.Resize((120, 120)),
-        transforms.RandomResizedCrop(120),
+        transforms.Resize((224, 224)),
+        transforms.RandomResizedCrop(224),
         transforms.ToTensor(),
         transforms.Normalize(mean_for_norm, std_for_norm),
         transforms.RandomErasing()
@@ -170,12 +172,12 @@ def generate_transforms(image_path):
         ])
 
     return all_transforms, reshape_transform, current_transform
-def generate_dataloader(dataset, batch_size, props = [0.8, 0.1, 0.1]):
+def generate_dataloader(dataset, batch_size, props):
 
     lengths = [int(p * len(dataset)) for p in props]
     lengths[-1] = len(dataset) - sum(lengths[:-1])
     train_set, val_set, test_set = random_split(dataset, lengths, generator=torch.Generator().manual_seed(42))
-    train_loader = DataLoader(train_set, batch_size, shuffle=True)
+    train_loader = DataLoader(train_set, batch_size, shuffle=False)
     val_loader = DataLoader(val_set, batch_size, shuffle=True)
     test_loader = DataLoader(test_set)
 
@@ -232,10 +234,10 @@ def validate(model, loss_fn, val_loader, device):
     val_loss_batches = []
 
     with torch.no_grad():
-        for batch__index, (x,y) in enumerate(val_loader, 1):
+        for (x, y) in tqdm(val_loader, desc=f'Validation'):
             inputs, labels = x.to(device), torch.transpose(torch.unsqueeze(y.to(device), 0), 1, 0)
-            z = model.forward(inputs)
-            batch_loss = loss_fn(z, labels)
+            preds = model.forward(inputs)
+            batch_loss = loss_fn(preds, labels)
             val_loss_cum += batch_loss.item()
             val_loss_batches.append(batch_loss.item())
 
@@ -247,8 +249,8 @@ def train_epoch(model, optimizer, loss_fn, train_loader, device, epoch):
     for (x, y) in tqdm(train_loader, desc=f'Epoch {epoch+1} Training'):
         inputs, labels = x.to(device), y.to(device)
         labels = labels.float()
-        z = model.forward(inputs).to(device).squeeze()
-        loss = loss_fn(z, labels)
+        preds = model.forward(inputs).to(device).squeeze()
+        loss = loss_fn(preds, labels)
 
         optimizer.zero_grad()
         loss.backward()
@@ -259,6 +261,7 @@ def train_epoch(model, optimizer, loss_fn, train_loader, device, epoch):
 
     return train_loss_cum/num_batches, train_loss_batches
 def training_loop(train_loader, model, optimizer, val_loader, epochs, loss_fn):
+    #TODO: IMPLEMENT EARLY STOPPING
     train_losses = []
     val_losses = []
     train_losses_per_batch = []
@@ -277,6 +280,7 @@ def training_loop(train_loader, model, optimizer, val_loader, epochs, loss_fn):
 
         print(f'Epoch {epoch + 1} \ntrain MAE: {latest_train_loss:2.4}, validation MAE: {latest_val_loss:2.4}')
 
+
     return train_losses, val_losses, train_losses_per_batch, val_losses_per_batch
 def plot_results(train_losses, val_losses):
     plt.plot(train_losses)
@@ -284,6 +288,13 @@ def plot_results(train_losses, val_losses):
     plt.legend('train_losses', 'val_losses')
     plt.title('Training progress')
     plt.show()
+
+def print_training_settings():
+    print()
+    print("CURRENT TRAINING SETTINGS:")
+    print("Device: " + str(device))
+    print("Loss fn: " + str(loss_criterion))
+
 
 image_path = './Data/BigDataset'
 all_transforms, no_transform, current_transform = generate_transforms(image_path)
@@ -299,81 +310,19 @@ for param in model.features.parameters():
     param.requires_grad = False
 num_features = model.classifier[6].in_features
 model.classifier[6] = nn.Linear(num_features, 1)
-
-#optimizer = torch.optim.Adam(model.parameters(), lr = 0.001)
-#criterion = nn.L1Loss()
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model.to(device, dtype= torch.float32)
-print("current device: " + str(device))
+model.to(device, dtype=torch.float32)
 
-##TODO: TRAINING
-epochs = 300
+epochs = 5
 lr = 0.001
-
-loss_criterion = nn.L1Loss()
+loss_criterion = nn.L1Loss() #MAE
 optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-'''
-train_rmse_log = []
-val_rmse_log = []
-patience = 0
-
-for epoch in range(epochs):
-
-    model.train()
-    total_loss = 0
-    for images, labels in tqdm(train_loader, desc=f'Epoch {epoch+1} Training'):
-        images = images.to(device, dtype=torch.float32)
-        labels = labels.to(device, dtype=torch.float32)
-        #labels = torch.transpose(torch.unsqueeze(labels, 0), 1, 0)
-
-        preds = model(images).squeeze()
-        loss = loss_criterion(preds, labels)
-
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-        total_loss += loss.item()*batch_size
-
-    avg_loss = total_loss/32000
-
-    train_rmse = np.sqrt(avg_loss)
-    train_rmse_log.append(train_rmse)
-
-    model.eval()
-    with torch.no_grad():
-        valid_loss = 0
-        for images_valid, labels_valid in tqdm(val_loader, desc=f'Epoch {epoch + 1} Evaluation'):
-            images_valid = images_valid.to(device, dtype=torch.float32)
-            labels_valid = labels_valid.to(device, dtype=torch.float32)
-            #labels_valid = torch.transpose(torch.unsqueeze())
-            pred_valid = model(images_valid).squeeze()
-            valid_loss += loss_criterion(pred_valid, labels_valid).item() * batch_size
-
-        avg_valid_loss = valid_loss/4000
-
-        val_rmse = np.sqrt(avg_valid_loss)
-        val_rmse_log.append(val_rmse)
-
-    print(f'Epoch {epoch + 1} \ntrain RMSE: {train_rmse:2.4}, validation RMSE: {val_rmse:2.4}')
-
-    if (val_rmse - train_rmse) >= 1.0:
-        patience += 1
-        if patience > 2:
-            print("Overfitting occured, training will stop")
-            break
-
-    else:
-        patience = 0
-
-    plateu_length = 15
-    if len(train_rmse_log) >= plateu_length:
-        range_last = max(train_rmse_log[-plateu_length:]) - min(train_rmse_log[-plateu_length:])
-        if range_last <= 0.5:
-            print("Model has plateud - training stops")
-            break
-'''
-print_freq = 10
-train_losses, val_losses, train_losses_per_epoch, val_losses_per_epoch = training_loop(train_loader, model, optimizer, val_loader, epochs, loss_criterion)
+#train_losses, val_losses, train_losses_per_epoch, val_losses_per_epoch = training_loop(train_loader, model, optimizer, val_loader, epochs, loss_criterion)
 #plot_results(train_losses, val_losses)
+
+#SAVE MODEL:
+dummy_input = torch.randn(32, 3, 224, 224, device=device)
+input_names = ['input_1']
+output_names = ['output_1']
+save_and_convert_model('vgg16', model, dummy_input, input_names, output_names)
