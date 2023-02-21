@@ -21,7 +21,8 @@ double pos2 = 0;
 
 
 const double alpha = 360.0/3.0/231.0; // Relative angle per encoder step
-
+u_int currT = 0; // Current time in milliseconds 
+u_int oldT = 0;
 
 void readEncoder1(){ 
     int b = digitalRead(chB1);
@@ -74,6 +75,7 @@ int accuateMotor(int power1,int dir1,int power2,int dir2){
 
 }
 
+/*
 int main(){
     wiringPiSetupGpio(); //Setup and use defult pin numbering
 
@@ -89,12 +91,10 @@ int main(){
     pinMode(chB1,INPUT);
 
 
-    u_int currT = millis()
+    
     wiringPiISR(chA1,INT_EDGE_RISING, &readEncoder1); // Hardware interupt for encoder 1
     wiringPiISR(chA2,INT_EDGE_RISING, &readEncoder2);
-    while(1){
-        delay(500);
-        printf("\n");
-    }
 
-}
+} /* 
+
+//gcc motorControl.c -o mC -lwiringPi -lm
