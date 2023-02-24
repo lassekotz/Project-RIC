@@ -28,12 +28,28 @@ int main(){
     accuateMotor(0,1,0,1);
     printWheelRotation();
     delay(2000);
-    printf("Initializing IMU");
+
+
+    printf("Initializing IMU and regulator");
+    initRegParam(28.545755616, 241.5669, 2.4835, -0.0431, -0.0464);
     setupFirstValue();
+    double curTheta;
+    float u;
     for(int i, i<1000,i++){
-        update_angle(1);
+        curTheta = update_angle(1);
+        u =angleController(float angle,float v, float vref);
+        printf("Desired motor voltage from controller %f",u);
         delay(10);
     }
 
     
 }
+
+/*Controllers.F_theta.Kp = 28.545755616786778;
+Controllers.F_theta.Ki = 241.5669;
+Controllers.F_theta.Kd = 2.4835;
+Controllers.F_theta.Tf = 0.0400;
+
+% Yttre regulatorn 1: F_v
+Controllers.F_v.Kp = -0.0431;
+Controllers.F_v.Ki = -0.0464;*/ 

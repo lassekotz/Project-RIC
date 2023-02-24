@@ -47,7 +47,7 @@ void ms_delay(int val){
 
 
 
-void update_angle(int verbose){
+double update_angle(int verbose){
 	
 		//Keep track of time
    		u_int curT = millis();
@@ -86,6 +86,7 @@ void update_angle(int verbose){
 		if(verbose){
 			printf("\n Theta=%.3d °\tThetaG=%.3d °\tThetaA=%.3d °\n",theta,thetaG,thetaA);
 		}
+		return theta;
 	
 		
 }

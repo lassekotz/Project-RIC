@@ -52,7 +52,7 @@ float angleController(float angle,float v, float vref){
 }
 
 
-initRegParam(float Kp, float Ki, float Kd, float Kpv, float Kiv;){
+void initRegParam(float Kp, float Ki, float Kd, float Kpv, float Kiv){
    kp = Kp;
    ki = Ki;
    kd = Kd;
