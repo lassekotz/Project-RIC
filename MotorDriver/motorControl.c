@@ -52,6 +52,7 @@ void printWheelRotation(){
     printf("Wheel 2 has rotated %f degrees \n",pos2);
 }
 
+/*
 float* convolve(float h[], float x[], int lenH, int lenX, int* lenY)
 {
   int nconv = lenH+lenX-1;
@@ -62,16 +63,16 @@ float* convolve(float h[], float x[], int lenH, int lenX, int* lenY)
 
   for (i=0; i<nconv; i++)
   {
-    x_start = MAX(0,i-lenH+1);
-    x_end   = MIN(i+1,lenX);
-    h_start = MIN(i,lenH-1);
+    x_start = max(0,i-lenH+1);
+    x_end   = min(i+1,lenX);
+    h_start = min(i,lenH-1);
     for(j=x_start; j<x_end; j++)
     {
       y[i] += h[h_start--]*x[j];
     }
   }
   return y;
-}
+} */
 
 
 void accuateMotor(int power1,int dir1,int power2,int dir2){ 
@@ -97,7 +98,7 @@ void accuateMotor(int power1,int dir1,int power2,int dir2){
     }
 
     pwmWrite(en1,power1);
-    pmwWrite(en2,power2);
+    pwmWrite(en2,power2);
 
 }
 
@@ -140,6 +141,6 @@ int main(){
     wiringPiISR(chA1,INT_EDGE_RISING, &readEncoder1); // Hardware interupt for encoder 1
     wiringPiISR(chA2,INT_EDGE_RISING, &readEncoder2);
 
-} /* 
+} */ 
 
 //gcc motorControl.c -o mC -lwiringPi -lm
