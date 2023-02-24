@@ -4,7 +4,7 @@ float angleController(float angle,float v, float vref);
 void initRegParam(float Kp, float Ki, float Kd, float Kpv, float Kiv);
 
 // Declarations 
-unsigned long oldT;
+unsigned long oldTcontroller;
 double errsum, oldErr,ITerm; //Error variables for angles 
 double verrorSum, lastvRef; //Integral error for velocity controller 
 float kp, ki, kd;

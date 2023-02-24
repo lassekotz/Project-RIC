@@ -50,8 +50,8 @@ void ms_delay(int val){
 double update_angle(int verbose){
 	
 		//Keep track of time
-   		u_int curT = millis();
-   		double dt = (double)(curT-oldT);
+   		u_int curTimu = millis();
+   		double dt = (double)(curTimu-oldTimu);
 	
 		/*Read raw value of Accelerometer and gyroscope from MPU6050*/
 		Acc_x = read_raw_data(ACCEL_XOUT_H);
@@ -81,7 +81,7 @@ double update_angle(int verbose){
 		theta = 0.95 * thetaG + 0.05 * thetaA;
 
 		// Store for next loop
-   		oldT = curT;
+   		oldTimu = curTimu;
 		
 		if(verbose){
 			printf("\n Theta=%.3d °\tThetaG=%.3d °\tThetaA=%.3d °\n",theta,thetaG,thetaA);

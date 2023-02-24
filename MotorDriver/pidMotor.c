@@ -8,7 +8,7 @@
 
 
 
-unsigned long oldT;
+unsigned long oldTcontroller;
 double errsum, oldErr,ITerm; //Error variables for angles 
 double verrorSum, lastvRef; //Integral error for velocity controller 
 float kp, ki, kd;
@@ -20,7 +20,7 @@ float angleController(float angle,float v, float vref){
    // Calculates output signals from inputs consisting of current leaning angle and desired angle
 
    // Keeping track of time
-   u_int curT = millis();
+   u_int curTcontroller = millis();
    double dt = (double)(curT-oldT);
 
    //Velocity errors 

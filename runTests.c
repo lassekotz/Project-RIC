@@ -35,14 +35,13 @@ int main(){
     setupFirstValue();
     double curTheta;
     float u;
-    for(int i, i<1000,i++){
+    for(int i; i<1000; i++){
         curTheta = update_angle(1);
         u =angleController(float angle,float v, float vref);
         printf("Desired motor voltage from controller %f",u);
         delay(10);
     }
-
-    
+ 
 }
 
 /*Controllers.F_theta.Kp = 28.545755616786778;
