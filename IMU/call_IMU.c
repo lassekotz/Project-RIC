@@ -22,7 +22,6 @@
 #define GYRO_ZOUT_H  0x47
 
 
-
 void MPU6050_Init(){
 	fd = wiringPiI2CSetup(0x68);   /*Initializes I2C with device Address*/
 	wiringPiI2CWriteReg8 (fd, SMPLRT_DIV, 0x07);	/* Write to sample rate register */
