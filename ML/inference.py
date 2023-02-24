@@ -1,10 +1,10 @@
 import numpy as np
-import tensorflow as tf
 import time
+import tflite_runtime.interpreter as tflite
 
 def run_inference():
 
-    interpreter = tf.lite.Interpreter(model_path="trained_models/vgg16/vgg16.tflite")
+    interpreter = tflite.Interpreter(model_path="trained_models/vgg16/vgg16.tflite")
     interpreter.allocate_tensors()
 
     # Get input and output tensors.
