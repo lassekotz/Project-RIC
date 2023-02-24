@@ -1,3 +1,5 @@
+//Depreciated file, only use for reference!!!
+
 // Get angles from MPU 6050 data with Raspberry pi
 
 #include <wiringPiI2C.h>

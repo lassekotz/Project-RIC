@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <wiringPi.h>
 #include <stdlib.h>
+#include "motorControl.h"
 
 // Declaring pins for motors
 const int en1 = 12; //Change these 
@@ -32,7 +33,7 @@ void readEncoder1(){
     else{
         pos1 = pos1-alpha;
     }
-    printf("Current angle is %f",pos);
+
 }
 
 void readEncoder2(){ 
@@ -43,11 +44,37 @@ void readEncoder2(){
     else{
         pos2 = pos2-alpha;
     }
-    printf("Current angle 2 is %f",pos);
+}
+
+void printWheelRotation(){
+    //Only used for testing 
+    printf("Wheel 1 has rotated %f degrees \n",pos1);
+    printf("Wheel 2 has rotated %f degrees \n",pos2);
+}
+
+float* convolve(float h[], float x[], int lenH, int lenX, int* lenY)
+{
+  int nconv = lenH+lenX-1;
+  (*lenY) = nconv;
+  int i,j,h_start,x_start,x_end;
+
+  float *y = (float*) calloc(nconv, sizeof(float));
+
+  for (i=0; i<nconv; i++)
+  {
+    x_start = MAX(0,i-lenH+1);
+    x_end   = MIN(i+1,lenX);
+    h_start = MIN(i,lenH-1);
+    for(j=x_start; j<x_end; j++)
+    {
+      y[i] += h[h_start--]*x[j];
+    }
+  }
+  return y;
 }
 
 
-int accuateMotor(int power1,int dir1,int power2,int dir2){ 
+void accuateMotor(int power1,int dir1,int power2,int dir2){ 
     //Dir = Zero for backwards, One for forwards
     // Power is a number between 0-1024
 
@@ -72,7 +99,25 @@ int accuateMotor(int power1,int dir1,int power2,int dir2){
     pwmWrite(en1,power1);
     pmwWrite(en2,power2);
 
+}
 
+int initMotorPins(){
+    //Setting pinmodes for motor pins
+    pinMode(en1,PWM_OUTPUT);
+    pinMode(en2,PWM_OUTPUT);
+    pinMode(in1,OUTPUT);
+    pinMode(in2,OUTPUT);
+    pinMode(in3,OUTPUT);
+    pinMode(in4,OUTPUT);
+    //Pins for encoder 
+    pinMode(chA1,INPUT);
+    pinMode(chB1,INPUT);
+
+
+    // Hardware interupt for encoders
+    wiringPiISR(chA1,INT_EDGE_RISING, &readEncoder1); 
+    wiringPiISR(chA2,INT_EDGE_RISING, &readEncoder2);
+    return 0;
 }
 
 /*

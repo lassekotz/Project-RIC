@@ -1,8 +1,10 @@
 
 // Functions used
-int accuateMotor(int power1,int dir1,int power2,int dir2);
+void accuateMotor(int power1,int dir1,int power2,int dir2);
 void readEncoder1();
 void readEncoder2();
+int initMotorPins();
+void printWheelRotation();
 
 // Declaring pins for motors
 const int en1; //Change these 

@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <wiringPi.h>
 #include <math.h>
+#include "call_IMU.h"
 
 #define MPU 0x68	/*Device Address/Identifier for MPU6050*/
 
@@ -20,16 +21,10 @@
 #define GYRO_YOUT_H  0x45
 #define GYRO_ZOUT_H  0x47
 
-int fd;
-	float Acc_x,Acc_y,Acc_z;
-	float Gyro_x,Gyro_y,Gyro_z;
-	float Ax=0, Ay=0, Az=0;
-	float Gx=0, Gy=0, Gz=0;
-	fd = wiringPiI2CSetup(0x68);   /*Initializes I2C with device Address*/                 /* Initializes MPU6050 */
-	double theta,thetaA,thetaG;
+
 
 void MPU6050_Init(){
-	
+	fd = wiringPiI2CSetup(0x68);   /*Initializes I2C with device Address*/
 	wiringPiI2CWriteReg8 (fd, SMPLRT_DIV, 0x07);	/* Write to sample rate register */
 	wiringPiI2CWriteReg8 (fd, PWR_MGMT_1, 0x01);	/* Write to power management register */
 	wiringPiI2CWriteReg8 (fd, CONFIG, 0);		/* Write to Configuration register */
@@ -53,9 +48,11 @@ void ms_delay(int val){
 
 
 
-int update_angle(thetaOld,dt){
+void update_angle(int verbose){
 	
-
+		//Keep track of time
+   		u_int curT = millis();
+   		double dt = (double)(curT-oldT);
 	
 		/*Read raw value of Accelerometer and gyroscope from MPU6050*/
 		Acc_x = read_raw_data(ACCEL_XOUT_H);
@@ -83,11 +80,30 @@ int update_angle(thetaOld,dt){
 
 		// Complementary filter
 		theta = 0.95 * thetaG + 0.05 * thetaA;
+
+		// Store for next loop
+   		oldT = curT;
 		
-		printf("\n Theta=%.3d °\tThetaG=%.3d °\tThetaA=%.3d °\n",theta,thetaG,thetaA);
+		if(verbose){
+			printf("\n Theta=%.3d °\tThetaG=%.3d °\tThetaA=%.3d °\n",theta,thetaG,thetaA);
+		}
+	
 		
-	return theta;
 }
+
+void setupFirstValue(){
+	//Initializes first gyro value from accelerometer to speed up start
+	Acc_x = read_raw_data(ACCEL_XOUT_H);
+	Acc_y = read_raw_data(ACCEL_YOUT_H);
+	Acc_z = read_raw_data(ACCEL_ZOUT_H); 
+	Ax = Acc_x/16384.0;
+	Ay = Acc_y/16384.0;
+	Az = Acc_z/16384.0;
+
+	thetaG = 180.0/3.1415* atan2(-AccX,sqrt(pow(AccY,2)+ pow(AccZ,2)));
+}
+
+
 
 
 //gcc IMU.c -o IMU -l wiringPi -lm
