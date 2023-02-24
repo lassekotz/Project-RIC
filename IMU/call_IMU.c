@@ -72,7 +72,7 @@ double update_angle(int verbose){
 		Gz = Gyro_z/131.0;
 
 		// Acc angle
-		thetaA = 180.0/3.1415* atan2(-AccX,sqrt(pow(AccY,2)+ pow(AccZ,2)));
+		thetaA = 180.0/3.1415* atan2(-Ax,sqrt(pow(Ay,2)+ pow(Az,2)));
 
 		// Gyro angle
 		thetaG = thetaOld + GyroY * dt; // deg/s * s = deg
@@ -86,6 +86,7 @@ double update_angle(int verbose){
 		if(verbose){
 			printf("\n Theta=%.3d °\tThetaG=%.3d °\tThetaA=%.3d °\n",theta,thetaG,thetaA);
 		}
+		thetaOld = theta;
 		return theta;
 	
 		
