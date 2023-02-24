@@ -75,7 +75,7 @@ double update_angle(int verbose){
 		thetaA = 180.0/3.1415* atan2(-Ax,sqrt(pow(Ay,2)+ pow(Az,2)));
 
 		// Gyro angle
-		thetaG = thetaOld + GyroY * dt; // deg/s * s = deg
+		thetaG = thetaOld + Gy * dt; // deg/s * s = deg
 
 		// Complementary filter
 		theta = 0.95 * thetaG + 0.05 * thetaA;
@@ -101,7 +101,7 @@ void setupFirstValue(){
 	Ay = Acc_y/16384.0;
 	Az = Acc_z/16384.0;
 
-	thetaG = 180.0/3.1415* atan2(-AccX,sqrt(pow(AccY,2)+ pow(AccZ,2)));
+	thetaG = 180.0/3.1415* atan2(-Ax,sqrt(pow(Ay,2)+ pow(Az,2)));
 }
 
 
