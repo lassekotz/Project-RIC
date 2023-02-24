@@ -33,11 +33,11 @@ int main(){
     printf("Initializing IMU and regulator");
     initRegParam(28.545755616, 241.5669, 2.4835, -0.0431, -0.0464);
     setupFirstValue();
-    double curTheta;
+    float curTheta;
     float u;
     for(int i; i<1000; i++){
         curTheta = update_angle(1);
-        u =angleController(float angle,float v, float vref);
+        u =angleController(curTheta,0.0, 0.0);
         printf("Desired motor voltage from controller %f",u);
         delay(10);
     }
