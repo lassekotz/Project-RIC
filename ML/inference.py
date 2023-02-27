@@ -1,10 +1,13 @@
 import numpy as np
 import time
 import tflite_runtime.interpreter as tflite
+import sys
 
-def run_inference():
+model = str(sys.argv[1])
 
-    interpreter = tflite.Interpreter(model_path="trained_models/vgg16/vgg16.tflite")
+def run_inference(model):
+    print("inference running on: " + model)
+    interpreter = tflite.Interpreter(model_path="trained_models/" + model + "/" + model + ".tflite")
     interpreter.allocate_tensors()
 
     # Get input and output tensors.
@@ -22,8 +25,7 @@ def run_inference():
     # Use `tensor()` in order to get a pointer to the tensor.
     output_data = interpreter.get_tensor(output_details[0]['index'])
     print(output_data)
-    print(len(output_data))
 
 t0 = time.time()
-run_inference()
+run_inference(model)
 print("Elapsed time: " + str(time.time() - t0))

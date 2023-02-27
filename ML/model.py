@@ -303,13 +303,14 @@ batch_size = 32
 train_loader, val_loader, test_loader = generate_dataloader(dataset, batch_size, [.8, .1, .1])
 
 #model = LinearModel(dataset)
-#model = CNN()
-
+model = CNN()
+'''
 model = models.vgg16(pretrained=True)
 for param in model.features.parameters():
     param.requires_grad = False
 num_features = model.classifier[6].in_features
 model.classifier[6] = nn.Linear(num_features, 1)
+'''
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device, dtype=torch.float32)
 
@@ -322,7 +323,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 #plot_results(train_losses, val_losses)
 
 #SAVE MODEL:
-dummy_input = torch.randn(32, 3, 224, 224, device=device)
+dummy_input = torch.randn(1, 3, 224, 224, device=device)
 input_names = ['input_1']
 output_names = ['output_1']
-save_and_convert_model('vgg16', model, dummy_input, input_names, output_names)
+save_and_convert_model('CNN', model, dummy_input, input_names, output_names)
