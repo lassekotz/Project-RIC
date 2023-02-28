@@ -18,5 +18,9 @@ def view_label_distr(filepath, bins = 10):
     plt.title('Distribution of angles in dataset ' + str(filepath))
     plt.show()
 
+def plot_error_distr():
+    #TODO: Implement an error distribution tool
+    pass
+
 filepath = './Data/BigDataset/labels.txt'
 view_label_distr(filepath, bins = 15)
