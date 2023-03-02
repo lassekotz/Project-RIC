@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <wiringPi.h>
 #include <stdlib.h>
+#include <math.h>
 // Include project libraries 
 #include "motorControl.h"
 #include "pidMotor.h"
@@ -17,13 +18,13 @@ int main(){
 
     printf("Start motor test 1 \n");
     accuateMotor(500,1,500,1);
-    printf("Motors should now run at half speed forwards for 3 seconds");
+    printf("Motors should now run at half speed forwards for 3 seconds \n");
     delay(3000);
-    printf("Stop motors");
+    printf("Stop motors \n");
     accuateMotor(0,1,0,1);
     delay(100);
     accuateMotor(500,0,500,0);
-    printf("Motors should now run at half speed backwards for 3 seconds");
+    printf("Motors should now run at half speed backwards for 3 seconds \n");
     delay(3000);
     accuateMotor(0,1,0,1);
     printWheelRotation();
@@ -36,9 +37,15 @@ int main(){
     float curTheta;
     float u;
     for(int i; i<1000; i++){
-        curTheta = update_angle(1);
-        u =angleController(curTheta,0.0, 0.0);
-        printf("Desired motor voltage from controller %f",u);
+        if(i % 100 == 0){
+            curTheta = update_angle(1);
+            u =angleController(curTheta,0.0, 0.0);
+            printf("Desired motor voltage from controller %f \n",u);
+        }
+        else{
+            curTheta = update_angle(0);
+            u =angleController(curTheta,0.0, 0.0);
+        }
         delay(10);
     }
  
@@ -55,7 +62,4 @@ Tf = 0.0400;
 v.Kp = -0.0431;
 Ki = -0.0464;
 */ 
-=======
-Controllers.F_v.Kp = -0.0431;
-Controllers.F_v.Ki = -0.0464;*/ 
->>>>>>> da8f577a9c61bc1f96d0f6a2819060780ffa777d
+

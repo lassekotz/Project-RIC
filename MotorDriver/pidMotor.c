@@ -21,7 +21,7 @@ float angleController(float angle,float v, float vref){
 
    // Keeping track of time
    u_int curTcontroller = millis();
-   double dt = (double)(curT-oldT);
+   double dt = (double)(curTcontroller-oldTcontroller);
 
    //Velocity errors 
    double verror = vref-v;
@@ -45,7 +45,7 @@ float angleController(float angle,float v, float vref){
    float u = kp*error + ITerm + kd*dErr;
 
    // Store for next loop
-   oldT = curT;
+   oldTcontroller = curTcontroller;
    oldErr = error;
    
    return u;

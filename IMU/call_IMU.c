@@ -21,6 +21,15 @@
 #define GYRO_YOUT_H  0x45
 #define GYRO_ZOUT_H  0x47
 
+//Declarations 
+int fd;
+float Acc_x,Acc_y,Acc_z;
+float Gyro_x,Gyro_y,Gyro_z;
+float Ax, Ay, Az;
+float Gx, Gy, Gz;
+double theta,thetaA,thetaG,thetaOld;
+unsigned long oldTimu;
+
 
 void MPU6050_Init(){
 	fd = wiringPiI2CSetup(0x68);   /*Initializes I2C with device Address*/
