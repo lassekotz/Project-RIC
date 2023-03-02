@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <wiringPi.h>
 #include <stdlib.h>
-#include "motorControl.h"
+//#include "motorControl.h"
 
 // Declaring pins for motors
 const int en1 = 12; //Change these 
