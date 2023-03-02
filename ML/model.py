@@ -185,7 +185,7 @@ def generate_dataloader(dataset, batch_size, props):
 class LinearModel(torch.nn.Module):
     def __init__(self):
         super().__init__()
-        h, w = 3, 3
+        h, w = 224, 224
         self.layer1 = nn.Linear(in_features=h*w*3, out_features= 1)
 
     def forward(self, x):
