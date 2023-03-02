@@ -46,7 +46,6 @@ def run_inference_regular(architecture):
         raise Exception("Model " + architecture + " not available in ./trained_models/")
     model.load_state_dict('./trained_models/' + architecture + "/" + architecture + ".pt")
 
-    run_preds(model, data)
 
 
 t0 = time.time()
