@@ -1,3 +1,5 @@
+#ifndef RIC_imu
+#define RIC_imu
 
 //Functions 
 void MPU6050_Init();
@@ -15,3 +17,5 @@ float Ax, Ay, Az;
 float Gx, Gy, Gz;
 double theta,thetaA,thetaG,thetaOld;
 unsigned long oldTimu;
+
+#endif

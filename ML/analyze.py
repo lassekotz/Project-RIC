@@ -17,6 +17,7 @@ def view_label_distr(filepath, bins = 10):
     plt.title('Distribution of angles in dataset ' + str(filepath))
     plt.show()
 
+    return None
 def plot_error_distr(errors_list, bins = 20):
     errors_np = np.array(errors_list)
 
@@ -27,3 +28,17 @@ def plot_error_distr(errors_list, bins = 20):
     ax2.plot(errors_list)
     ax2.set_title('Errors over time')
     plt.show()
+
+    return None
+
+def plot_pred_vs_target(targets, preds):
+    plt.scatter(preds, targets)
+    plt.title('Prediction space')
+    plt.legend('Data')
+    plt.xlabel('Predicted angle')
+    plt.ylabel('Actual angle')
+    plt.xticks()
+    plt.yticks()
+    plt.show()
+
+    return None

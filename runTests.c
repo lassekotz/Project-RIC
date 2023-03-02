@@ -44,11 +44,18 @@ int main(){
  
 }
 
-/*Controllers.F_theta.Kp = 28.545755616786778;
-Controllers.F_theta.Ki = 241.5669;
-Controllers.F_theta.Kd = 2.4835;
-Controllers.F_theta.Tf = 0.0400;
+/*
+Kp = 28.545755616786778;
+Ki = 241.5669;
+Kd = 2.4835;
+Tf = 0.0400;
 
 % Yttre regulatorn 1: F_v
+<<<<<<< HEAD
+v.Kp = -0.0431;
+Ki = -0.0464;
+*/ 
+=======
 Controllers.F_v.Kp = -0.0431;
 Controllers.F_v.Ki = -0.0464;*/ 
+>>>>>>> da8f577a9c61bc1f96d0f6a2819060780ffa777d

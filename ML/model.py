@@ -10,7 +10,6 @@ import torchvision.models as models
 from tqdm import tqdm
 import numpy as np
 from tflite_conversion import save_and_convert_model
-import os
 
 class ImagesDataset(Dataset):
 
@@ -61,7 +60,7 @@ class ImagesDataset(Dataset):
 
         imu_list = [float(s.strip()) for s in imu_list]
         image_list = [(str(i) + ".jpg") for i in range(len(imu_list))]
-        #image_list = [x for x in os.listdir(self.root)]
+        # image_list = [x for x in os.listdir(self.root)]
 
         if (len(imu_list) != len(image_list)):
             raise TypeError("IMU data and image data have different sizes.")
@@ -227,6 +226,17 @@ class CNN(torch.nn.Module):
         o = self.output(o)
 
         return o
+
+def test():
+    preds_and_labels = []
+    for (x, y) in tqdm(test_loader, desc=f'Computing test data'):
+        model.eval()
+        inputs, labels = x.to(device), y.to(device)
+        labels = labels.float()
+        preds = model.forward(inputs).to(device).squeeze()
+        preds_and_labels.append((labels.item(), preds.item()))
+    return preds_and_labels
+
 def validate(model, loss_fn, val_loader, device):
     val_loss_cum = 0
     val_loss_batches = []
@@ -300,8 +310,8 @@ dataset = ImagesDataset(image_path, current_transform)
 batch_size = 32
 train_loader, val_loader, test_loader = generate_dataloader(dataset, batch_size, [.8, .1, .1])
 
-#model = LinearModel(dataset)
-#model = CNN()
+# model = LinearModel()
+# model = CNN()
 
 model = models.vgg16(pretrained=True)
 for param in model.features.parameters():
@@ -314,14 +324,17 @@ model.to(device, dtype=torch.float32)
 
 epochs = 5
 lr = 0.001
-loss_criterion = nn.L1Loss() #MAE
+loss_criterion = nn.L1Loss() # MAE
 optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-#train_losses, val_losses, train_losses_per_epoch, val_losses_per_epoch = training_loop(train_loader, model, optimizer, val_loader, epochs, loss_criterion)
-#plot_results(train_losses, val_losses)
+print("Currently training on " + str(device))
+# train_losses, val_losses, train_losses_per_epoch, val_losses_per_epoch = training_loop(train_loader, model, optimizer, val_loader, epochs, loss_criterion)
+# plot_results(train_losses, val_losses)
 
 #SAVE MODEL:
 dummy_input = torch.randn(1, 3, 224, 224, device=device)
 input_names = ['input_1']
 output_names = ['output_1']
 save_and_convert_model('vgg16', model, dummy_input, input_names, output_names)
+
+test()

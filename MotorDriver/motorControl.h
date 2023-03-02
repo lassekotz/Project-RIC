@@ -1,3 +1,6 @@
+#ifndef RIC_motor
+#define RIC_motor
+
 
 // Functions used
 void accuateMotor(int power1,int dir1,int power2,int dir2);
@@ -22,7 +25,7 @@ double pos1; //Keeps track of current angle
 double pos2;
 
 
-
+#endif
 
 const double alpha; // Relative angle per encoder step
 u_int currT; // Current time in milliseconds 
