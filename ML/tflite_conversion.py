@@ -5,6 +5,8 @@ import torch
 import os
 
 def save_and_convert_model(model_name, model, dummy_input, input_names, output_names):
+    torch.save(model.state_dict(), './trained_models/' + str(model_name) + "/" + str(model_name) + '.pt')
+
     if not os.path.exists('./trained_models/' + str(model_name)):
         os.mkdir('./trained_models/' + str(model_name))
     path = './trained_models/' + str(model_name) + "/" + str(model_name)
