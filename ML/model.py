@@ -183,11 +183,9 @@ def generate_dataloader(dataset, batch_size, props):
 
     return train_loader, val_loader, test_loader
 class LinearModel(torch.nn.Module):
-    def __init__(self, dataset):
+    def __init__(self):
         super().__init__()
-        if dataset.__getitem__(0)[0].dim() == 3:
-            h, w = (dataset.__getitem__(0)[0]).size()[1], (dataset.__getitem__(0)[0]).size()[2]
-
+        h, w = 3, 3
         self.layer1 = nn.Linear(in_features=h*w*3, out_features= 1)
 
     def forward(self, x):
@@ -310,6 +308,7 @@ for param in model.features.parameters():
     param.requires_grad = False
 num_features = model.classifier[6].in_features
 model.classifier[6] = nn.Linear(num_features, 1)
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device, dtype=torch.float32)
 
@@ -322,7 +321,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 #plot_results(train_losses, val_losses)
 
 #SAVE MODEL:
-dummy_input = torch.randn(32, 3, 224, 224, device=device)
+dummy_input = torch.randn(1, 3, 224, 224, device=device)
 input_names = ['input_1']
 output_names = ['output_1']
 save_and_convert_model('vgg16', model, dummy_input, input_names, output_names)
