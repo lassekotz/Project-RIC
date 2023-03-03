@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <wiringPi.h>
 #include <time.h>
+#include <math.h>
 
 #define MPU 0x68	/*Device Address/Identifier for MPU6050*/
 
@@ -49,16 +50,18 @@ void ms_delay(int val){
 
 int main(){
 	
+	wiringPiSetupGpio();
+	
 	float Acc_x,Acc_y,Acc_z;
 	float Gyro_x,Gyro_y,Gyro_z;
 	float Ax=0, Ay=0, Az=0;
 	float Gx=0, Gy=0, Gz=0;
-	float theta,thetaG
-	fd = wiringPiI2CSetup(Device_Address);   /*Initializes I2C with device Address*/
+	float theta,thetaG,thetaA;
+	fd = wiringPiI2CSetup(MPU);   /*Initializes I2C with device Address*/
 	MPU6050_Init();		                 /* Initializes MPU6050 */
-	struct timeval t1, t2;
+	u_int32_t t1, t2;
     double elapsedTime;
-	gettimeofday(&t1, NULL);
+	t1 = millis();
 	
 
 	while(1)
@@ -81,37 +84,24 @@ int main(){
 		Gx = Gyro_x/131;
 		Gy = Gyro_y/131;
 		Gz = Gyro_z/131;
-		gettimeofday(&t2, NULL);
+		t2 = millis();
 		
-
-		elapsedTime = (t2.tv_sec - t1.tv_sec)
-		thetaG = theta + GyroY * elapsedTime; // deg/s * s = deg
+		thetaA = 180.0/3.1415* atan2(-Ax,sqrt(pow(Ay,2)+ pow(Az,2)));
+		elapsedTime = (t2 - t1)/1000.0;
+		thetaG = theta + Gy * elapsedTime; // deg/s * s = deg
 
   
 		// Complementary filter - combine acceleromter and gyro angle values
 
-		theta = 0.95 * thetaG + 0.05 * thetaA;
+		theta = 0.98 * thetaG + 0.02 * thetaA;
 
 		t1 = t2;
 
-		printf("\n Theta=%.3f °\tThetaG=%.3f °\tThetaA=%.3f °\ttime=%.3d s\n",theta,thetaG,thetaA,elapsedTime);
-		delay(100);
+		printf("\n Theta=%.3f °\tThetaG=%.3f °\tThetaA=%.3f °\ttime=%f s\n",theta,thetaG,thetaA,elapsedTime);
+		delay(10);
 		
 	}
 	return 0;
 }
 
-/*struct timeval t1, t2;
-    double elapsedTime;
-
-    // start timer
-    gettimeofday(&t1, NULL);
-
-    // do something
-    // ...
-
-    // stop timer
-    gettimeofday(&t2, NULL);
-
-    // compute and print the elapsed time in sec
-    elapsedTime = (t2.tv_sec - t1.tv_sec) 
+// gcc IMU.c -o IMU -lwiringPi -lm
