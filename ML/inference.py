@@ -5,6 +5,7 @@ import sys
 import torchvision.models as models
 from model import CNN, LinearModel
 from torch import nn
+import tqdm
 
 architecture = str(sys.argv[1])
 extension = str(sys.argv[2]) #either tflite or pt
@@ -31,32 +32,28 @@ def run_inference_tflite(architecture):
     print(output_data)
 
 def run_inference_regular(architecture):
-    #TODO: implement inference run from .pt file
     if architecture == 'linear':
         model = LinearModel()
-        #TODO: instantiate linear and load parameters onto it
     elif architecture == 'CNN':
         model = CNN()
-        #TODO: instantiate CNN and load params onto it
     elif architecture == 'vgg16':
         model = models.vgg16(pretrained=True)
         for param in model.features.parameters():
             param.requires_grad = False
         num_features = model.classifier[6].in_features
         model.classifier[6] = nn.Linear(num_features, 1)
-        #TODO: isntantiate vgg16 and load parasms onto it
     else:
         raise Exception("Model " + architecture + " not available in ./trained_models/")
     model.load_state_dict('./trained_models/' + architecture + "/" + architecture + ".pt")
 
-    pass
+
 
 t0 = time.time()
 if extension == '.pt':
-    run_inference_regular(architecture)
+    model = run_inference_regular(architecture)
     print("Elapsed time: " + str(time.time() - t0))
 elif extension == '.tflite':
-    run_inference_tflite()
+    interpreter = run_inference_tflite(architecture)
     print("Elapsed time: " + str(time.time() - t0))
 else:
     raise Exception("Argument at position 2 must be either .tflite or .pt")
