@@ -271,9 +271,7 @@ def train_epoch(model, optimizer, loss_fn, train_loader, device, epoch):
 def training_loop(train_loader, model, optimizer, val_loader, epochs, loss_fn):
     #TODO: IMPLEMENT EARLY STOPPING
     prev_train_loss = 1000
-    prev_val_loss = 1000
     consecutive_fails = 0
-
 
     train_losses = []
     val_losses = []
@@ -295,6 +293,8 @@ def training_loop(train_loader, model, optimizer, val_loader, epochs, loss_fn):
 
         if ((prev_train_loss < latest_train_loss) or (latest_val_loss >= 1.1*latest_train_loss)):
             consecutive_fails += 1
+        else:
+            consecutive_fails = 0
         if consecutive_fails >= 3: # OVERFITTING CRITERIA
             break
 
