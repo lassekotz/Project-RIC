@@ -28,17 +28,17 @@ float Gyro_x,Gyro_y,Gyro_z;
 float Ax, Ay, Az;
 float Gx, Gy, Gz;
 double theta,thetaA,thetaG,thetaOld;
-unsigned long oldTimu;
+u_int32_t oldTimu;
 
 
 void MPU6050_Init(){
-	fd = wiringPiI2CSetup(0x68);   /*Initializes I2C with device Address*/
+	fd = wiringPiI2CSetup(MPU);   /*Initializes I2C with device Address*/
 	wiringPiI2CWriteReg8 (fd, SMPLRT_DIV, 0x07);	/* Write to sample rate register */
 	wiringPiI2CWriteReg8 (fd, PWR_MGMT_1, 0x01);	/* Write to power management register */
 	wiringPiI2CWriteReg8 (fd, CONFIG, 0);		/* Write to Configuration register */
 	wiringPiI2CWriteReg8 (fd, GYRO_CONFIG, 24);	/* Write to Gyro Configuration register */
 	wiringPiI2CWriteReg8 (fd, INT_ENABLE, 0x01);	/*Write to interrupt enable register */
-
+	oldTimu = millis();
 	} 
 short read_raw_data(int addr){
 	short high_byte,low_byte,value;
@@ -59,8 +59,8 @@ void ms_delay(int val){
 double update_angle(int verbose){
 	
 		//Keep track of time
-   		u_int curTimu = millis();
-   		double dt = (double)(curTimu-oldTimu);
+   		u_int32_t curTimu = millis();
+   		double dt = (curTimu-oldTimu)/1000.0;
 	
 		/*Read raw value of Accelerometer and gyroscope from MPU6050*/
 		Acc_x = read_raw_data(ACCEL_XOUT_H);
@@ -93,7 +93,8 @@ double update_angle(int verbose){
    		oldTimu = curTimu;
 		
 		if(verbose){
-			printf("\n Theta=%.3d °\tThetaG=%.3d °\tThetaA=%.3d °\n",theta,thetaG,thetaA);
+			//printf("\n Theta=%.3d °\tThetaG=%.3d °\tThetaA=%.3d °\n",theta,thetaG,thetaA);
+			printf("\n Theta=%.3f °\tThetaG=%.3f °\tThetaA=%.3f °\ttime=%f s\n",theta,thetaG,thetaA,dt);
 		}
 		thetaOld = theta;
 		return theta;
