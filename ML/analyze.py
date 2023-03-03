@@ -1,6 +1,10 @@
+import sys
+
 import numpy as np
 import matplotlib.pyplot as plt
 
+#datapath = sys.argv[1]
+datapath = './Results/linear/test_results.txt'
 def view_label_distr(filepath, bins = 10):
     with open(filepath) as f:
         lines = f.readlines()
@@ -42,3 +46,15 @@ def plot_pred_vs_target(targets, preds):
     plt.show()
 
     return None
+
+with open(datapath) as f:
+    lines = f.readlines()
+    targets = []
+    preds = []
+    for line in lines:
+        line = line.replace('(', '').replace(')', '')
+        line = tuple(map(float, line.split(', ')))
+        targets.append(line[0])
+        preds.append(line[1])
+
+plot_pred_vs_target(targets, preds)

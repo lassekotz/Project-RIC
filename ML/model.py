@@ -235,6 +235,10 @@ def test():
         labels = labels.float()
         preds = model.forward(inputs).to(device).squeeze()
         preds_and_labels.append((labels.item(), preds.item()))
+        # TODO: Save test-results to local
+        file = open('./Results/' + model.__class__.__name__ + "/test_results.txt")
+        for item in preds:
+            file.write(item + "\n")
     return preds_and_labels
 
 def validate(model, loss_fn, val_loader, device):
@@ -303,8 +307,11 @@ def training_loop(train_loader, model, optimizer, val_loader, epochs, loss_fn):
 def plot_results(train_losses, val_losses):
     plt.plot(train_losses)
     plt.plot(val_losses)
-    plt.legend('train_losses', 'val_losses')
+    plt.legend('train losses', 'val losses')
     plt.title('Training progress')
+    plt.xlabel()
+    plt.ylabel()
+    plt.grid()
     plt.show()
 
 def print_training_settings():
