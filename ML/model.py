@@ -345,6 +345,6 @@ print("Currently training on " + str(device))
 dummy_input = torch.randn(1, 3, 224, 224, device=device)
 input_names = ['input_1']
 output_names = ['output_1']
-save_and_convert_model('vgg16', model, dummy_input, input_names, output_names)
+save_and_convert_model(model.__class__.__name__, model, dummy_input, input_names, output_names)
 
 preds_and_labels = test()
