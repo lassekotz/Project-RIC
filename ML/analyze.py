@@ -2,7 +2,6 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
-#datapath = sys.argv[1]
 datapath = './Results/linear/test_results.txt'
 def view_label_distr(filepath, bins = 10):
     with open(filepath) as f:
@@ -33,7 +32,6 @@ def plot_error_distr(errors_list, bins = 20):
     plt.show()
 
     return None
-
 def plot_pred_vs_target(targets, preds):
     plt.scatter(preds, targets)
     plt.title('Prediction space')
@@ -43,8 +41,18 @@ def plot_pred_vs_target(targets, preds):
     plt.xticks()
     plt.yticks()
     plt.show()
+    # TODO: fix this
 
     return None
+def plot_results(train_losses, val_losses):
+    plt.plot(train_losses)
+    plt.plot(val_losses)
+    plt.legend('train losses', 'val losses')
+    plt.title('Training progress')
+    plt.xlabel()
+    plt.ylabel()
+    plt.grid()
+    plt.show()
 
 with open(datapath) as f:
     lines = f.readlines()

@@ -7,6 +7,7 @@ from torchvision import transforms
 import torchvision as torchvision
 import matplotlib.pyplot as plt
 import torchvision.models as models
+from analyze import plot_results
 from tqdm import tqdm
 import numpy as np
 from tflite_conversion import save_and_convert_model
@@ -208,7 +209,6 @@ class CNN(torch.nn.Module):
         self.bn2 = nn.BatchNorm2d(filter_size)
         self.pool = nn.MaxPool2d(maxpool_size, maxpool_size)
 
-        #TODO: Clean this solution up. Ugly way of defining output layer.
         b = torch.rand(1, 3, dataset.__getitem__(0)[0].size(dim=1), dataset.__getitem__(0)[0].size(dim=2))
         c = self.pool(self.conv2(self.conv1(b))).flatten().numel()
         self.output = nn.Linear(c, 1)
@@ -226,21 +226,18 @@ class CNN(torch.nn.Module):
         o = self.output(o)
 
         return o
-
 def test():
-    preds_and_labels = []
+    preds_and_labels = [] #TODO: Kör denna med bilderna från kontoret
     for (x, y) in tqdm(test_loader, desc=f'Computing test data'):
         model.eval()
         inputs, labels = x.to(device), y.to(device)
         labels = labels.float()
         preds = model.forward(inputs).to(device).squeeze()
         preds_and_labels.append((labels.item(), preds.item()))
-        # TODO: Save test-results to local
         file = open('./Results/' + model.__class__.__name__ + "/test_results.txt")
         for item in preds:
             file.write(item + "\n")
     return preds_and_labels
-
 def validate(model, loss_fn, val_loader, device):
     val_loss_cum = 0
     val_loss_batches = []
@@ -273,7 +270,6 @@ def train_epoch(model, optimizer, loss_fn, train_loader, device, epoch):
 
     return train_loss_cum/num_batches, train_loss_batches
 def training_loop(train_loader, model, optimizer, val_loader, epochs, loss_fn):
-    #TODO: IMPLEMENT EARLY STOPPING
     prev_train_loss = 1000
     consecutive_fails = 0
 
@@ -293,7 +289,7 @@ def training_loop(train_loader, model, optimizer, val_loader, epochs, loss_fn):
         val_losses_per_batch += val_loss_batches
 
 
-        print(f'Epoch {epoch + 1} \ntrain MAE: {latest_train_loss:2.4}, validation MAE: {latest_val_loss:2.4}')
+        (f'Epoch {epoch + 1} \ntrain MAE: {latest_train_loss:2.4}, validation MAE: {latest_val_loss:2.4}')
 
         if ((prev_train_loss < latest_train_loss) or (latest_val_loss >= 1.1*latest_train_loss)):
             consecutive_fails += 1
@@ -304,21 +300,12 @@ def training_loop(train_loader, model, optimizer, val_loader, epochs, loss_fn):
 
 
     return train_losses, val_losses, train_losses_per_batch, val_losses_per_batch
-def plot_results(train_losses, val_losses):
-    plt.plot(train_losses)
-    plt.plot(val_losses)
-    plt.legend('train losses', 'val losses')
-    plt.title('Training progress')
-    plt.xlabel()
-    plt.ylabel()
-    plt.grid()
-    plt.show()
 
 def print_training_settings():
-    print()
-    print("CURRENT TRAINING SETTINGS:")
-    print("Device: " + str(device))
-    print("Loss fn: " + str(loss_criterion))
+    ()
+    ("CURRENT TRAINING SETTINGS:")
+    ("Device: " + str(device))
+    ("Loss fn: " + str(loss_criterion))
 
 
 image_path = './Data/BigDataset'
@@ -328,13 +315,14 @@ batch_size = 32
 train_loader, val_loader, test_loader = generate_dataloader(dataset, batch_size, [.8, .1, .1])
 
 # model = LinearModel()
-# model = CNN()
-
+model = CNN()
+'''
 model = models.vgg16(pretrained=True)
 for param in model.features.parameters():
     param.requires_grad = False
 num_features = model.classifier[6].in_features
 model.classifier[6] = nn.Linear(num_features, 1)
+'''
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device, dtype=torch.float32)
@@ -344,7 +332,7 @@ lr = 0.001
 loss_criterion = nn.L1Loss() # MAE
 optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-print("Currently training on " + str(device))
+("Currently training on " + str(device))
 # train_losses, val_losses, train_losses_per_epoch, val_losses_per_epoch = training_loop(train_loader, model, optimizer, val_loader, epochs, loss_criterion)
 # plot_results(train_losses, val_losses)
 

@@ -5,14 +5,15 @@ import sys
 import torchvision.models as models
 from model import CNN, LinearModel
 from torch import nn
-import tqdm
 
-architecture = str(sys.argv[1])
-extension = str(sys.argv[2]) #either tflite or pt
+#model_name = str(sys.argv[1])
+model_name = 'vgg16.pt'
+model_name, extension = model_name.split('.')
+extension = '.' + extension
 
-def run_inference_tflite(architecture):
-    print("inference running on: " + architecture)
-    interpreter = tflite.Interpreter(model_path="trained_models/" + architecture + "/" + architecture + ".tflite")
+def load_model_tflite(model_name):
+    print("inference running on: " + model_name)
+    interpreter = tflite.Interpreter(model_path="trained_models/" + model_name + "/" + model_name + ".tflite")
     interpreter.allocate_tensors()
 
     # Get input and output tensors.
@@ -31,29 +32,26 @@ def run_inference_tflite(architecture):
     output_data = interpreter.get_tensor(output_details[0]['index'])
     print(output_data)
 
-def run_inference_regular(architecture):
-    if architecture == 'linear':
+def load_model(model_name):
+    if model_name == 'linear':
         model = LinearModel()
-    elif architecture == 'CNN':
+    elif model_name == 'CNN':
         model = CNN()
-    elif architecture == 'vgg16':
+    elif model_name == 'vgg16':
         model = models.vgg16(pretrained=True)
         for param in model.features.parameters():
             param.requires_grad = False
         num_features = model.classifier[6].in_features
         model.classifier[6] = nn.Linear(num_features, 1)
     else:
-        raise Exception("Model " + architecture + " not available in ./trained_models/")
-    model.load_state_dict('./trained_models/' + architecture + "/" + architecture + ".pt")
+        raise Exception("Model " + model_name + " not available in ./trained_models/")
+    model.load_state_dict('./trained_models/' + model_name + "/" + model_name + ".pt")
 
 
-
-t0 = time.time()
 if extension == '.pt':
-    model = run_inference_regular(architecture)
-    print("Elapsed time: " + str(time.time() - t0))
+    model = load_model(model_name)
 elif extension == '.tflite':
-    interpreter = run_inference_tflite(architecture)
-    print("Elapsed time: " + str(time.time() - t0))
+    interpreter = load_model_tflite(model_name)
 else:
     raise Exception("Argument at position 2 must be either .tflite or .pt")
+
