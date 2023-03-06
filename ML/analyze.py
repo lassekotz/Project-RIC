@@ -55,8 +55,8 @@ def plot_results(train_losses, val_losses):
     plt.plot(val_losses)
     plt.legend('train losses', 'val losses')
     plt.title('Training progress')
-    plt.xlabel()
-    plt.ylabel()
+    plt.xlabel('Epochs')
+    plt.ylabel('Mean Absolute Error')
     plt.grid()
     plt.show()
 
