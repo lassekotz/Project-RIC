@@ -53,7 +53,7 @@ def plot_pred_vs_target(targets, preds):
 def plot_results(train_losses, val_losses):
     plt.plot(train_losses)
     plt.plot(val_losses)
-    plt.legend('train losses', 'val losses')
+    plt.legend(['train losses', 'val losses'])
     plt.title('Training progress')
     plt.xlabel('Epochs')
     plt.ylabel('Mean Absolute Error')
@@ -62,6 +62,8 @@ def plot_results(train_losses, val_losses):
 
 
 if __name__ == '__main__':
+    plot_results([1,3,5], [1,2,3])
+    '''
     datapath = './Results/VGG/test_results.txt'
     with open(datapath) as f:
         lines = f.readlines()
@@ -74,3 +76,4 @@ if __name__ == '__main__':
             preds.append(line[1])
 
     plot_pred_vs_target(targets, preds)
+    '''
