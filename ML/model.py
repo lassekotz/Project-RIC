@@ -1,8 +1,11 @@
 import torch
 from torch import nn
 from tqdm import tqdm
-# from tflite_conversion import save_and_convert_model
+
+from ML.tflite_conversion import save_and_convert_model
 from preprocessing import ImagesDataset, generate_dataloader, generate_transforms
+from torchvision import models
+from analyze import plot_results
 
 class LinearModel(torch.nn.Module):
     def __init__(self):
@@ -113,7 +116,7 @@ def training_loop(train_loader, model, optimizer, val_loader, epochs, loss_fn):
         val_losses_per_batch += val_loss_batches
 
 
-        (f'Epoch {epoch + 1} \ntrain MAE: {latest_train_loss:2.4}, validation MAE: {latest_val_loss:2.4}')
+        print(f'Epoch {epoch + 1} \ntrain MAE: {latest_train_loss:2.4}, validation MAE: {latest_val_loss:2.4}')
 
         if ((prev_train_loss < latest_train_loss) or (latest_val_loss >= 1.1*latest_train_loss)):
             consecutive_fails += 1
@@ -125,12 +128,6 @@ def training_loop(train_loader, model, optimizer, val_loader, epochs, loss_fn):
 
     return train_losses, val_losses, train_losses_per_batch, val_losses_per_batch
 
-def print_training_settings():
-    ()
-    ("CURRENT TRAINING SETTINGS:")
-    ("Device: " + str(device))
-    ("Loss fn: " + str(loss_criterion))
-
 if __name__ == '__main__':
     image_path = './Data/BigDataset'
     all_transforms, no_transform, current_transform = generate_transforms(image_path)
@@ -139,14 +136,14 @@ if __name__ == '__main__':
     train_loader, val_loader, test_loader = generate_dataloader(dataset, batch_size, [.8, .1, .1])
 
     # model = LinearModel()
-    model = CNN()
-    '''
+    # model = CNN()
+
     model = models.vgg16(pretrained=True)
     for param in model.features.parameters():
         param.requires_grad = False
     num_features = model.classifier[6].in_features
     model.classifier[6] = nn.Linear(num_features, 1)
-    '''
+
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device, dtype=torch.float32)
@@ -156,14 +153,14 @@ if __name__ == '__main__':
     loss_criterion = nn.L1Loss() # MAE
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-    ("Currently training on " + str(device))
+    print("Currently training on " + str(device))
     train_losses, val_losses, train_losses_per_epoch, val_losses_per_epoch = training_loop(train_loader, model, optimizer, val_loader, epochs, loss_criterion)
-    # plot_results(train_losses, val_losses)
+    plot_results(train_losses, val_losses)
 
     #SAVE MODEL:
     dummy_input = torch.randn(1, 3, 224, 224, device=device)
     input_names = ['input_1']
     output_names = ['output_1']
-    # save_and_convert_model(model.__class__.__name__, model, dummy_input, input_names, output_names)
+    save_and_convert_model(model.__class__.__name__, model, dummy_input, input_names, output_names)
 
-    preds_and_labels = test()
+    preds_and_labels = test(test_loader, model, device)
