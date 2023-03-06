@@ -5,8 +5,10 @@ import torchvision.models as models
 from model import CNN, LinearModel, test
 from torch import nn
 from preprocessing import ImagesDataset, generate_transforms, generate_dataloader
+import sys
 
 def load_model_tflite(model_name):
+    # TODO: Should output a model similar to load_model()
     print("inference running on: " + model_name)
     interpreter = tflite.Interpreter(model_path="trained_models/" + model_name + "/" + model_name + ".tflite")
     interpreter.allocate_tensors()
@@ -28,11 +30,11 @@ def load_model_tflite(model_name):
     print(output_data)
 
 def load_model(model_name):
-    if model_name == 'linear':
+    if model_name == 'LinearModel':
         model = LinearModel()
     elif model_name == 'CNN':
         model = CNN()
-    elif model_name == 'vgg16':
+    elif model_name == 'VGG':
         model = models.vgg16(pretrained=True)
         for param in model.features.parameters():
             param.requires_grad = False
@@ -46,15 +48,13 @@ def load_model(model_name):
     return model
 
 
-# model_name = str(sys.argv[1])
-# image_path = str(sys.argv[2])
 if __name__ == '__main__':
-    model_name = 'vgg16.pt'
-    image_path = './Data/BigDataset'
+    model_name = str(sys.argv[1])
+    image_path = str(sys.argv[2])
     model_name, extension = model_name.split('.')
     extension = '.' + extension
     all_transforms, no_transform, current_transform = generate_transforms(image_path)
-    dataset = ImagesDataset(image_path, current_transform)
+    dataset = ImagesDataset(image_path, no_transform)
     batch_size = 1
     train_loader, val_loader, test_loader = generate_dataloader(dataset, batch_size, [0.45, 0.5, .05])
 
