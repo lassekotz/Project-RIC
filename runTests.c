@@ -15,7 +15,7 @@ int main(){
     MPU6050_Init();
     
     initMotorPins(); //Initializes pins and hardware interupts for motors
-    /*
+    
     printf("Start motor test 1 \n");
     accuateMotor(1023,1,0,1);
     printf("Motors should now run at half speed forwards for 3 seconds \n");
@@ -29,7 +29,7 @@ int main(){
     accuateMotor(0,1,0,1);
     printWheelRotation();
     delay(2000);
-    */
+    
 
     printf("Initializing IMU and regulator");
     initRegParam(28.545755616, 0, 0, -0.0431, -0.0464);
