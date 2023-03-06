@@ -1,15 +1,10 @@
 import numpy as np
-import time
 import tflite_runtime.interpreter as tflite
-import sys
+import torch
 import torchvision.models as models
-from model import CNN, LinearModel
+from model import CNN, LinearModel, test
 from torch import nn
-
-#model_name = str(sys.argv[1])
-model_name = 'vgg16.pt'
-model_name, extension = model_name.split('.')
-extension = '.' + extension
+from preprocessing import ImagesDataset, generate_transforms, generate_dataloader
 
 def load_model_tflite(model_name):
     print("inference running on: " + model_name)
@@ -45,13 +40,30 @@ def load_model(model_name):
         model.classifier[6] = nn.Linear(num_features, 1)
     else:
         raise Exception("Model " + model_name + " not available in ./trained_models/")
-    model.load_state_dict('./trained_models/' + model_name + "/" + model_name + ".pt")
+    print('./trained_models/' + model_name + "/" + model_name + ".pt")
+    model.load_state_dict(torch.load("./trained_models/" + model_name + "/" + model_name + ".pt"))
+
+    return model
 
 
-if extension == '.pt':
-    model = load_model(model_name)
-elif extension == '.tflite':
-    interpreter = load_model_tflite(model_name)
-else:
-    raise Exception("Argument at position 2 must be either .tflite or .pt")
+# model_name = str(sys.argv[1])
+# image_path = str(sys.argv[2])
+if __name__ == '__main__':
+    model_name = 'vgg16.pt'
+    image_path = './Data/BigDataset'
+    model_name, extension = model_name.split('.')
+    extension = '.' + extension
+    all_transforms, no_transform, current_transform = generate_transforms(image_path)
+    dataset = ImagesDataset(image_path, current_transform)
+    batch_size = 1
+    train_loader, val_loader, test_loader = generate_dataloader(dataset, batch_size, [0.45, 0.5, .05])
 
+    if extension == '.pt':
+        model = load_model(model_name)
+    elif extension == '.tflite':
+        interpreter = load_model_tflite(model_name)
+    else:
+        raise Exception("Argument at position 2 must be either .tflite or .pt")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    test(test_loader, model, device)

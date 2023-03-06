@@ -2,7 +2,7 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
-datapath = './Results/linear/test_results.txt'
+datapath = './Results/VGG/test_results.txt'
 def view_label_distr(filepath, bins = 10):
     with open(filepath) as f:
         lines = f.readlines()
