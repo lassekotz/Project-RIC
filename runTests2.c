@@ -40,7 +40,7 @@ PI_THREAD (motor_thread){
     piUnlock(uLock);
     accuateMotor(desPower,dir,desPower,dir);
     delay(100);
-    }
+    }  
 }
 
 PI_THREAD (PID_thread){
@@ -72,8 +72,9 @@ int main(){
     piThreadCreate(motor_thread);
     for(EVER){
         if(abs(curTheta)>50){
-        exit(1);
-     }
+            accuateMotor(0,1,0,1);
+            exit(1);
+        }
      delay(100);
     }
 }
