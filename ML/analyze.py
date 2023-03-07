@@ -37,7 +37,7 @@ def plot_error_distr(errors_list, bins=20):
 
 
 def plot_pred_vs_target(targets, preds):
-    plt.scatter(preds, targets)
+    plt.scatter(preds, targets, 0.1)
     plt.title('Prediction space')
     plt.legend('Data')
     plt.xlabel('Predicted angle')
@@ -48,6 +48,15 @@ def plot_pred_vs_target(targets, preds):
     # TODO: fix this
 
     return None
+
+def plot_pred_target_distributions(targets, preds, bins=20):
+    fix, (ax1, ax2) = plt.subplots(1, 2)
+
+    ax1.hist(targets, bins)
+    ax1.set_title('Target distribution')
+    ax2.hist(preds, bins)
+    ax2.set_title('Prediction distribution')
+    plt.show()
 
 
 def plot_results(train_losses, val_losses):
@@ -62,8 +71,7 @@ def plot_results(train_losses, val_losses):
 
 
 if __name__ == '__main__':
-    plot_results([1,3,5], [1,2,3])
-    '''
+
     datapath = './Results/VGG/test_results.txt'
     with open(datapath) as f:
         lines = f.readlines()
@@ -76,4 +84,4 @@ if __name__ == '__main__':
             preds.append(line[1])
 
     plot_pred_vs_target(targets, preds)
-    '''
+    plot_pred_target_distributions(targets, preds)

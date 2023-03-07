@@ -1,11 +1,12 @@
 import numpy as np
-import tflite_runtime.interpreter as tflite
+#import tflite_runtime.interpreter as tflite
 import torch
 import torchvision.models as models
 from model import CNN, LinearModel, test
 from torch import nn
 from preprocessing import ImagesDataset, generate_transforms, generate_dataloader
 import sys
+import time
 
 def load_model_tflite(model_name):
     # TODO: Should output a model similar to load_model()
@@ -49,8 +50,11 @@ def load_model(model_name):
 
 
 if __name__ == '__main__':
-    model_name = str(sys.argv[1])
-    image_path = str(sys.argv[2])
+    #model_name = str(sys.argv[1])
+    #image_path = str(sys.argv[2])
+    model_name = 'VGG.pt'
+    image_path = './Data/BigDataset'
+
     model_name, extension = model_name.split('.')
     extension = '.' + extension
     all_transforms, no_transform, current_transform = generate_transforms(image_path)
@@ -65,5 +69,8 @@ if __name__ == '__main__':
     else:
         raise Exception("Argument at position 2 must be either .tflite or .pt")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
 
+    t0 = time.time()
     test(test_loader, model, device)
+    print("Elapsed time: " + str(time.time() - t0))
