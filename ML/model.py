@@ -143,19 +143,21 @@ if __name__ == '__main__':
         param.requires_grad = False
     num_features = model.classifier[6].in_features
     model.classifier[6] = nn.Linear(num_features, 1)
+    # TODO: Change weight initialization to output within (Gaussian) [-30. 30]
 
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device, dtype=torch.float32)
 
-    epochs = 5
+    epochs = 10
     lr = 0.001
-    loss_criterion = nn.L1Loss() # MAE
+    #loss_criterion = nn.L1Loss() # MAE
+    loss_criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     print("Currently training on " + str(device))
-    train_losses, val_losses, train_losses_per_epoch, val_losses_per_epoch = training_loop(train_loader, model, optimizer, val_loader, epochs, loss_criterion)
-    plot_results(train_losses, val_losses)
+    #train_losses, val_losses, train_losses_per_epoch, val_losses_per_epoch = training_loop(train_loader, model, optimizer, val_loader, epochs, loss_criterion)
+    #plot_results(train_losses, val_losses)
 
     #SAVE MODEL:
     dummy_input = torch.randn(1, 3, 224, 224, device=device)

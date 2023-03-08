@@ -37,17 +37,20 @@ def plot_error_distr(errors_list, bins=20):
 
 
 def plot_pred_vs_target(targets, preds):
-    plt.scatter(preds, targets, 0.1)
+    plt.scatter(preds, targets, .5)
+    plt.plot([-30, 30], [-30, 30], 'r-')
     plt.title('Prediction space')
-    plt.legend('Data')
+    plt.legend(['Ideal', 'Predictions'])
     plt.xlabel('Predicted angle')
     plt.ylabel('Actual angle')
+    plt.grid()
     plt.xticks()
     plt.yticks()
     plt.show()
     # TODO: fix this
 
     return None
+
 
 def plot_pred_target_distributions(targets, preds, bins=20):
     fix, (ax1, ax2) = plt.subplots(1, 2)
@@ -84,4 +87,4 @@ if __name__ == '__main__':
             preds.append(line[1])
 
     plot_pred_vs_target(targets, preds)
-    plot_pred_target_distributions(targets, preds)
+    plot_pred_target_distributions(targets, preds, bins=30)
