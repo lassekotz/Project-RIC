@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/firstTests.dir/runTests.c.o -o firstTests  -lwiringPi MotorDriver/libmotorControl.a MotorDriver/libpidController.a IMU/libIMUread.a -lm 
