@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from tqdm import tqdm
 
-from ML.tflite_conversion import save_and_convert_model
+# from ML.tflite_conversion import save_and_convert_model
 from preprocessing import ImagesDataset, generate_dataloader, generate_transforms
 from torchvision import models
 from analyze import plot_results
@@ -150,10 +150,11 @@ if __name__ == '__main__':
     model.to(device, dtype=torch.float32)
 
     epochs = 10
-    lr = 0.001
+    lr = 0.01
+    momentum = .9
     #loss_criterion = nn.L1Loss() # MAE
     loss_criterion = nn.MSELoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=momentum)
 
     print("Currently training on " + str(device))
     #train_losses, val_losses, train_losses_per_epoch, val_losses_per_epoch = training_loop(train_loader, model, optimizer, val_loader, epochs, loss_criterion)
