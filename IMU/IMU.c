@@ -78,6 +78,7 @@ int main(){
 		
 		/* Divide raw value by sensitivity scale factor */
 		Ax = Acc_x/16384.0;
+		Ax = Acc_x/16384.0;
 		Ay = Acc_y/16384.0;
 		Az = Acc_z/16384.0;
 		
@@ -86,9 +87,9 @@ int main(){
 		Gz = Gyro_z/131;
 		t2 = millis();
 		
-		thetaA = 180.0/3.1415* atan2(-Ax,sqrt(pow(Ay,2)+ pow(Az,2)));
+		thetaA = 180.0/3.1415* atan2(-Ay,sqrt(pow(Ax,2)+ pow(Az,2)));
 		elapsedTime = (t2 - t1)/1000.0;
-		thetaG = theta + Gy * elapsedTime; // deg/s * s = deg
+		thetaG = theta + Gx * elapsedTime; // deg/s * s = deg
 
   
 		// Complementary filter - combine acceleromter and gyro angle values
@@ -98,7 +99,7 @@ int main(){
 		t1 = t2;
 
 		printf("\n Theta=%.3f °\tThetaG=%.3f °\tThetaA=%.3f °\ttime=%f s\n",theta,thetaG,thetaA,elapsedTime);
-		delay(10);
+		delay(1);
 		
 	}
 	return 0;

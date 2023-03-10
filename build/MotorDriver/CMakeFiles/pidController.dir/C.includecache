@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/ric/Documents/project-RIC/MotorDriver/pidMotor.c
+stdio.h
+-
+wiringPi.h
+-
+stdlib.h
+-
+

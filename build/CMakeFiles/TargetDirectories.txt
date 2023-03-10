@@ -1,0 +1,10 @@
+/home/ric/Documents/project-RIC/build/CMakeFiles/rebuild_cache.dir
+/home/ric/Documents/project-RIC/build/CMakeFiles/edit_cache.dir
+/home/ric/Documents/project-RIC/build/CMakeFiles/firstTests.dir
+/home/ric/Documents/project-RIC/build/MotorDriver/CMakeFiles/rebuild_cache.dir
+/home/ric/Documents/project-RIC/build/MotorDriver/CMakeFiles/edit_cache.dir
+/home/ric/Documents/project-RIC/build/MotorDriver/CMakeFiles/pidController.dir
+/home/ric/Documents/project-RIC/build/MotorDriver/CMakeFiles/motorControl.dir
+/home/ric/Documents/project-RIC/build/IMU/CMakeFiles/rebuild_cache.dir
+/home/ric/Documents/project-RIC/build/IMU/CMakeFiles/edit_cache.dir
+/home/ric/Documents/project-RIC/build/IMU/CMakeFiles/IMUread.dir

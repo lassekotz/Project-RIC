@@ -1,0 +1,30 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../IMU/call_IMU.h
+
+../MotorDriver/motorControl.h
+
+../MotorDriver/pidMotor.h
+
+/home/ric/Documents/project-RIC/runTests.c
+stdio.h
+-
+wiringPi.h
+-
+stdlib.h
+-
+math.h
+-
+motorControl.h
+/home/ric/Documents/project-RIC/motorControl.h
+pidMotor.h
+/home/ric/Documents/project-RIC/pidMotor.h
+call_IMU.h
+/home/ric/Documents/project-RIC/call_IMU.h
+

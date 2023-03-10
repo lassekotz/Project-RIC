@@ -5,8 +5,8 @@
 
 // Declaring pins for motors
 const int en1 = 12; //Change these 
-const int in1 = 23; 
-const int in2 = 24;
+const int in1 = 14; 
+const int in2 = 15;
 const int in3 = 8;
 const int in4 = 7;
 const int en2 = 13;
@@ -85,7 +85,7 @@ void accuateMotor(int power1,int dir1,int power2,int dir2){
         digitalWrite(in2,0);
     } else {
         digitalWrite(in1,0);
-        digitalWrite(in2,1);
+        digitalWrite(in2,1); //error
     }
 
     // Direction motor 2

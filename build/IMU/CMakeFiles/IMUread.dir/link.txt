@@ -1,0 +1,2 @@
+/usr/bin/ar qc libIMUread.a CMakeFiles/IMUread.dir/call_IMU.c.o
+/usr/bin/ranlib libIMUread.a

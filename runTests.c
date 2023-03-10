@@ -1,4 +1,3 @@
-
 // Include standard libraries  
 #include <stdio.h>
 #include <wiringPi.h>
@@ -8,58 +7,75 @@
 #include "motorControl.h"
 #include "pidMotor.h"
 #include "call_IMU.h"
+#define EVER ;;
+#define curThetaLock 0
+#define uLock 1
+// This tests the multiproccessing enviroment
 
+float curTheta;
+float u = 0;
+int desPower;
+int dir;
 
-int main(){
+PI_THREAD (IMU_thread){
+    for(EVER){
+    piLock(curThetaLock);
+    curTheta = update_angle(1);
+    piUnlock(curThetaLock);
+    delay(5);
+    }
+}
+
+PI_THREAD (motor_thread){
+    for(EVER){
+
+    piLock(uLock);
+    desPower = u*1024/12;
+    if(u<0){
+        dir = 0; //Maybe the other way? Test and see 
+    }
+    else{
+        dir = 1;
+    }
+    piUnlock(uLock);
+    accuateMotor(desPower,dir,desPower,dir);
+    delay(10);
+    }  
+}
+
+PI_THREAD (PID_thread){
+    for(EVER){
+    piLock(uLock);
+    piLock(curThetaLock);
+    //Add encoder speed as second argument to function
+    //Add desired speed as third argument to function
+    u =angleController(curTheta,0.0, 0.0);
+    piUnlock(curThetaLock);
+    piUnlock(uLock);
+    delay(10);
+    }
+}
+
+void setup(){
     wiringPiSetupGpio(); //Setup and use defult pin numbering
     MPU6050_Init();
     
     initMotorPins(); //Initializes pins and hardware interupts for motors
-    
-    printf("Start motor test 1 \n");
-    accuateMotor(1023,1,0,1);
-    printf("Motors should now run at half speed forwards for 3 seconds \n");
-    delay(3000);
-    printf("Stop motors \n");
-    accuateMotor(0,1,0,1);
-    delay(100);
-    accuateMotor(500,0,1023,0);
-    printf("Motors should now run at half speed backwards for 3 seconds \n");
-    delay(3000);
-    accuateMotor(0,1,0,1);
-    printWheelRotation();
-    delay(2000);
-    
-
-    printf("Initializing IMU and regulator");
-    initRegParam(28.545755616, 0, 0, -0.0431, -0.0464);
+    initRegParam(15.545755616, 0, 20.4835, -0.0431, -0.0464);
     setupFirstValue();
-    float curTheta;
-    float u;
-    for(int i; i<1000; i++){
-        if(1){
-            curTheta = update_angle(1);
-            u =angleController(curTheta,0.0, 0.0);
-            printf("Desired motor voltage from controller %f \n",u);
-        }
-        else{
-            curTheta = update_angle(0);
-            u =angleController(curTheta,0.0, 0.0);
-        }
-        delay(10);
-    }
- 
 }
 
-/*
-Kp = 28.545755616786778;
-Ki = 241.5669;
-Kd = 2.4835;
-Tf = 0.0400;
-
-% Yttre regulatorn 1: F_v
-<<<<<<< HEAD
-v.Kp = -0.0431;
-Ki = -0.0464;
-*/ 
+int main(){
+    setup();
+    piThreadCreate (IMU_thread);
+    piThreadCreate(PID_thread);
+    piThreadCreate(motor_thread);
+    for(EVER){
+        if(abs(curTheta)>15){
+            accuateMotor(0,1,0,1);
+            exit(1);
+        }
+     delay(10);
+    }
+}
 
