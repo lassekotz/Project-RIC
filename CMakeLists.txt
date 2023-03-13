@@ -49,4 +49,44 @@ target_include_directories(testMulti PUBLIC
                           "${PROJECT_SOURCE_DIR}/IMU"
                           )
 
+add_executable(testMulti runTestsMulti.c)
 
+
+target_link_libraries(testMulti PUBLIC wiringPi)
+target_link_libraries(testMulti PUBLIC motorControl)
+target_link_libraries(testMulti PUBLIC pidController)
+target_link_libraries(testMulti PUBLIC IMUread)
+
+
+target_include_directories(testMulti PUBLIC
+                          "${PROJECT_BINARY_DIR}"
+                          "${PROJECT_SOURCE_DIR}/MotorDriver"
+                          )
+
+
+target_include_directories(testMulti PUBLIC
+                          "${PROJECT_BINARY_DIR}"
+                          "${PROJECT_SOURCE_DIR}/IMU"
+                          )
+
+
+#Single thread test 
+add_executable(testSingle singleTest.c)
+
+
+target_link_libraries(testSingle PUBLIC wiringPi)
+target_link_libraries(testSingle PUBLIC motorControl)
+target_link_libraries(testSingle PUBLIC pidController)
+target_link_libraries(testSingle PUBLIC IMUread)
+
+
+target_include_directories(testSingle PUBLIC
+                          "${PROJECT_BINARY_DIR}"
+                          "${PROJECT_SOURCE_DIR}/MotorDriver"
+                          )
+
+
+target_include_directories(testSingle PUBLIC
+                          "${PROJECT_BINARY_DIR}"
+                          "${PROJECT_SOURCE_DIR}/IMU"
+                          )
