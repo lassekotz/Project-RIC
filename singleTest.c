@@ -8,7 +8,6 @@
 #include "pidMotor.h"
 #include "call_IMU.h"
 #define EVER ;;
-// This tests the multiproccessing enviroment
 
 float curTheta;
 float u = 0;
@@ -27,9 +26,7 @@ void setup(){
 
 int main(){
     setup();
-    piThreadCreate (IMU_thread);
-    piThreadCreate(PID_thread);
-    piThreadCreate(motor_thread);
+
     for(EVER){
 
         //Update IMU

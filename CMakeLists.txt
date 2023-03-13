@@ -49,25 +49,6 @@ target_include_directories(testMulti PUBLIC
                           "${PROJECT_SOURCE_DIR}/IMU"
                           )
 
-add_executable(testMulti runTestsMulti.c)
-
-
-target_link_libraries(testMulti PUBLIC wiringPi)
-target_link_libraries(testMulti PUBLIC motorControl)
-target_link_libraries(testMulti PUBLIC pidController)
-target_link_libraries(testMulti PUBLIC IMUread)
-
-
-target_include_directories(testMulti PUBLIC
-                          "${PROJECT_BINARY_DIR}"
-                          "${PROJECT_SOURCE_DIR}/MotorDriver"
-                          )
-
-
-target_include_directories(testMulti PUBLIC
-                          "${PROJECT_BINARY_DIR}"
-                          "${PROJECT_SOURCE_DIR}/IMU"
-                          )
 
 
 #Single thread test 
@@ -89,4 +70,14 @@ target_include_directories(testSingle PUBLIC
 target_include_directories(testSingle PUBLIC
                           "${PROJECT_BINARY_DIR}"
                           "${PROJECT_SOURCE_DIR}/IMU"
+                          )
+                          
+#Panic stop 
+
+add_executable(panicStop turnOff.c)
+target_link_libraries(panicStop PUBLIC wiringPi)
+target_link_libraries(panicStop PUBLIC motorControl)
+target_include_directories(panicStop PUBLIC
+                          "${PROJECT_BINARY_DIR}"
+                          "${PROJECT_SOURCE_DIR}/MotorDriver"
                           )
