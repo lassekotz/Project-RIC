@@ -1,2 +1,0 @@
-/usr/bin/ar qc libpidController.a CMakeFiles/pidController.dir/pidMotor.c.o
-/usr/bin/ranlib libpidController.a
