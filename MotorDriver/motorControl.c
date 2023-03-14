@@ -100,7 +100,7 @@ void accuateMotor(int power1,int dir1,int power2,int dir2){
     //Dir = Zero for backwards, One for forwards
     // Power is a number between 0-1024
     
-    if(power1 < 300){ //
+    if(power1 < 300 && fabs(curSpeed)<0.1){ //
         accuateMotor(300,dir1,300,dir2);
         delay(10);
     }
@@ -110,7 +110,7 @@ void accuateMotor(int power1,int dir1,int power2,int dir2){
         digitalWrite(in2,0);
     } else {
         digitalWrite(in1,0);
-        digitalWrite(in2,1); //error
+        digitalWrite(in2,1); 
     }
 
     // Direction motor 2
