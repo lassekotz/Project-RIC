@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <wiringPi.h>
 #include <stdlib.h>
+#include <math.h>
 //#include "motorControl.h"
 
 // Declaring pins for motors
@@ -17,6 +18,9 @@ const int chA2 = 21;
 const int chB2 = 20; 
 double pos1 = 0; //Keeps track of current angle 
 double pos2 = 0;
+double oldPos1=0;
+double oldPos2 =0;
+double curSpeed = 0;
 
 
 
@@ -24,6 +28,13 @@ double pos2 = 0;
 const double alpha = 360.0/3.0/231.0; // Relative angle per encoder step
 u_int currT = 0; // Current time in milliseconds 
 u_int oldT = 0;
+// Speed tracking variables 
+u_int curTv = 0; 
+u_int oldTv = 0;
+double oldV = 0;
+double dtv = 0;
+double v = 0; 
+const double wToV = 3.35*2*3.14/180.0;
 
 void readEncoder1(){ 
     int b = digitalRead(chB1);
@@ -52,6 +63,21 @@ void printWheelRotation(){
     printf("Wheel 2 has rotated %f degrees \n",pos2);
 }
 
+double calcSpeed(int verbose){
+    curTv = millis();
+    dtv = (curTv-oldTv)/1000.0;
+    curSpeed = ((pos1-oldPos1)+(pos2-oldPos2))/(2.0*dtv)*wToV;
+    
+    //Probably needs to be low pass filtered ?
+    if(verbose){
+        printf("Current speed %f deg/sec \n",curSpeed);
+    }
+    oldPos1 = pos1;
+    oldPos2 = pos2;
+    return curSpeed;
+       
+}
+
 /*
 float* convolve(float h[], float x[], int lenH, int lenX, int* lenY)
 {
@@ -78,14 +104,18 @@ float* convolve(float h[], float x[], int lenH, int lenX, int* lenY)
 void accuateMotor(int power1,int dir1,int power2,int dir2){ 
     //Dir = Zero for backwards, One for forwards
     // Power is a number between 0-1024
-
+    
+    if(power1 < 300 && fabs(curSpeed)<0.1){ //
+        accuateMotor(300,dir1,300,dir2);
+        delay(10);
+    }
     // Direction motor 1
     if(dir1 == 0){
         digitalWrite(in1,1);
         digitalWrite(in2,0);
     } else {
         digitalWrite(in1,0);
-        digitalWrite(in2,1); //error
+        digitalWrite(in2,1); 
     }
 
     // Direction motor 2
