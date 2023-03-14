@@ -78,7 +78,11 @@ float* convolve(float h[], float x[], int lenH, int lenX, int* lenY)
 void accuateMotor(int power1,int dir1,int power2,int dir2){ 
     //Dir = Zero for backwards, One for forwards
     // Power is a number between 0-1024
-
+    
+    if(power1 < 300){ //
+        accuateMotor(300,dir1,300,dir2);
+        delay(10);
+    }
     // Direction motor 1
     if(dir1 == 0){
         digitalWrite(in1,1);
