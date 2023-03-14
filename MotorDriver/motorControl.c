@@ -17,6 +17,9 @@ const int chA2 = 21;
 const int chB2 = 20; 
 double pos1 = 0; //Keeps track of current angle 
 double pos2 = 0;
+double oldPos1=0;
+double oldPos2 =0;
+double curSpeed = 0;
 
 
 
@@ -24,6 +27,12 @@ double pos2 = 0;
 const double alpha = 360.0/3.0/231.0; // Relative angle per encoder step
 u_int currT = 0; // Current time in milliseconds 
 u_int oldT = 0;
+// Speed tracking variables 
+u_int currTv = 0; 
+u_int oldTv = 0;
+double oldV = 0;
+double dtv = 0;
+double v = 0; 
 
 void readEncoder1(){ 
     int b = digitalRead(chB1);
@@ -50,6 +59,18 @@ void printWheelRotation(){
     //Only used for testing 
     printf("Wheel 1 has rotated %f degrees \n",pos1);
     printf("Wheel 2 has rotated %f degrees \n",pos2);
+}
+
+double calcSpeed(int verbose){
+    currTv = millis();
+    dtv = (curTv-oldTv)/1000.0f;
+    curSpeed = ((pos1-oldPos1)+(pos2-oldPos2))/(2.0*dtv);
+    
+    //Probably needs to be low pass filtered ?
+    if(verbose){
+        printf("Current speed %f deg/sec \n",curSpeed);
+    }
+    
 }
 
 /*
