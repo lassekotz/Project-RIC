@@ -13,6 +13,7 @@ float curTheta;
 float u = 0;
 int desPower;
 int dir;
+double speed;
 
 
 void setup(){
@@ -31,7 +32,7 @@ int main(){
 
         //Update IMU
         curTheta = update_angle(1);
-        
+        speed = calcSpeed(1);
         //Calc u 
         u =angleController(curTheta,0.0, 0.0);
 
