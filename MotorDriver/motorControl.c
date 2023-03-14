@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <wiringPi.h>
 #include <stdlib.h>
+#include <math.h>
 //#include "motorControl.h"
 
 // Declaring pins for motors
@@ -28,7 +29,7 @@ const double alpha = 360.0/3.0/231.0; // Relative angle per encoder step
 u_int currT = 0; // Current time in milliseconds 
 u_int oldT = 0;
 // Speed tracking variables 
-u_int currTv = 0; 
+u_int curTv = 0; 
 u_int oldTv = 0;
 double oldV = 0;
 double dtv = 0;
@@ -62,15 +63,18 @@ void printWheelRotation(){
 }
 
 double calcSpeed(int verbose){
-    currTv = millis();
-    dtv = (curTv-oldTv)/1000.0f;
+    curTv = millis();
+    dtv = (curTv-oldTv)/1000.0;
     curSpeed = ((pos1-oldPos1)+(pos2-oldPos2))/(2.0*dtv);
     
     //Probably needs to be low pass filtered ?
     if(verbose){
         printf("Current speed %f deg/sec \n",curSpeed);
     }
-    
+    oldPos1 = pos1;
+    oldPos2 = pos2;
+    return curSpeed;
+       
 }
 
 /*

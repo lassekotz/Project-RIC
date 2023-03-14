@@ -13,6 +13,7 @@ float curTheta;
 float u = 0;
 int desPower;
 int dir;
+double speed;
 
 
 void setup(){
@@ -20,7 +21,7 @@ void setup(){
     MPU6050_Init();
     
     initMotorPins(); //Initializes pins and hardware interupts for motors
-    initRegParam(15.545755616, 0, 20.4835, -0.0431, -0.0464);
+    initRegParam(1, 0, 0, -0.0431, -0.0464);
     setupFirstValue();
 }
 
@@ -31,7 +32,7 @@ int main(){
 
         //Update IMU
         curTheta = update_angle(1);
-        
+        speed = calcSpeed(1);
         //Calc u 
         u =angleController(curTheta,0.0, 0.0);
 
