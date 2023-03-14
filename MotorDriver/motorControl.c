@@ -34,6 +34,7 @@ u_int oldTv = 0;
 double oldV = 0;
 double dtv = 0;
 double v = 0; 
+const double wToV = 3.35*2*3.14/180.0;
 
 void readEncoder1(){ 
     int b = digitalRead(chB1);
@@ -65,7 +66,7 @@ void printWheelRotation(){
 double calcSpeed(int verbose){
     curTv = millis();
     dtv = (curTv-oldTv)/1000.0;
-    curSpeed = ((pos1-oldPos1)+(pos2-oldPos2))/(2.0*dtv);
+    curSpeed = ((pos1-oldPos1)+(pos2-oldPos2))/(2.0*dtv)*wToV;
     
     //Probably needs to be low pass filtered ?
     if(verbose){
