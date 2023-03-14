@@ -162,6 +162,7 @@ def generate_transforms(image_path):
 
     reshape_transform = transforms.Compose([
         transforms.Resize((128, 128)),
+        #transforms.Grayscale(),
         transforms.ToTensor()
         ])
 

@@ -60,7 +60,7 @@ if __name__ == '__main__':
     all_transforms, no_transform, current_transform = generate_transforms(image_path)
     dataset = ImagesDataset(image_path, no_transform)
     batch_size = 1
-    train_loader, val_loader, test_loader = generate_dataloader(dataset, batch_size, [0.45, 0.5, .05])
+    train_loader, val_loader, test_loader = generate_dataloader(dataset, batch_size, [0.01, 0.01, .98])#TODO: FIX THAT TEST_LOADER DOES NOT CONTAIN IMAGES THAT MODEL HAS SEEN
 
     if extension == '.pt':
         model = load_model(model_name)
