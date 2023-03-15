@@ -118,17 +118,18 @@ def training_loop(train_loader, model, optimizer, val_loader, epochs, loss_fn):
 
         print(f'Epoch {epoch + 1} \ntrain MAE: {latest_train_loss:2.4}, validation MAE: {latest_val_loss:2.4}')
 
-        if (latest_val_loss >= lowest_val_loss):
+        if (latest_val_loss >= lowest_val_loss): #TODO: IMPLEMENT S.T. THE MODEL CORRESPONDING TO THE LOWEST LOSS IS ALWAYS SAVED
             consecutive_fails += 1
         else:
             lowest_val_loss = latest_val_loss
             consecutive_fails = 0
+            best_model = model
 
         if consecutive_fails >= 3:
             break
 
 
-    return train_losses, val_losses, train_losses_per_batch, val_losses_per_batch
+    return train_losses, val_losses, train_losses_per_batch, val_losses_per_batch, best_model
 
 if __name__ == '__main__':
     image_path = './Data/BigDataset'
@@ -153,12 +154,11 @@ if __name__ == '__main__':
     epochs = 200
     lr = 0.005
     momentum = .99
-    loss_criterion = nn.L1Loss() # MAE
-    #loss_criterion = nn.MSELoss()
+    loss_criterion = nn.L1Loss()# MAE
     optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=momentum)
 
     print("Currently training on " + str(device))
-    train_losses, val_losses, train_losses_per_epoch, val_losses_per_epoch = training_loop(train_loader, model, optimizer, val_loader, epochs, loss_criterion)
+    train_losses, val_losses, train_losses_per_epoch, val_losses_per_epoch, best_model = training_loop(train_loader, model, optimizer, val_loader, epochs, loss_criterion)
     plot_results(train_losses, val_losses)
 
     #SAVE MODEL:
