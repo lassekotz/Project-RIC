@@ -104,6 +104,15 @@ float* convolve(float h[], float x[], int lenH, int lenX, int* lenY)
 void accuateMotor(int power1,int dir1,int power2,int dir2){ 
     //Dir = Zero for backwards, One for forwards
     // Power is a number between 0-1024
+
+    if(power1>1024){
+        power1 = 1024;
+    }
+    if(power2>1024){
+        power2 = 1024;
+    }
+    
+
     
     if(power1 < 300 && fabs(curSpeed)<0.1){ //
         accuateMotor(300,dir1,300,dir2);
