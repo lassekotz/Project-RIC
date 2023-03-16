@@ -109,7 +109,12 @@ float uArray[] = {0, //White noise generated to estimate motor parameters
 10.0215216735745,
 -9.25038061223997,
 -1.63205473284795,
-2.04988042570466};
+2.04988042570466,
+0,
+0,
+0,
+0
+};
 
 float curTheta;
 float u = 0;
@@ -119,6 +124,7 @@ double speed;
 
 
 int main(){
+    wiringPiSetupGpio(); //Setup and use defult pin numbering
     initMotorPins(); //Initializes pins and hardware interupts for motors
 
     char *filename = "speeds.txt";
@@ -130,7 +136,7 @@ int main(){
         return -1;
     }
 
-    for(int i= 0;i<sizeof(u)/sizeof(u[0]);i++){
+    for(int i= 0;i<sizeof(uArray)/sizeof(uArray[0]);i++){
         
         u = uArray[i];
         desPower = fabs(u*1024.0/12.0);
@@ -146,7 +152,7 @@ int main(){
 
         fprintf(fp, "%f\n", speed);
 
-        delay(10);
+        delay(100);
     }
 
     fclose(fp);

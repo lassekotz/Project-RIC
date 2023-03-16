@@ -82,7 +82,7 @@ target_include_directories(panicStop PUBLIC
                           "${PROJECT_SOURCE_DIR}/MotorDriver"
                           )
 
-add_executable(sysId sysIDTest.c)
+add_executable(sysId sysIDtest.c)
 target_link_libraries(sysId PUBLIC wiringPi)
 target_link_libraries(sysId PUBLIC motorControl)
 target_include_directories(sysId PUBLIC
