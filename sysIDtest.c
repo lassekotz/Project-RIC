@@ -6,7 +6,11 @@
 #include "motorControl.h"
 
 
-float uArray[] = {-6.53299722148481,
+float uArray[] = {0, //White noise generated to estimate motor parameters
+0,
+0,
+0,
+-6.53299722148481, 
 -10.1908472987738,
 -7.74215770931184,
 3.27376046242883,
