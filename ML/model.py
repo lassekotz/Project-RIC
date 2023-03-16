@@ -99,7 +99,6 @@ def train_epoch(model, optimizer, loss_fn, train_loader, device, epoch):
 def training_loop(train_loader, model, optimizer, val_loader, epochs, loss_fn):
     lowest_val_loss = 1000
     consecutive_fails = 0
-
     train_losses = []
     val_losses = []
     train_losses_per_batch = []
@@ -152,14 +151,15 @@ if __name__ == '__main__':
     model.to(device, dtype=torch.float32)
 
     epochs = 200
-    lr = 0.005
+    lr = 0.001
     momentum = .99
     loss_criterion = nn.L1Loss()# MAE
-    optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=momentum)
+    optimizer = torch.optim.SGD(model.parameters(), lr=lr)#, momentum=momentum)
 
     print("Currently training on " + str(device))
     train_losses, val_losses, train_losses_per_epoch, val_losses_per_epoch, best_model = training_loop(train_loader, model, optimizer, val_loader, epochs, loss_criterion)
     plot_results(train_losses, val_losses)
+    model = best_model
 
     #SAVE MODEL:
     dummy_input = torch.randn(1, 3, 224, 224, device=device)
