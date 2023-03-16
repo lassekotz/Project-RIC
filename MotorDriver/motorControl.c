@@ -1,4 +1,4 @@
-#include <stdio.h>
+ä#include <stdio.h>
 #include <wiringPi.h>
 #include <stdlib.h>
 #include <math.h>
