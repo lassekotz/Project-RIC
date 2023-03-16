@@ -175,6 +175,8 @@ float u = 0;
 int desPower;
 int dir;
 double speed;
+u_int32_t oldT;
+u_int32_t curT;
 
 int main()
 {
@@ -205,23 +207,34 @@ int main()
         return -1;
     }
 
-    for(int i = 0;i<rows;i++){
-        u = uArray[i];
-        desPower = fabs(u*1024.0/12.0);
-        if(u<0){
-            dir = 0; //Maybe the other way? Test and see 
+    int i = 0;
+    oldT = millis();
+    while(1){
+        curT = millis();
+        double dt = (curT-oldT)/1000.0;
+        if(dt >=0.1){
+            if(i==rows){
+                break;
+            }
+
+            u = uArray[i];
+            desPower = fabs(u*1024.0/12.0);
+            if(u<0){
+                dir = 0; //Maybe the other way? Test and see 
+            }
+            else{
+                dir = 1;
+            }
+
+            accuateMotor(desPower,dir,desPower,dir);
+            speed = calcSpeed(0);
+
+            fprintf(fp, "%f\n", speed);
+            i++;
+            oldT = curT;
         }
-        else{
-            dir = 1;
-        }
-
-        accuateMotor(desPower,dir,desPower,dir);
-        speed = calcSpeed(0);
-
-        fprintf(fp, "%f\n", speed);
-
-        delay(100);
     }
+    
 
     fclose(fp);
     
