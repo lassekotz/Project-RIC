@@ -131,6 +131,7 @@ def training_loop(train_loader, model, optimizer, val_loader, epochs, loss_fn):
     return train_losses, val_losses, train_losses_per_batch, val_losses_per_batch, best_model
 
 if __name__ == '__main__':
+
     image_path = './Data/BigDataset'
     all_transforms, no_transform, current_transform = generate_transforms(image_path)
     dataset = ImagesDataset(image_path, no_transform)
@@ -162,9 +163,9 @@ if __name__ == '__main__':
     model = best_model
 
     #SAVE MODEL:
-    dummy_input = torch.randn(1, 3, 224, 224, device=device)
+    dummy_input = torch.randn(1, 3, 128, 128, device=device)
     input_names = ['input_1']
     output_names = ['output_1']
-    save_and_convert_model(model.__class__.__name__, model, dummy_input, input_names, output_names)
 
     preds_and_labels = test(test_loader, model, device)
+    save_and_convert_model(model.__class__.__name__, model, dummy_input, input_names, output_names)

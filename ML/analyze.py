@@ -36,10 +36,10 @@ def plot_error_distr(errors_list, bins=20):
     return None
 
 
-def plot_pred_vs_target(targets, preds):
+def plot_pred_vs_target(targets, preds, MAE):
     plt.scatter(preds, targets, .5)
     plt.plot([-30, 30], [-30, 30], 'r-')
-    plt.title('Prediction space')
+    plt.title(f'Prediction space, MAE = ' + f'{MAE:.2f}')
     plt.legend(['Ideal', 'Predictions'])
     plt.xlabel('Predicted angle')
     plt.ylabel('Actual angle')
@@ -86,5 +86,12 @@ if __name__ == '__main__':
             targets.append(line[0])
             preds.append(line[1])
 
-    plot_pred_vs_target(targets, preds)
+    MAE = 0
+    for i in range(len(preds)):
+        t = targets[i]
+        p = preds[i]
+        MAE += abs(t-p)
+    MAE = MAE/len(preds)
+
+    plot_pred_vs_target(targets, preds, MAE)
     plot_pred_target_distributions(targets, preds, bins=30)
