@@ -132,7 +132,7 @@ def compare_transforms(transformations, index):
         display_image(axis, image_tensor)
 
     plt.show()
-def generate_transforms(image_path):
+def generate_transforms(image_path, H, W):
 
     # TRANSFORMS
     transform_random = transforms.Compose([
@@ -150,8 +150,8 @@ def generate_transforms(image_path):
     std_for_norm = np.array([0.229, 0.224, 0.225])
 
     current_transform = transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.RandomResizedCrop(224),
+        transforms.Resize((H, W)),
+        transforms.RandomResizedCrop(H),
         transforms.ToTensor(),
         transforms.Normalize(mean_for_norm, std_for_norm),
         transforms.RandomErasing()
@@ -161,7 +161,7 @@ def generate_transforms(image_path):
                       ImagesDataset(image_path, Compose([ToTensor()]))]
 
     reshape_transform = transforms.Compose([
-        transforms.Resize((128, 128)),
+        transforms.Resize((H, W)),
         transforms.Grayscale(3),
         transforms.ToTensor()
         ])

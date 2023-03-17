@@ -131,9 +131,10 @@ def training_loop(train_loader, model, optimizer, val_loader, epochs, loss_fn):
     return train_losses, val_losses, train_losses_per_batch, val_losses_per_batch, best_model
 
 if __name__ == '__main__':
+    H, W, = 128, 128
 
     image_path = './Data/BigDataset'
-    all_transforms, no_transform, current_transform = generate_transforms(image_path)
+    all_transforms, no_transform, current_transform = generate_transforms(image_path, H, W)
     dataset = ImagesDataset(image_path, no_transform)
     batch_size = 32
     train_loader, val_loader, test_loader = generate_dataloader(dataset, batch_size, [.8, .1, .1])
