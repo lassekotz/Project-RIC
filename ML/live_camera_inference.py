@@ -45,4 +45,3 @@ def main():
         input_data = np.array(image)
         pred = inference_step(interpreter, input_data)
 
-
