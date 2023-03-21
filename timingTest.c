@@ -16,7 +16,7 @@ int dir;
 float* speed;
 
 // Sampling times
-const float TIMU = 0.01;
+const float TIMU = 0.005;
 const float Tmotor = 0.1;
 const float Tpid = 0.08;
 
@@ -28,7 +28,7 @@ void setup(){
     MPU6050_Init();
     
     initMotorPins(); //Initializes pins and hardware interupts for motors
-    initRegParam(10.0, 0,0,0,  -0.1047, -0.087568,Tpid);
+    initRegParam(15.0, 0.1,0.25,0,  0.85, 0.1,Tpid);
     setupFirstValue();
 }
 
