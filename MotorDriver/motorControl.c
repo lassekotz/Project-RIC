@@ -1,4 +1,4 @@
-ä#include <stdio.h>
+#include <stdio.h>
 #include <wiringPi.h>
 #include <stdlib.h>
 #include <math.h>
@@ -18,14 +18,16 @@ const int chA2 = 21;
 const int chB2 = 20; 
 double pos1 = 0; //Keeps track of current angle 
 double pos2 = 0;
+// Encoder variables 
 double oldPos1=0;
 double oldPos2 =0;
 double curSpeed = 0;
+float* speeds;
 
 
 
 
-const double alpha = 360.0/3.0/231.0; // Relative angle per encoder step
+const double alpha = 360.0/3.0/42.875; // Relative angle per encoder step
 u_int currT = 0; // Current time in milliseconds 
 u_int oldT = 0;
 // Speed tracking variables 
@@ -57,6 +59,23 @@ void readEncoder2(){
     }
 }
 
+float* calcSpeeds(int verbose){
+    curTv = millis();
+    dtv = (curTv-oldTv)/1000.0;
+    speeds[0] = (pos1-oldPos1)/(2.0*dtv)*wToV;
+    speeds[1] = (pos2-oldPos2)/(2.0*dtv)*wToV;
+    oldPos1 = pos1;
+    oldPos2 = pos2;
+    oldTv = curTv;
+    if(verbose){
+        printf("Wheel 1: %f m/s \n",speeds[0]);
+        printf("Wheel 2: %f m/s \n",speeds[1]);
+    }
+    return speeds;
+}
+
+
+
 void printWheelRotation(){
     //Only used for testing 
     printf("Wheel 1 has rotated %f degrees \n",pos1);
@@ -74,6 +93,7 @@ double calcSpeed(int verbose){
     }
     oldPos1 = pos1;
     oldPos2 = pos2;
+    oldTv = curTv;
     return curSpeed;
        
 }
@@ -152,6 +172,9 @@ int initMotorPins(){
     //Pins for encoder 
     pinMode(chA1,INPUT);
     pinMode(chB1,INPUT);
+
+    //Init array for speeds
+    speeds =(float*)malloc(2*sizeof(float));
 
 
     // Hardware interupt for encoders
