@@ -13,21 +13,19 @@ def inference_step(interpreter, input_data):
     output_details = interpreter.get_output_details()
 
     # Test the model on input data
-    input_shape = input_details[0]['shape']
-    #input_data = np.array(np.random.random_sample(input_shape))
-    
+        
     interpreter.set_tensor(input_details[0]['index'], input_data)
-
+    interpreter.invoke()
     # The function 'get_tensor()' returns a copy of the tensor data.
     # Use 'tensor()' in order to get a pointer to the tensor.
     output_data = interpreter.get_tensor(output_details[0]['index'])
-    #output_data = output_data[0][0]
     print(output_data)
 
     return output_data
 
 def initialize():
     model = str(sys.argv[1])
+    print(model)
     print("CAMERA INITIALIZING...")
     camera = picamera.PiCamera()
     camera.resolution = (224, 224)
@@ -53,7 +51,7 @@ def main():
     for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
                 
         image = frame.array
-        input_data = np.array(image, dtype='float32')
+        input_data = np.array(image, dtype=np.float32)
         input_data = np.expand_dims(input_data, axis=0)
         input_data = np.swapaxes(input_data, 1, 3)
                 
