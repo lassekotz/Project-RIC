@@ -36,7 +36,7 @@ u_int oldTv = 0;
 double oldV = 0;
 double dtv = 0;
 double v = 0; 
-const double wToV = 3.35*2*3.14/180.0;
+const double wToV = 0.0325*3.14/180.0;
 
 void readEncoder1(){ 
     int b = digitalRead(chB1);
