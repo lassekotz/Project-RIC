@@ -1,4 +1,4 @@
-ä#include <stdio.h>
+#include <stdio.h>
 #include <wiringPi.h>
 #include <stdlib.h>
 #include <math.h>
@@ -36,7 +36,7 @@ u_int oldTv = 0;
 double oldV = 0;
 double dtv = 0;
 double v = 0; 
-const double wToV = 3.35*2*3.14/180.0;
+const double wToV = 0.0325*3.14/180.0;
 
 void readEncoder1(){ 
     int b = digitalRead(chB1);
@@ -59,7 +59,7 @@ void readEncoder2(){
     }
 }
 
-float* calcSpeeds(){
+float* calcSpeeds(int verbose){
     curTv = millis();
     dtv = (curTv-oldTv)/1000.0;
     speeds[0] = (pos1-oldPos1)/(2.0*dtv)*wToV;
@@ -67,6 +67,10 @@ float* calcSpeeds(){
     oldPos1 = pos1;
     oldPos2 = pos2;
     oldTv = curTv;
+    if(verbose){
+        printf("Wheel 1: %f m/s \n",speeds[0]);
+        printf("Wheel 2: %f m/s \n",speeds[1]);
+    }
     return speeds;
 }
 

@@ -21,7 +21,7 @@ double diffESum;
 unsigned long oldTmR;
 float kpm,kim,kdm;
 float Ts; //Sample rate
-float alpha;
+float a;
 float oldErrFilt = 0;
 
 
@@ -41,7 +41,7 @@ float angleController(float angle,float v, float vref){
 
    // Keep track of angle errors 
    double error = angleRef-angle;
-   float eFilt = alpha*error+(1-alpha)*oldErrFilt;
+   float eFilt = a*error+(1-a)*oldErrFilt;
    double dErr = (eFilt-oldErrFilt)/dt;
 
 
@@ -88,6 +88,6 @@ void initRegParam(float Kp, float Ki, float Kd,float Tf, float Kpv, float Kiv,fl
    kd = Kd;
    kpv = Kpv;
    kiv = Kiv;
-   alpha = Ts/Tf;
+   a = Ts/Tf;
 }
 
