@@ -12,7 +12,7 @@ def inference_step(interpreter, input_data):
 
     # Test the model on input data
     input_shape = input_details[0]['shape']
-    input_data = np.array(np.random.random_sample(input_shape))
+    #input_data = np.array(np.random.random_sample(input_shape))
 
     interpreter.set_tensor(input_details[0]['index'], input_data)
 
