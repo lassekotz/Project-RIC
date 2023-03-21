@@ -35,7 +35,7 @@ void setup(){
 int main(){
     setup();
 
-    lastIMUtime = millis()
+    lastIMUtime = millis();
     lastmotorTime = millis(); 
     lastpidTime = millis();
 
@@ -51,7 +51,7 @@ int main(){
 
         float dtPID = (curTime-lastpidTime)/1000.0f;
         if(dtPID>=Tpid){
-            speed = calcSpeed(1);
+            speed = calcSpeeds(1);
             //Calc u 
             u =angleController(curTheta,0.0, 0.0);
             lastpidTime = curTime;

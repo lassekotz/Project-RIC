@@ -61,7 +61,7 @@ void setup(){
     MPU6050_Init();
     
     initMotorPins(); //Initializes pins and hardware interupts for motors
-    initRegParam(15.545755616, 0, 20.4835, -0.0431, -0.0464);
+    initRegParam(47.2980677808111, 28.1697176964395, 17.4085518777762,8538.19944333327,  -0.1047, -0.087568,0.01);
     setupFirstValue();
 }
 
