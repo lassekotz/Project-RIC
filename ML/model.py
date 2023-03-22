@@ -130,6 +130,25 @@ def training_loop(train_loader, model, optimizer, val_loader, epochs, loss_fn):
 
     return train_losses, val_losses, train_losses_per_batch, val_losses_per_batch, best_model
 
+def get_model(modelname):
+    if modelname == "CNN":
+        model = CNN()
+    elif modelname == "LinearModel":
+        model = LinearModel
+    elif modelname == "VGG16":
+        model = models.vgg16(pretrained=True)
+        for param in model.features.parameters():
+            param.requires_grad = False
+        num_features = model.classifier[6].in_features
+        model.classifier[0] = nn.Linear(8192, num_features)
+        model.classifier[6] = nn.Linear(num_features, 1)
+        model.avgpool = nn.AvgPool2d(1)
+
+    elif modelname == "mobilenet_v2":
+        model = models.mobilenet_v2()
+
+    return model
+
 if __name__ == '__main__':
     H, W, = 128, 128
 
@@ -139,16 +158,7 @@ if __name__ == '__main__':
     batch_size = 32
     train_loader, val_loader, test_loader = generate_dataloader(dataset, batch_size, [.8, .1, .1])
 
-    # model = LinearModel()
-    # model = CNN()
-
-    model = models.vgg16(pretrained=True)
-    for param in model.features.parameters():
-        param.requires_grad = False
-    num_features = model.classifier[6].in_features
-    model.classifier[0] = nn.Linear(8192, num_features)
-    model.classifier[6] = nn.Linear(num_features, 1)
-    model.avgpool = nn.AvgPool2d(1)
+    model = get_model("VGG16")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device, dtype=torch.float32)
