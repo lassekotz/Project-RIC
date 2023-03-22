@@ -15,11 +15,11 @@ int main(){
     MPU6050_Init();
     
     initMotorPins(); //Initializes pins and hardware interupts for motors
-    
-    printf("Start motor test 1 \n");
-    accuateMotor(300,1,300,1);
-    delay(20);
-    accuateMotor(500,1,500,1);
+    /*
+    //printf("Start motor test 1 \n");
+    //accuateMotor(300,1,300,1);
+    //delay(20);
+    //accuateMotor(500,1,500,1);
     printf("Motors should now run at half speed forwards for 3 seconds \n");
     delay(3000);
     printf("Stop motors \n");
@@ -32,13 +32,14 @@ int main(){
     printWheelRotation();
     delay(2000);
     
-    /*
+    */
+    
     printf("Initializing IMU and regulator");
-    initRegParam(28.545755616, 0, 0, -0.0431, -0.0464);
+    initRegParam(0.5, 0.0,100.0,1.0/10.0, 1.0, 0.1,0.01);
     setupFirstValue();
     float curTheta;
     float u;
-    for(int i; i<1000; i++){
+    while(1){
         if(1){
             curTheta = update_angle(1);
             u =angleController(curTheta,0.0, 0.0);
@@ -49,7 +50,7 @@ int main(){
             u =angleController(curTheta,0.0, 0.0);
         }
         delay(10);
-    } */
+    } 
  
 }
 
