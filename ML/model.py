@@ -117,7 +117,7 @@ def training_loop(train_loader, model, optimizer, val_loader, epochs, loss_fn):
 
         print(f'Epoch {epoch + 1} \ntrain MAE: {latest_train_loss:2.4}, validation MAE: {latest_val_loss:2.4}')
 
-        if (latest_val_loss >= lowest_val_loss): #TODO: IMPLEMENT S.T. THE MODEL CORRESPONDING TO THE LOWEST LOSS IS ALWAYS SAVED
+        if (latest_val_loss >= lowest_val_loss):
             consecutive_fails += 1
         else:
             lowest_val_loss = latest_val_loss
@@ -145,7 +145,9 @@ def get_model(modelname):
         model.avgpool = nn.AvgPool2d(1)
 
     elif modelname == "mobilenet_v2":
-        model = models.mobilenet_v2()
+        model = models.mobilenet_v2(pretrained=True)
+        num_features = model.classifier[1].in_features
+        model.classifier[1] = nn.Linear(num_features, 1)
 
     return model
 
