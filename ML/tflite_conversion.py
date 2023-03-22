@@ -25,6 +25,7 @@ def save_and_convert_model(model_name, model, dummy_input, input_names, output_n
 
     # Convert the model
     converter = tf.lite.TFLiteConverter.from_saved_model(path)
+    # TODO: modify quantization to int8
     tflite_model = converter.convert()
 
     # Save the model

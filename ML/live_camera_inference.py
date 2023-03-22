@@ -61,6 +61,8 @@ def main():
         print("Elapsed time: " + str(time.time() - t0))
         t0 = time.time()
 
+        # TODO: JIT
+
         
         
 if __name__ == "__main__":
