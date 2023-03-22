@@ -146,8 +146,9 @@ if __name__ == '__main__':
     for param in model.features.parameters():
         param.requires_grad = False
     num_features = model.classifier[6].in_features
+    model.classifier[0] = nn.Linear(8192, num_features)
     model.classifier[6] = nn.Linear(num_features, 1)
-
+    model.avgpool = nn.AvgPool2d(1)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device, dtype=torch.float32)
@@ -159,14 +160,14 @@ if __name__ == '__main__':
     optimizer = torch.optim.SGD(model.parameters(), lr=lr)#, momentum=momentum)
 
     print("Currently training on " + str(device))
-    train_losses, val_losses, train_losses_per_epoch, val_losses_per_epoch, best_model = training_loop(train_loader, model, optimizer, val_loader, epochs, loss_criterion)
-    plot_results(train_losses, val_losses)
-    model = best_model
+    #train_losses, val_losses, train_losses_per_epoch, val_losses_per_epoch, best_model = training_loop(train_loader, model, optimizer, val_loader, epochs, loss_criterion)
+    #plot_results(train_losses, val_losses)
+    #model = best_model
 
     #SAVE MODEL:
-    dummy_input = torch.randn(1, 3, 128, 128, device=device)
+    dummy_input = torch.randn(1, 3, H, W, device=device)
     input_names = ['input_1']
     output_names = ['output_1']
 
-    preds_and_labels = test(test_loader, model, device)
+    #preds_and_labels = test(test_loader, model, device)
     save_and_convert_model(model.__class__.__name__, model, dummy_input, input_names, output_names)
