@@ -5,9 +5,31 @@ import sys
 import picamera
 from picamera.array import PiRGBArray
 
+
+def initialize():
+    model = str(sys.argv[1])
+    print(model)
+    print("CAMERA INITIALIZING...")
+    camera = picamera.PiCamera()
+    camera.resolution = (128, 128)
+    camera.rotation = 180
+    camera.framerate = 32
+    camera.start_preview()
+    time.sleep(5)
+    camera.stop_preview()
+
+    rawCapture = PiRGBArray(camera, size=camera.resolution)
+    print("CAMERA INITIALIZED!")
+    print("LOADING MODEL...")
+    interpreter = tflite.Interpreter(model_path="trained_models/" + model + "/" + model + ".tflite")
+    interpreter.allocate_tensors()
+    print("MODEL LOADED!")
+
+    return camera, interpreter, rawCapture
+    
 def inference_step(interpreter, input_data):
     # Get input and output tensors.
-    print(input_data)
+    #print(input_data)
     
     input_details = interpreter.get_input_details()
     output_details = interpreter.get_output_details()
@@ -23,44 +45,22 @@ def inference_step(interpreter, input_data):
 
     return output_data
 
-def initialize():
-    model = str(sys.argv[1])
-    print(model)
-    print("CAMERA INITIALIZING...")
-    camera = picamera.PiCamera()
-    camera.resolution = (224, 224)
-    camera.rotation = 180
-    camera.framerate = 32
-    camera.start_preview()
-    time.sleep(2)
-    camera.stop_preview()
 
-    rawCapture = PiRGBArray(camera, size=camera.resolution)
-    print("CAMERA INITIALIZED!")
-    print("LOADING MODEL...")
-    interpreter = tflite.Interpreter(model_path="trained_models/" + model + "/" + model + ".tflite")
-    interpreter.allocate_tensors()
-    print("MODEL LOADED!")
-
-    return camera, interpreter, rawCapture
 
 def main():
     camera, interpreter, rawCapture = initialize()
     t0 = time.time()
-
     for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
-                
         image = frame.array
         input_data = np.array(image, dtype=np.float32)
         input_data = np.expand_dims(input_data, axis=0)
         input_data = np.swapaxes(input_data, 1, 3)
-                
         pred = inference_step(interpreter, input_data)
-        #t1 = time.time()
         rawCapture.seek(0)
         rawCapture.truncate()
-        #print(t1-t0)
-        #t0 = t1
+        print("Elapsed time: " + str(time.time() - t0))
+        t0 = time.time()
+
         
         
 if __name__ == "__main__":
