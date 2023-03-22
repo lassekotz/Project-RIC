@@ -10,9 +10,11 @@ float curTheta;
 float u = 0;
 int desPower;
 int dir;
-double speed;
+float* speed;
 u_int32_t oldTid;
 u_int32_t curTid;
+u_int32_t oldTidS;
+u_int32_t curTidS;
 
 int main()
 {
@@ -45,10 +47,12 @@ int main()
 
     int i = 0;
     oldTid = millis();
+    oldTidS = millis();
     while(1){
         curTid = millis();
+        curTidS = millis();
         double dtid = (curTid-oldTid)/1000.0;
-        if(dtid >=0.1){
+        if(dtid >=1){
             if(i==rows){
                 break;
             }
@@ -56,18 +60,23 @@ int main()
             u = uArray[i];
             desPower = fabs(u*1024.0/12.0);
             if(u<0){
-                dir = 0; //Maybe the other way? Test and see 
+                dir = 1; //Maybe the other way? Test and see 
             }
             else{
-                dir = 1;
+                dir = 0;
             }
 
             accuateMotor(desPower,dir,desPower,dir);
-            speed = calcSpeed(0);
+            
 
-            fprintf(fp, "%f\n", speed);
+            fprintf(fp, "%f,%f\n", speed[0],speed[1]);
             i++;
             oldTid = curTid;
+        }
+        double dtidS = (curTidS-oldTidS)/1000.0;
+        if(dtidS>=0.1){ 
+            speed = calcSpeeds(0);
+            oldTidS = curTidS;
         }
     }
     
