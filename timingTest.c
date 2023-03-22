@@ -17,8 +17,8 @@ float* speed;
 
 // Sampling times
 const float TIMU = 0.005;
-const float Tmotor = 0.1;
-const float Tpid = 0.08;
+const float Tmotor = 0.01;
+const float Tpid = 0.01;
 
 unsigned long curTime;
 unsigned long lastIMUtime, lastmotorTime, lastpidTime;
@@ -27,6 +27,7 @@ void setup(){
     wiringPiSetupGpio(); //Setup and use defult pin numbering
     MPU6050_Init();
     
+
     initMotorPins(); //Initializes pins and hardware interupts for motors
     initRegParam(15.0, 0.1,0.25,0,  0.85, 0.1,Tpid);
     setupFirstValue();
