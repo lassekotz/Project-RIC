@@ -1,8 +1,11 @@
+import pathlib
+
 import onnx
 from onnx_tf.backend import prepare
 import tensorflow as tf
 import torch
 import os
+import numpy as np
 
 def save_and_convert_model(model_name, model, dummy_input, input_names, output_names):
     torch.save(model.state_dict(), './trained_models/' + str(model_name) + "/" + str(model_name) + '.pt')
@@ -16,16 +19,41 @@ def save_and_convert_model(model_name, model, dummy_input, input_names, output_n
     onnx_model = onnx.load(path + ".onnx")
     onnx.checker.check_model(onnx_model)
 
-    tf_rep = prepare(onnx_model)
-    tf_rep.export_graph(path + "/")
+    # tf_rep = prepare(onnx_model)
+    # tf_rep.export_graph(path + "/")
 
     tflite_model_path = path + ".tflite"
+    tflite_model_quant_path = path + "_quant.tflite"
 
     # Convert the model
     converter = tf.lite.TFLiteConverter.from_saved_model(path)
-    # TODO: modify quantization to int8
     tflite_model = converter.convert()
 
+    # mnist = tf.keras.datasets.mnist
+    # (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
+
+    def representative_data_gen():
+        for input_value in tf.data.Dataset.from_tensor_slices(dummy_input.numpy()).batch(1).take(2):
+            yield [input_value]
+
+    converter.optimizations = [tf.lite.Optimize.DEFAULT]
+    converter.representative_dataset = representative_data_gen
+
+
+    tflite_model_quant = converter.convert()
+
+    interpreter = tf.lite.Interpreter(model_content=tflite_model_quant)
+    input_type = interpreter.get_input_details()[0]['dtype']
+    print("input: ", input_type)
+    # TODO: modify quantization to int8
+
     # Save the model
+    '''
     with open(tflite_model_path, 'wb') as f:
         f.write(tflite_model)
+    '''
+
+    tflite_model_path = pathlib.Path(tflite_model_path)
+    tflite_model_path.write_bytes(tflite_model)
+    tflite_model_quant_path = pathlib.Path(tflite_model_quant_path)
+    tflite_model_quant_path.write_bytes(tflite_model_quant)
