@@ -43,10 +43,6 @@ def save_and_convert_model(model_name, model, dummy_input, input_names, output_n
     # TODO: modify quantization to int8
 
     # Save the model
-    '''
-    with open(tflite_model_path, 'wb') as f:
-        f.write(tflite_model)
-    '''
 
     tflite_model_path = pathlib.Path(tflite_model_path)
     tflite_model_path.write_bytes(tflite_model)
