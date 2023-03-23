@@ -5,7 +5,6 @@ from onnx_tf.backend import prepare
 import tensorflow as tf
 import torch
 import os
-import numpy as np
 
 def save_and_convert_model(model_name, model, dummy_input, input_names, output_names):
     torch.save(model.state_dict(), './trained_models/' + str(model_name) + "/" + str(model_name) + '.pt')
@@ -19,8 +18,8 @@ def save_and_convert_model(model_name, model, dummy_input, input_names, output_n
     onnx_model = onnx.load(path + ".onnx")
     onnx.checker.check_model(onnx_model)
 
-    # tf_rep = prepare(onnx_model)
-    # tf_rep.export_graph(path + "/")
+    tf_rep = prepare(onnx_model)
+    tf_rep.export_graph(path + "/")
 
     tflite_model_path = path + ".tflite"
     tflite_model_quant_path = path + "_quant.tflite"
@@ -29,16 +28,12 @@ def save_and_convert_model(model_name, model, dummy_input, input_names, output_n
     converter = tf.lite.TFLiteConverter.from_saved_model(path)
     tflite_model = converter.convert()
 
-    # mnist = tf.keras.datasets.mnist
-    # (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
-
     def representative_data_gen():
         for input_value in tf.data.Dataset.from_tensor_slices(dummy_input.numpy()).batch(1).take(2):
             yield [input_value]
 
     converter.optimizations = [tf.lite.Optimize.DEFAULT]
     converter.representative_dataset = representative_data_gen
-
 
     tflite_model_quant = converter.convert()
 
