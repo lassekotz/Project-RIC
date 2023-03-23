@@ -11,8 +11,6 @@ def save_and_convert_model(model_name, model, dummy_input, input_names, output_n
         os.mkdir('./trained_models/' + str(model_name))
     path = './trained_models/' + str(model_name) + "/" + str(model_name)
 
-    #TODO: Add compatibility for VGG. https://github.com/pytorch/pytorch/issues/5310
-
     torch.onnx.export(model, dummy_input, path + '.onnx', verbose=False, input_names=input_names,
                       output_names=output_names)
     onnx_model = onnx.load(path + ".onnx")

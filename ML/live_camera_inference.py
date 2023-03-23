@@ -6,16 +6,16 @@ import picamera
 from picamera.array import PiRGBArray
 
 
-def initialize():
+def initialize(resolution=(128, 128)):
     model = str(sys.argv[1])
     print(model)
     print("CAMERA INITIALIZING...")
     camera = picamera.PiCamera()
-    camera.resolution = (128, 128)
+    camera.resolution = resolution
     camera.rotation = 180
     camera.framerate = 32
     camera.start_preview()
-    time.sleep(5)
+    time.sleep(3)
     camera.stop_preview()
 
     rawCapture = PiRGBArray(camera, size=camera.resolution)
@@ -48,7 +48,8 @@ def inference_step(interpreter, input_data):
 
 
 def main():
-    camera, interpreter, rawCapture = initialize()
+    resolution = (128, 128)
+    camera, interpreter, rawCapture = initialize(resolution)
     t0 = time.time()
     for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
         image = frame.array
