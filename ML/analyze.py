@@ -75,7 +75,7 @@ def plot_results(train_losses, val_losses):
 
 if __name__ == '__main__':
 
-    datapath = './Results/VGG/test_results.txt'
+    datapath = './Results/MobileNetV2/test_results.txt'
     with open(datapath) as f:
         lines = f.readlines()
         targets = []
