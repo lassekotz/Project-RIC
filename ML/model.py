@@ -124,7 +124,7 @@ def training_loop(train_loader, model, optimizer, val_loader, epochs, loss_fn):
             consecutive_fails = 0
             best_model = model
 
-        if consecutive_fails >= 3:
+        if consecutive_fails >= patience:
             break
 
 
@@ -134,7 +134,7 @@ def get_model(modelname):
     if modelname == "CNN":
         model = CNN()
     elif modelname == "LinearModel":
-        model = LinearModel
+        model = LinearModel()
     elif modelname == "VGG16":
         model = models.vgg16(pretrained=True)
         for param in model.features.parameters():
@@ -161,7 +161,7 @@ if __name__ == '__main__':
     train_loader, val_loader, test_loader = generate_dataloader(dataset, batch_size, [.8, .1, .1])
 
     # model = get_model("mobilenet_v2")
-    model = get_model("mobilenet_v2")
+    model = get_model("LinearModel")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device, dtype=torch.float32)
@@ -173,7 +173,8 @@ if __name__ == '__main__':
     optimizer = torch.optim.SGD(model.parameters(), lr=lr) #, momentum=momentum)
 
     print("Currently training on " + str(device))
-    '''
+
+    patience = 5
     train_losses, val_losses, train_losses_per_epoch, val_losses_per_epoch, best_model = training_loop(
         train_loader, 
         model, 
@@ -181,15 +182,15 @@ if __name__ == '__main__':
         val_loader, 
         epochs, 
         loss_criterion)
-    '''
 
-    # plot_results(train_losses, val_losses)
-    # model = best_model
+
+    plot_results(train_losses, val_losses)
+    model = best_model
 
     #SAVE MODEL:
     dummy_input = torch.randn(1, 3, H, W, device=device)
     input_names = ['input_1']
     output_names = ['output_1']
 
-    #preds_and_labels = test(test_loader, model, device)
+    preds_and_labels = test(test_loader, model, device)
     save_and_convert_model(model.__class__.__name__, model, dummy_input, input_names, output_names)
