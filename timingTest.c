@@ -29,8 +29,8 @@ void setup(){
     
 
     initMotorPins(); //Initializes pins and hardware interupts for motors
-    initRegParam(1.0, 0,0.25,0,  -0.1, -0.1,Tpid);
-    setupFirstValue();
+    initRegParam(0.15, 0.001,15.0,8000.0,  -0.1, -0.1,Tpid);
+    //setupFirstValue();
 }
 
 int main(){
@@ -52,17 +52,17 @@ int main(){
 
         float dtPID = (curTime-lastpidTime)/1000.0f;
         if(dtPID>=Tpid){
-            printf("Po");
             speed = calcSpeeds(1);
             //Calc u 
-            u =angleController(curTheta,0.0, 0.0);
+            u =angleController(curTheta,(speed[0]+speed[1])/2.0, 0.0);
             lastpidTime = curTime;
         }
         
         float dtMotor = (curTime-lastmotorTime)/1000.0f;
         if(dtMotor>=Tmotor){
             desPower = fabs(u*1024.0/12.0);
-            printf("Power: %f \n",u);
+            printf("u= %f \n",u);
+            
             if(u<0){
                 dir = 1; //Maybe the other way? Test and see 
             }
@@ -77,7 +77,7 @@ int main(){
 
 
         //Check for failure
-        if(abs(curTheta)>15){
+        if(abs(curTheta)>25){
             accuateMotor(0,1,0,1);
             free(speed);
             exit(1);

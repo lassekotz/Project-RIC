@@ -117,7 +117,7 @@ def training_loop(train_loader, model, optimizer, val_loader, epochs, loss_fn):
 
         print(f'Epoch {epoch + 1} \ntrain MAE: {latest_train_loss:2.4}, validation MAE: {latest_val_loss:2.4}')
 
-        if (latest_val_loss >= lowest_val_loss): #TODO: IMPLEMENT S.T. THE MODEL CORRESPONDING TO THE LOWEST LOSS IS ALWAYS SAVED
+        if (latest_val_loss >= lowest_val_loss):
             consecutive_fails += 1
         else:
             lowest_val_loss = latest_val_loss
@@ -145,12 +145,14 @@ def get_model(modelname):
         model.avgpool = nn.AvgPool2d(1)
 
     elif modelname == "mobilenet_v2":
-        model = models.mobilenet_v2()
+        model = models.mobilenet_v2(pretrained=True)
+        num_features = model.classifier[1].in_features
+        model.classifier[1] = nn.Linear(num_features, 1)
 
     return model
 
 if __name__ == '__main__':
-    H, W, = 128, 128
+    H, W, = 224, 224
 
     image_path = './Data/BigDataset'
     all_transforms, no_transform, current_transform = generate_transforms(image_path, H, W)
@@ -158,7 +160,8 @@ if __name__ == '__main__':
     batch_size = 32
     train_loader, val_loader, test_loader = generate_dataloader(dataset, batch_size, [.8, .1, .1])
 
-    model = get_model("VGG16")
+    # model = get_model("mobilenet_v2")
+    model = get_model("mobilenet_v2")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device, dtype=torch.float32)
@@ -166,13 +169,22 @@ if __name__ == '__main__':
     epochs = 200
     lr = 0.001
     momentum = .99
-    loss_criterion = nn.L1Loss()# MAE
-    optimizer = torch.optim.SGD(model.parameters(), lr=lr)#, momentum=momentum)
+    loss_criterion = nn.L1Loss() # MAE
+    optimizer = torch.optim.SGD(model.parameters(), lr=lr) #, momentum=momentum)
 
     print("Currently training on " + str(device))
-    #train_losses, val_losses, train_losses_per_epoch, val_losses_per_epoch, best_model = training_loop(train_loader, model, optimizer, val_loader, epochs, loss_criterion)
-    #plot_results(train_losses, val_losses)
-    #model = best_model
+    '''
+    train_losses, val_losses, train_losses_per_epoch, val_losses_per_epoch, best_model = training_loop(
+        train_loader, 
+        model, 
+        optimizer, 
+        val_loader, 
+        epochs, 
+        loss_criterion)
+    '''
+
+    # plot_results(train_losses, val_losses)
+    # model = best_model
 
     #SAVE MODEL:
     dummy_input = torch.randn(1, 3, H, W, device=device)

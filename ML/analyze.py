@@ -36,7 +36,7 @@ def plot_error_distr(errors_list, bins=20):
     return None
 
 
-def plot_pred_vs_target(targets, preds, MAE):
+def plot_pred_space(targets, preds, MAE):
     plt.scatter(preds, targets, .5)
     plt.plot([-30, 30], [-30, 30], 'r-')
     plt.title(f'Prediction space, MAE = ' + f'{MAE:.2f}')
@@ -50,6 +50,21 @@ def plot_pred_vs_target(targets, preds, MAE):
     # TODO: fix this
 
     return None
+
+def plot_pred_space_heatmap(targets, preds, MAE):
+    heatmap, xedges, yedges = np.histogram2d(targets, preds, bins=50)
+    extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
+
+    plt.clf()
+    plt.imshow(heatmap.T, extent=extent, origin='lower')
+    plt.title(f'Prediction space, MAE = ' + f'{MAE:.2f}')
+    plt.legend(['Ideal', 'Predictions'])
+    plt.xlabel('Predicted angle')
+    plt.ylabel('Actual angle')
+    plt.grid()
+    plt.xticks()
+    plt.yticks()
+    plt.show()
 
 
 def plot_pred_target_distributions(targets, preds, bins=20):
@@ -75,7 +90,7 @@ def plot_results(train_losses, val_losses):
 
 if __name__ == '__main__':
 
-    datapath = './Results/VGG/test_results.txt'
+    datapath = './Results/MobileNetV2/test_results.txt'
     with open(datapath) as f:
         lines = f.readlines()
         targets = []
@@ -93,5 +108,6 @@ if __name__ == '__main__':
         MAE += abs(t-p)
     MAE = MAE/len(preds)
 
-    plot_pred_vs_target(targets, preds, MAE)
+    plot_pred_space(targets, preds, MAE)
     plot_pred_target_distributions(targets, preds, bins=30)
+    plot_pred_space_heatmap(targets, preds, MAE)

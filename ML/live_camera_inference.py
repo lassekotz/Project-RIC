@@ -6,16 +6,16 @@ import picamera
 from picamera.array import PiRGBArray
 
 
-def initialize():
+def initialize(resolution=(128, 128)):
     model = str(sys.argv[1])
     print(model)
     print("CAMERA INITIALIZING...")
     camera = picamera.PiCamera()
-    camera.resolution = (128, 128)
+    camera.resolution = resolution
     camera.rotation = 180
     camera.framerate = 32
     camera.start_preview()
-    time.sleep(5)
+    time.sleep(3)
     camera.stop_preview()
 
     rawCapture = PiRGBArray(camera, size=camera.resolution)
@@ -23,32 +23,30 @@ def initialize():
     print("LOADING MODEL...")
     interpreter = tflite.Interpreter(model_path="trained_models/" + model + "/" + model + ".tflite")
     interpreter.allocate_tensors()
+    input_details = interpreter.get_input_details()[0]
+    output_details = interpreter.get_output_details()[0]
     print("MODEL LOADED!")
 
-    return camera, interpreter, rawCapture
+    return camera, interpreter, rawCapture, input_details, output_details
     
-def inference_step(interpreter, input_data):
+def inference_step(interpreter, input_data, input_details, output_details):
     # Get input and output tensors.
-    #print(input_data)
-    
-    input_details = interpreter.get_input_details()
-    output_details = interpreter.get_output_details()
+
 
     # Test the model on input data
-        
     interpreter.set_tensor(input_details[0]['index'], input_data)
     interpreter.invoke()
     # The function 'get_tensor()' returns a copy of the tensor data.
     # Use 'tensor()' in order to get a pointer to the tensor.
     output_data = interpreter.get_tensor(output_details[0]['index'])
-    print(output_data)
 
     return output_data
 
 
 
 def main():
-    camera, interpreter, rawCapture = initialize()
+    resolution = (128, 128)
+    camera, interpreter, rawCapture, input_details, output_details = initialize(resolution)
     t0 = time.time()
     for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
         image = frame.array
@@ -58,8 +56,10 @@ def main():
         pred = inference_step(interpreter, input_data)
         rawCapture.seek(0)
         rawCapture.truncate()
-        print("Elapsed time: " + str(time.time() - t0))
+        print("Sample rate: " + str(1/(time.time() - t0)) + " Hz")
         t0 = time.time()
+
+        # TODO: JIT
 
         
         

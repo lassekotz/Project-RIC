@@ -14,8 +14,8 @@ double oldErr,ITerm; //Error variables for angles
 double verrorSum, lastvRef; //Integral error for velocity controller 
 float kp, ki, kd,Tf;
 float kpv, kiv; //PI constans for velocity controller 
-const double maxU = 12; //Maximum voltage we can send
-const double minU = -12;  
+const double maxU = 6; //Maximum voltage we can send
+const double minU = -6;  
 //Motor regulator variables
 double diffESum;
 unsigned long oldTmR;
@@ -26,6 +26,7 @@ float oldErrFilt = 0;
 
 
 float angleController(float angle,float v, float vref){
+   
    // Calculates output signals from inputs consisting of current leaning angle and desired angle
 
    // Keeping track of time
@@ -38,12 +39,14 @@ float angleController(float angle,float v, float vref){
 
    //Velocity PI controller 
    float angleRef = kpv*verror + kiv*verrorSum; //Acts as desired angle for next pid controller
-
+   
    // Keep track of angle errors 
    double error = angleRef-angle;
    float eFilt = a*error+(1-a)*oldErrFilt;
+   printf("a = %f \n",a);
+   printf("error: %f   eFilt: %f \n",error,eFilt);
    double dErr = (eFilt-oldErrFilt)/dt;
-
+   
 
    //Angle PID controller 
    ITerm += (ki * dt * error); //Prevent oversaturation of intergral error 
@@ -52,6 +55,7 @@ float angleController(float angle,float v, float vref){
    else if(ITerm< minU){
       ITerm= minU;}
    float u = kp*error + ITerm + kd*dErr;
+   printf("Pterm: %f  iTERM: %f, kd %f\n",kp*error,ITerm,kd*dErr);
 
    // Store for next loop
    errsum += error*dt;
@@ -88,6 +92,6 @@ void initRegParam(float Kp, float Ki, float Kd,float Tf, float Kpv, float Kiv,fl
    kd = Kd;
    kpv = Kpv;
    kiv = Kiv;
-   a = Ts/Tf;
+   a = 0.8;
 }
 
