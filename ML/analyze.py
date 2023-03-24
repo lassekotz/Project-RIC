@@ -1,7 +1,6 @@
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn
 
 def view_label_distr(filepath, bins=10):
     with open(filepath) as f:
@@ -52,7 +51,7 @@ def plot_pred_space(targets, preds, MAE):
     return None
 
 def plot_pred_space_heatmap(targets, preds, MAE):
-    heatmap, xedges, yedges = np.histogram2d(targets, preds, bins=200)
+    heatmap, xedges, yedges = np.histogram2d(preds, targets, bins=200)
     extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
 
     plt.clf()
