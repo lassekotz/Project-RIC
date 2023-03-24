@@ -57,6 +57,13 @@ def plot_pred_space_heatmap(targets, preds, MAE):
 
     plt.clf()
     plt.imshow(heatmap.T, extent=extent, origin='lower')
+    plt.title(f'Prediction space, MAE = ' + f'{MAE:.2f}')
+    plt.legend(['Ideal', 'Predictions'])
+    plt.xlabel('Predicted angle')
+    plt.ylabel('Actual angle')
+    plt.grid()
+    plt.xticks()
+    plt.yticks()
     plt.show()
 
 
