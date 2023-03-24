@@ -29,7 +29,7 @@ void setup(){
     
 
     initMotorPins(); //Initializes pins and hardware interupts for motors
-    initRegParam(15.0, 0.1,0.25,0,  0.85, 0.1,Tpid);
+    initRegParam(1.0, 0,0.25,0,  -0.1, -0.1,Tpid);
     setupFirstValue();
 }
 
@@ -79,6 +79,7 @@ int main(){
         //Check for failure
         if(abs(curTheta)>15){
             accuateMotor(0,1,0,1);
+            free(speed);
             exit(1);
         }
     }
