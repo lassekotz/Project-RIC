@@ -4,3 +4,4 @@
 *.pb
 build/
 Simulink/
+.vscode/

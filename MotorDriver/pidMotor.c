@@ -86,7 +86,7 @@ float motorRegulator(float v1, float v2,float diffRef){
    return u;
 }
 
-void initRegParam(float Kp, float Ki, float Kd,float Tf, float Kpv, float Kiv,float Ts){
+void initRegParam(float Kp, float Ki, float Kd, float Kpv, float Kiv){
    kp = Kp;
    ki = Ki;
    kd = Kd;
