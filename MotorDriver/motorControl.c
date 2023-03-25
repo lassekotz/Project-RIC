@@ -52,10 +52,10 @@ void readEncoder1(){
 void readEncoder2(){ 
     int b = digitalRead(chB2);
     if(b >0){
-        pos2 = pos2+alpha;
+        pos2 = pos2-alpha;
     }
     else{
-        pos2 = pos2-alpha;
+        pos2 = pos2+alpha;
     }
 }
 

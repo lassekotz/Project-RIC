@@ -43,8 +43,8 @@ float angleController(float angle,float v, float vref){
    // Keep track of angle errors 
    double error = angleRef-angle;
    float eFilt = a*error+(1-a)*oldErrFilt;
-   printf("a = %f \n",a);
-   printf("error: %f   eFilt: %f \n",error,eFilt);
+   //printf("a = %f \n",a);
+   //printf("error: %f   eFilt: %f \n",error,eFilt);
    double dErr = (eFilt-oldErrFilt)/dt;
    
 
