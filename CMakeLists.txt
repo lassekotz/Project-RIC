@@ -52,7 +52,7 @@ target_include_directories(testMulti PUBLIC
 
 
 #Single thread test 
-add_executable(testSingle timingTest.c)
+add_executable(testSingle singleTest.c)
 
 
 target_link_libraries(testSingle PUBLIC wiringPi)
