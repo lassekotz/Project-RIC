@@ -34,17 +34,15 @@ void setup(){
 
 int main( int argc, char *argv[] ){
 
-    if( argc == 6 ){
-        float Kp = (float)atof(argv[1]);
-        float Ki = (float)atof(argv[2]);
-        float Kd = (float)atof(argv[3]);
-        float Kpv = (float)atof(argv[4]);
-        float Kiv = (float)atof(argv[5]);
-    }
-    else {
-        printf("Wrong number of arguments");
+    if( argc != 6 ){
+        printf("Wrong number of arguments, you had %d \n",argc);
         exit(1);
     }
+    float Kp = (float)atof(argv[1]);
+    float Ki = (float)atof(argv[2]);
+    float Kd = (float)atof(argv[3]);
+    float Kpv = (float)atof(argv[4]);
+    float Kiv = (float)atof(argv[5]);
     initRegParam( Kp , Ki, Kd, Kpv, Kiv);
 
     setup();
@@ -59,7 +57,7 @@ int main( int argc, char *argv[] ){
         float dtIMU = (curTime-lastIMUtime)/1000.0f;
         if(dtIMU>=TIMU){
             //Update IMU
-            curTheta = update_angle(0);
+            curTheta = update_angle(1);
             lastIMUtime = curTime;
         }
 
