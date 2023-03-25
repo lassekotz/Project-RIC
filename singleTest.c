@@ -73,7 +73,7 @@ int main( int argc, char *argv[] ){
         
         float dtMotor = (curTime-lastmotorTime)/1000.0f;
         if(dtMotor>=Tmotor){
-            desPower = fabs(u*1024.0/12.0);
+            desPower = fabs(u*1024.0/12.0)+100.0;
             printf("u= %f \n",u);
             
             if(u<0){
