@@ -35,7 +35,7 @@ int main(){
     */
     
     printf("Initializing IMU and regulator");
-    initRegParam(0.5, 0.0,100.0, -0.1, -0.1);
+    initRegParam(60, 0.0,100.0, -0.1, -0.1);
     setupFirstValue();
     float curTheta;
     float u;
@@ -49,7 +49,7 @@ int main(){
             curTheta = update_angle(0);
             u =angleController(curTheta,0.0, 0.0,0);
         }
-        delay(10);
+        //delay(10);
     } 
  
 }

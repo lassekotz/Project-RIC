@@ -63,7 +63,7 @@ int main( int argc, char *argv[] ){
 
         float dtPID = (curTime-lastpidTime)/1000.0f;
         if(dtPID>=Tpid){
-            speed = calcSpeeds(1);
+            speed = calcSpeeds(0);
             //Calc u 
             u =angleController(curTheta,(speed[0]+speed[1])/2.0, 0.0,0);
             lastpidTime = curTime;
