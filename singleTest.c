@@ -63,7 +63,7 @@ int main( int argc, char *argv[] ){
 
         float dtPID = (curTime-lastpidTime)/1000.0f;
         if(dtPID>=Tpid){
-            speed = calcSpeeds(1);
+            speed = calcSpeeds(0);
             //Calc u 
             u =angleController(curTheta,(speed[0]+speed[1])/2.0, 0.0,0);
             lastpidTime = curTime;
@@ -72,7 +72,7 @@ int main( int argc, char *argv[] ){
         float dtMotor = (curTime-lastmotorTime)/1000.0f;
         if(dtMotor>=Tmotor){
             //desPower = fabs(u*1024.0/12.0)+100.0;
-            desPower = fabs(u);
+            desPower = fabs(u)+150;
             
             if(u<0){
                 dir = 1; //Maybe the other way? Test and see 
