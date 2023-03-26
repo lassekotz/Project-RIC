@@ -36,7 +36,7 @@ int main( int argc, char *argv[] ){
 
     if( argc != 6 ){
         printf("Wrong number of arguments, you had %d \n",argc);
-        exit(1);
+        exit(2);
     }
     float Kp = (float)atof(argv[1]);
     float Ki = (float)atof(argv[2]);
@@ -65,14 +65,14 @@ int main( int argc, char *argv[] ){
         if(dtPID>=Tpid){
             speed = calcSpeeds(1);
             //Calc u 
-            u =angleController(curTheta,(speed[0]+speed[1])/2.0, 0.0);
+            u =angleController(curTheta,(speed[0]+speed[1])/2.0, 0.0,0);
             lastpidTime = curTime;
         }
         
         float dtMotor = (curTime-lastmotorTime)/1000.0f;
         if(dtMotor>=Tmotor){
-            desPower = fabs(u*1024.0/12.0)+100.0;
-            printf("u= %f \n",u);
+            //desPower = fabs(u*1024.0/12.0)+100.0;
+            desPower = fabs(u);
             
             if(u<0){
                 dir = 1; //Maybe the other way? Test and see 

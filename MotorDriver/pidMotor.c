@@ -25,7 +25,7 @@ float a;
 float oldErrFilt = 0;
 
 
-float angleController(float angle,float v, float vref){
+float angleController(float angle,float v, float vref,int verbose){
    
    // Calculates output signals from inputs consisting of current leaning angle and desired angle
 
@@ -42,7 +42,7 @@ float angleController(float angle,float v, float vref){
    
    // Keep track of angle errors 
    double error = angleRef-angle;
-   float eFilt = a*error+(1-a)*oldErrFilt;
+   float eFilt = a*angle+(1-a)*oldErrFilt; //Low Pass filter on meassurment
    //printf("a = %f \n",a);
    //printf("error: %f   eFilt: %f \n",error,eFilt);
    double dErr = (eFilt-oldErrFilt)/dt;
@@ -55,7 +55,11 @@ float angleController(float angle,float v, float vref){
    else if(ITerm< minU){
       ITerm= minU;}
    float u = kp*error + ITerm + kd*dErr;
-   printf("Pterm: %f  iTERM: %f, kd %f\n",kp*error,ITerm,kd*dErr);
+   if(verbose){
+      printf("Pterm: %f  iTERM: %f, kd %f\n",kp*error,ITerm,kd*dErr);
+      printf("angleRef: %f \n",angleRef);
+   }
+   
 
    // Store for next loop
    errsum += error*dt;

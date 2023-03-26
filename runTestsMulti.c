@@ -49,7 +49,7 @@ PI_THREAD (PID_thread){
     piLock(curThetaLock);
     //Add encoder speed as second argument to function
     //Add desired speed as third argument to function
-    u =angleController(curTheta,0.0, 0.0);
+    u =angleController(curTheta,0.0, 0.0,0);
     piUnlock(curThetaLock);
     piUnlock(uLock);
     delay(10);

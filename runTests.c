@@ -42,7 +42,7 @@ int main(){
     while(1){
         if(1){
             curTheta = update_angle(1);
-            u =angleController(curTheta,0.0, 0.0);
+            u =angleController(curTheta,0.0, 0.0,1);
             printf("Desired motor voltage from controller %f \n",u);
         }
         else{

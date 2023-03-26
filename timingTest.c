@@ -54,7 +54,7 @@ int main(){
         if(dtPID>=Tpid){
             speed = calcSpeeds(1);
             //Calc u 
-            u =angleController(curTheta,(speed[0]+speed[1])/2.0, 0.0);
+            u =angleController(curTheta,(speed[0]+speed[1])/2.0, 0.0,0);
             lastpidTime = curTime;
         }
         
