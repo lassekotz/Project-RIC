@@ -23,16 +23,11 @@ def initialize(resolution=(128, 128)):
     print("LOADING MODEL...")
     interpreter = tflite.Interpreter(model_path="trained_models/" + model + "/" + model + "_quant.tflite")
     interpreter.allocate_tensors()
-    input_details = interpreter.get_input_details()[0]
-    output_details = interpreter.get_output_details()[0]
     print("MODEL LOADED!")
 
-    return camera, interpreter, rawCapture, input_details, output_details
+    return camera, interpreter, rawCapture
     
 def inference_step(interpreter, input_data, input_details, output_details):
-    # Get input and output tensors.
-
-
     # Test the model on input data
     interpreter.set_tensor(input_details[0]['index'], input_data)
     interpreter.invoke()
@@ -46,8 +41,10 @@ def inference_step(interpreter, input_data, input_details, output_details):
 
 def main():
     resolution = (128, 128)
-    camera, interpreter, rawCapture, input_details, output_details = initialize(resolution)
+    camera, interpreter, rawCapture = initialize(resolution)
     t0 = time.time()
+    input_details = interpreter.get_input_details()
+    output_details = interpreter.get_output_details()
     for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
         image = frame.array
         input_data = np.array(image, dtype=np.float32)
@@ -61,7 +58,6 @@ def main():
 
         # TODO: JIT
 
-        
         
 if __name__ == "__main__":
     main()
