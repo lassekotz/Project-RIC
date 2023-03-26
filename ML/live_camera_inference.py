@@ -21,7 +21,7 @@ def initialize(resolution=(128, 128)):
     rawCapture = PiRGBArray(camera, size=camera.resolution)
     print("CAMERA INITIALIZED!")
     print("LOADING MODEL...")
-    interpreter = tflite.Interpreter(model_path="trained_models/" + model + "/" + model + ".tflite")
+    interpreter = tflite.Interpreter(model_path="trained_models/" + model + "/" + model + "_quant.tflite")
     interpreter.allocate_tensors()
     input_details = interpreter.get_input_details()[0]
     output_details = interpreter.get_output_details()[0]
@@ -53,7 +53,7 @@ def main():
         input_data = np.array(image, dtype=np.float32)
         input_data = np.expand_dims(input_data, axis=0)
         input_data = np.swapaxes(input_data, 1, 3)
-        pred = inference_step(interpreter, input_data)
+        pred = inference_step(interpreter, input_data, input_details, output_details)
         rawCapture.seek(0)
         rawCapture.truncate()
         print("Sample rate: " + str(1/(time.time() - t0)) + " Hz")
