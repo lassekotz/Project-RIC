@@ -47,7 +47,7 @@ int main(){
         }
         else{
             curTheta = update_angle(0);
-            u =angleController(curTheta,0.0, 0.0);
+            u =angleController(curTheta,0.0, 0.0,0);
         }
         delay(10);
     } 
