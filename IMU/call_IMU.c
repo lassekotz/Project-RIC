@@ -87,7 +87,7 @@ double update_angle(int verbose){
 		thetaG = thetaOld + Gx * dt; // deg/s * s = deg
 
 		// Complementary filter
-		theta = 0.95 * thetaG + 0.05 * thetaA;
+		theta = 0.98 * thetaG + 0.02 * thetaA;
 
 		// Store for next loop
    		oldTimu = curTimu;
