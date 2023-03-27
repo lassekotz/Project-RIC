@@ -68,8 +68,8 @@ double update_angle(int verbose){
 		Acc_z = read_raw_data(ACCEL_ZOUT_H);
 		
 		Gyro_x = read_raw_data(GYRO_XOUT_H);
-		Gyro_y = read_raw_data(GYRO_YOUT_H);
-		Gyro_z = read_raw_data(GYRO_ZOUT_H);
+		//Gyro_y = read_raw_data(GYRO_YOUT_H);
+		//Gyro_z = read_raw_data(GYRO_ZOUT_H);
 		
 		/* Divide raw value by sensitivity scale factor */
 		Ax = Acc_x/16384.0;
@@ -77,8 +77,8 @@ double update_angle(int verbose){
 		Az = Acc_z/16384.0;
 		
 		Gx = Gyro_x/131.0;
-		Gy = Gyro_y/131.0;
-		Gz = Gyro_z/131.0;
+		//Gy = Gyro_y/131.0;
+		//Gz = Gyro_z/131.0;
 
 		// Acc angle
 		thetaA = 180.0/3.1415* atan2(-Ay,sqrt(pow(Ax,2)+ pow(Az,2)));
@@ -87,7 +87,7 @@ double update_angle(int verbose){
 		thetaG = thetaOld + Gx * dt; // deg/s * s = deg
 
 		// Complementary filter
-		theta = 0.2 * thetaG + 0.8 * thetaA;
+		theta = 0.98 * thetaG + 0.02 * thetaA;
 
 		// Store for next loop
    		oldTimu = curTimu;
