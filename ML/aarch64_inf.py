@@ -8,6 +8,8 @@ import cv2
 
 def initialize(resolution=(128, 128)):
     model = str(sys.argv[1])
+    if not model:
+        raise RuntimeError("No model specified on sys.argv[1]")
     print(model)
     print("CAMERA INITIALIZING...")
     cap = cv2.VideoCapture(0)
