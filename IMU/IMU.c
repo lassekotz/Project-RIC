@@ -56,7 +56,8 @@ int main(){
 	float Gyro_x,Gyro_y,Gyro_z;
 	float Ax=0, Ay=0, Az=0;
 	float Gx=0, Gy=0, Gz=0;
-	float theta,thetaG,thetaA;
+	float theta,thetaA;
+	float thetaG = 0;
 	fd = wiringPiI2CSetup(MPU);   /*Initializes I2C with device Address*/
 	MPU6050_Init();		                 /* Initializes MPU6050 */
 	u_int32_t t1, t2;
@@ -88,7 +89,7 @@ int main(){
 		
 		thetaA = 180.0/3.1415* atan2(-Ay,sqrt(pow(Ax,2)+ pow(Az,2)));
 		elapsedTime = (t2 - t1)/1000.0;
-		thetaG = theta + Gx * elapsedTime; // deg/s * s = deg
+		thetaG = thetaG + Gx * elapsedTime; // deg/s * s = deg
 
   
 		// Complementary filter - combine acceleromter and gyro angle values
