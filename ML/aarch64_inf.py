@@ -3,7 +3,9 @@ import time
 import tflite_runtime.interpreter as tflite
 import sys
 import cv2
-#from picamera.array import PiRGBArray
+
+
+# from picamera.array import PiRGBArray
 
 
 def initialize(resolution=(128, 128)):
@@ -25,7 +27,7 @@ def initialize(resolution=(128, 128)):
     time.sleep(3)
     camera.stop_preview()
 	'''
-    #rawCapture = PiRGBArray(camera, size=camera.resolution)
+    # rawCapture = PiRGBArray(camera, size=camera.resolution)
     print("CAMERA INITIALIZED!")
     print("LOADING MODEL...")
     interpreter = tflite.Interpreter(model_path="trained_models/" + model + "/" + model + "_quant.tflite")
@@ -33,7 +35,8 @@ def initialize(resolution=(128, 128)):
     print("MODEL LOADED!")
 
     return cap, interpreter
-    
+
+
 def inference_step(interpreter, input_data, input_details, output_details):
     # Test the model on input data
     interpreter.set_tensor(input_details[0]['index'], input_data)
@@ -45,7 +48,6 @@ def inference_step(interpreter, input_data, input_details, output_details):
     return output_data
 
 
-
 def main():
     resolution = (128, 128)
     cap, interpreter = initialize(resolution)
@@ -53,6 +55,7 @@ def main():
     input_details = interpreter.get_input_details()
     output_details = interpreter.get_output_details()
     while True:
+        t0 = time.time()
         ret, image = cap.read()
         if not ret:
             raise RuntimeError("failed to read frame")
@@ -60,18 +63,11 @@ def main():
         input_data = np.array(image, dtype=np.float32)
         input_data = np.expand_dims(input_data, axis=0)
         input_data = np.swapaxes(input_data, 1, 3)
-        t1 = time.time()
         pred = inference_step(interpreter, input_data, input_details, output_details)
-        print(time.time() - t1)
-        #rawCapture.seek(0)
-        #rawCapture.truncate()
-        #print("Sample rate: " + str(1/(time.time() - t0)) + " Hz")
-        #print(pred)
-        t0 = time.time()
+        print("iteration freq: " + str(1 / (time.time() - t0)) + "Hz")
 
-        time.sleep(1)
         # TODO: JIT
 
-        
+
 if __name__ == "__main__":
     main()
