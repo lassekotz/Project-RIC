@@ -8,15 +8,15 @@ import cv2
 # from picamera.array import PiRGBArray
 
 
-def initialize(resolution=(128, 128)):
+def initialize(resolution=128):
     model = str(sys.argv[1])
     if not model:
         raise RuntimeError("No model specified on sys.argv[1]")
     print(model)
     print("CAMERA INITIALIZING...")
     cap = cv2.VideoCapture(0)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 128)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 128)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, resolution)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, resolution)
     cap.set(cv2.CAP_PROP_FPS, 50)
     '''
     camera = picamera.PiCamera()
