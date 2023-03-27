@@ -52,6 +52,8 @@ def main():
     output_details = interpreter.get_output_details()
     while True:
         ret, image = cap.read()
+        if not ret:
+            raise RuntimeError("failed to read frame")
         image = image[:, :, [2, 1, 0]]
         input_data = np.array(image, dtype=np.float32)
         input_data = np.expand_dims(input_data, axis=0)
