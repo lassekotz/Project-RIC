@@ -16,9 +16,9 @@ int dir;
 float* speed;
 
 // Sampling times
-const float TIMU = 0.01;
-const float Tmotor = 0.01;
-const float Tpid = 0.01;
+const float TIMU = 0.005;
+const float Tmotor = 0.08;
+const float Tpid = 0.08;
 
 unsigned long curTime;
 unsigned long lastIMUtime, lastmotorTime, lastpidTime;
@@ -57,7 +57,7 @@ int main( int argc, char *argv[] ){
         float dtIMU = (curTime-lastIMUtime)/1000.0f;
         if(dtIMU>=TIMU){
             //Update IMU
-            curTheta = update_angle(0);
+            curTheta = update_angle(1);
             lastIMUtime = curTime;
         }
 
