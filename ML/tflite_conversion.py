@@ -29,7 +29,7 @@ def save_and_convert_model(model_name, model, dummy_input, input_names, output_n
     tflite_model = converter.convert()
 
     def representative_data_gen():
-        for input_value in tf.data.Dataset.from_tensor_slices(dummy_input.numpy()).batch(1).take(2):
+        for input_value in tf.data.Dataset.from_tensor_slices(dummy_input.cpu().numpy()).batch(1).take(2):
             yield [input_value]
 
     converter.optimizations = [tf.lite.Optimize.DEFAULT]
