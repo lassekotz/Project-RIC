@@ -13,6 +13,7 @@ extern "C" {
 }
 #include "Kalman.h"
 #define EVER ;;
+#define RAD_TO_DEG 57.2957795;
 
 float curTheta;
 float u = 0;
@@ -22,6 +23,8 @@ float* speed;
 MPU6050 imu(0x68);
 Kalman kalman;
 double kalTheta;
+float gr, gp, gy;
+float accX, accY, accZ;
 
 // Sampling times
 const float TIMU = 0.01;
@@ -35,7 +38,7 @@ void setup(){
     wiringPiSetupGpio(); //Setup and use defult pin numbering
 
     imu.getAngle(0,&curTheta); //Calculate first value and input to filter 
-    kalmanX.setAngle(curTheta); 
+    kalman.setAngle(curTheta); 
     
 
     initMotorPins(); //Initializes pins and hardware interupts for motors
@@ -67,9 +70,20 @@ int main( int argc, char *argv[] ){
         float dtIMU = (curTime-lastIMUtime)/1000.0f;
         if(dtIMU>=TIMU){
             //Update IMU
-            imu.getAngle(0,&curTheta);
-            lastIMUtime = curTime;
+
+
+            //imu.getAngle(0,&curTheta); //Uncomment to use complementary filter
+            
+            //Kalman filter
+            imu.getGyro(&gr, &gp, &gy);
+            imu.getAccel(&accX, &accY, &accZ);
+            double roll  = atan(accY / sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
+            curTheta = kalman.getAngle(roll, gr, dtIMU);
+
             std::cout << "CurTheta = "<< curTheta << std::endl;
+
+            //Keep track of last time used
+            lastIMUtime = curTime;
         }
 
         float dtPID = (curTime-lastpidTime)/1000.0f;
