@@ -100,6 +100,7 @@ target_link_libraries(ricpp PUBLIC wiringPi)
 target_link_libraries(ricpp PUBLIC MPU6050)
 target_link_libraries(ricpp PUBLIC motorControl)
 target_link_libraries(ricpp PUBLIC pidController)
+target_link_libraries(ricpp PUBLIC Kalmanlib)
 target_include_directories(ricpp PUBLIC
                           "${PROJECT_BINARY_DIR}"
                           "${PROJECT_SOURCE_DIR}/MotorDriver"
@@ -107,7 +108,7 @@ target_include_directories(ricpp PUBLIC
 
 target_include_directories(ricpp PUBLIC
                           "${PROJECT_BINARY_DIR}"
-                          "${PROJECT_SOURCE_DIR}/MotorDriver"
+                          "${PROJECT_SOURCE_DIR}/Kalman"
                           )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
