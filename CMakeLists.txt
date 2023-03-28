@@ -89,3 +89,22 @@ target_include_directories(sysId PUBLIC
                           "${PROJECT_BINARY_DIR}"
                           "${PROJECT_SOURCE_DIR}/MotorDriver"
                           )
+
+
+#CPP program 
+
+add_executable(ricpp cppTest.c)
+target_link_libraries(ricpp PUBLIC wiringPi)
+target_link_libraries(ricpp PUBLIC MPU6050)
+target_link_libraries(ricpp PUBLIC motorControl)
+target_include_directories(ricpp PUBLIC
+                          "${PROJECT_BINARY_DIR}"
+                          "${PROJECT_SOURCE_DIR}/MotorDriver"
+                          )
+
+target_include_directories(testSingle PUBLIC
+                          "${PROJECT_BINARY_DIR}"
+                          "${PROJECT_SOURCE_DIR}/MotorDriver"
+                          )
+
+
