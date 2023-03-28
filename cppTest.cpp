@@ -5,8 +5,12 @@
 #include <math.h>
 #include <MPU6050.h>
 // Include project libraries 
+extern "C" {
 #include "motorControl.h"
+}
+extern "C" {
 #include "pidMotor.h"
+}
 #include "Kalman.h"
 #define EVER ;;
 
@@ -15,6 +19,9 @@ float u = 0;
 int desPower;
 int dir;
 float* speed;
+MPU6050 imu(0x68);
+Kalman kalman;
+double kalTheta;
 
 // Sampling times
 const float TIMU = 0.01;
@@ -26,7 +33,9 @@ unsigned long lastIMUtime, lastmotorTime, lastpidTime;
 
 void setup(){
     wiringPiSetupGpio(); //Setup and use defult pin numbering
-    MPU6050 imu(0x68);
+
+    imu.getAngle(0,&curTheta); //Calculate first value and input to filter 
+    kalmanX.setAngle(curTheta); 
     
 
     initMotorPins(); //Initializes pins and hardware interupts for motors
@@ -51,15 +60,16 @@ int main( int argc, char *argv[] ){
     lastIMUtime = millis();
     lastmotorTime = millis(); 
     lastpidTime = millis();
-
+    std::cout << "Starting up " << std::endl;
     for(EVER){
 
         curTime = millis();
         float dtIMU = (curTime-lastIMUtime)/1000.0f;
         if(dtIMU>=TIMU){
             //Update IMU
-            curTheta = imu.getAngle(0,&curTheta);
+            imu.getAngle(0,&curTheta);
             lastIMUtime = curTime;
+            std::cout << "CurTheta = "<< curTheta << std::endl;
         }
 
         float dtPID = (curTime-lastpidTime)/1000.0f;
@@ -89,7 +99,7 @@ int main( int argc, char *argv[] ){
 
 
         //Check for failure
-        if(abs(curTheta)>25){
+        if(abs(curTheta)>50){
             accuateMotor(0,1,0,1);
             free(speed);
             exit(1);
