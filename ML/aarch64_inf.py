@@ -49,7 +49,7 @@ def inference_step(interpreter, input_data, input_details, output_details):
 
 
 def main():
-    resolution = (128, 128)
+    resolution = 128
     cap, interpreter = initialize(resolution)
     t0 = time.time()
     input_details = interpreter.get_input_details()
