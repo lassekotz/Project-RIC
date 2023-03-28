@@ -7,6 +7,7 @@
 // Include project libraries 
 #include "motorControl.h"
 #include "pidMotor.h"
+#include "Kalman.h"
 #define EVER ;;
 
 float curTheta;
