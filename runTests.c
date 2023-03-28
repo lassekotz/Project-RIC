@@ -9,6 +9,9 @@
 #include "pidMotor.h"
 #include "call_IMU.h"
 
+unsigned long curTime;
+unsigned long lastIMUtime;
+const float TIMU = 0.001;
 
 int main(){
     wiringPiSetupGpio(); //Setup and use defult pin numbering
@@ -39,15 +42,17 @@ int main(){
     setupFirstValue();
     float curTheta;
     float u;
+    lastIMUtime = millis();
     while(1){
-        if(1){
+
+        
+        curTime = millis();
+        float dtIMU = (curTime-lastIMUtime)/1000.0f;
+        if(dtIMU>=TIMU){
             curTheta = update_angle(1);
-            u =angleController(curTheta,0.0, 0.0,1);
-            printf("Desired motor voltage from controller %f \n",u);
-        }
-        else{
-            curTheta = update_angle(0);
             u =angleController(curTheta,0.0, 0.0,0);
+            //printf("Desired motor voltage from controller %f \n",u);
+            lastIMUtime = curTime;
         }
         //delay(10);
     } 

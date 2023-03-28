@@ -26,11 +26,11 @@
 int fd;
 
 void MPU6050_Init(){
-	
+	//int wiringPiI2CWriteReg8 (int fd, int reg, int data) 
 	wiringPiI2CWriteReg8 (fd, SMPLRT_DIV, 0x07);	/* Write to sample rate register */
 	wiringPiI2CWriteReg8 (fd, PWR_MGMT_1, 0x01);	/* Write to power management register */
-	wiringPiI2CWriteReg8 (fd, CONFIG, 0);		/* Write to Configuration register */
-	wiringPiI2CWriteReg8 (fd, GYRO_CONFIG, 24);	/* Write to Gyro Configuration register */
+	wiringPiI2CWriteReg8 (fd, CONFIG, 0b00000010);		/* Write to Configuration register */
+	wiringPiI2CWriteReg8 (fd, GYRO_CONFIG, 0);	/* Write to Gyro Configuration register */
 	wiringPiI2CWriteReg8 (fd, INT_ENABLE, 0x01);	/*Write to interrupt enable register */
 
 	} 
@@ -56,7 +56,8 @@ int main(){
 	float Gyro_x,Gyro_y,Gyro_z;
 	float Ax=0, Ay=0, Az=0;
 	float Gx=0, Gy=0, Gz=0;
-	float theta,thetaG,thetaA;
+	float theta,thetaA;
+	float thetaG = 0;
 	fd = wiringPiI2CSetup(MPU);   /*Initializes I2C with device Address*/
 	MPU6050_Init();		                 /* Initializes MPU6050 */
 	u_int32_t t1, t2;
@@ -73,23 +74,22 @@ int main(){
 		Acc_z = read_raw_data(ACCEL_ZOUT_H);
 		
 		Gyro_x = read_raw_data(GYRO_XOUT_H);
-		Gyro_y = read_raw_data(GYRO_YOUT_H);
-		Gyro_z = read_raw_data(GYRO_ZOUT_H);
+		//Gyro_y = read_raw_data(GYRO_YOUT_H);
+		//Gyro_z = read_raw_data(GYRO_ZOUT_H);
 		
 		/* Divide raw value by sensitivity scale factor */
-		Ax = Acc_x/16384.0;
 		Ax = Acc_x/16384.0;
 		Ay = Acc_y/16384.0;
 		Az = Acc_z/16384.0;
 		
 		Gx = Gyro_x/131;
-		Gy = Gyro_y/131;
-		Gz = Gyro_z/131;
+		//Gy = Gyro_y/131;
+		//Gz = Gyro_z/131;
 		t2 = millis();
 		
 		thetaA = 180.0/3.1415* atan2(-Ay,sqrt(pow(Ax,2)+ pow(Az,2)));
 		elapsedTime = (t2 - t1)/1000.0;
-		thetaG = theta + Gx * elapsedTime; // deg/s * s = deg
+		thetaG = thetaG + Gx * elapsedTime; // deg/s * s = deg
 
   
 		// Complementary filter - combine acceleromter and gyro angle values

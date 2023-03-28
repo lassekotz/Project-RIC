@@ -9,7 +9,7 @@ void readEncoder2();
 int initMotorPins();
 void printWheelRotation();
 double calcSpeed(int verbose);
-float* calcSpeeds();
+float* calcSpeeds(int verbose);
 
 #endif
 
