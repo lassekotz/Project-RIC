@@ -84,4 +84,4 @@ def main(write_to_disk = False):
 
 
 if __name__ == "__main__":
-    main(write_to_disk=True)
+    main(write_to_disk=False)
