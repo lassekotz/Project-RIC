@@ -71,8 +71,9 @@ def main(write_to_disk = False):
         pred = inference_step(interpreter, input_data, input_details, output_details)
         #pred = a*(pred) + (1-a)*pred
         p_prev = pred
-        print(f'{pred[0][0]:.2f}' + "\n")
-
+        t0 = time.time()
+        #print(f'{pred[0][0]:.2f}' + "\n")
+        print(f'{time.time() - t0}:.2f Hz predictions')
         if write_to_disk:
             f.write(str(pred[0][0]))
 
