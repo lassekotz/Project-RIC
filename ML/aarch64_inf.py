@@ -75,7 +75,7 @@ def main(write_to_disk = False):
         p_prev = pred
 
         if write_to_disk:
-            f.write(str(pred[0][0]))
+            f.write(str(pred[0][0]) + "\n")
         if i%100 == 0:
             print(f'{i/(time.time() - t0)}' + " Hz predictions")
         i += 1
