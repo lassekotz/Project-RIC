@@ -16,9 +16,9 @@ int dir;
 float* speed;
 
 // Sampling times
-const float TIMU = 0.005;
-const float Tmotor = 0.08;
-const float Tpid = 0.08;
+const float TIMU = 0.001;
+const float Tmotor = 0.005;
+const float Tpid = 10.005;
 
 unsigned long curTime;
 unsigned long lastIMUtime, lastmotorTime, lastpidTime;
@@ -57,8 +57,9 @@ int main( int argc, char *argv[] ){
         float dtIMU = (curTime-lastIMUtime)/1000.0f;
         if(dtIMU>=TIMU){
             //Update IMU
-            curTheta = update_angle(1);
+            curTheta = update_angle(0);
             lastIMUtime = curTime;
+            printf("IMUTime: %f \n",dtIMU);
         }
 
         float dtPID = (curTime-lastpidTime)/1000.0f;
@@ -73,7 +74,7 @@ int main( int argc, char *argv[] ){
         if(dtMotor>=Tmotor){
             //desPower = fabs(u*1024.0/12.0)+100.0;
             desPower = fabs(u)+150;
-            
+            printf("motorTime: %f \n",dtMotor);
             if(u<0){
                 dir = 1; //Maybe the other way? Test and see 
             }

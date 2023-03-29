@@ -28,10 +28,10 @@ int fd;
 void MPU6050_Init(){
 	//int wiringPiI2CWriteReg8 (int fd, int reg, int data) 
 	wiringPiI2CWriteReg8 (fd, SMPLRT_DIV, 0x07);	/* Write to sample rate register */
-	wiringPiI2CWriteReg8 (fd, PWR_MGMT_1, 0x01);	/* Write to power management register */
-	wiringPiI2CWriteReg8 (fd, CONFIG, 0b00000010);		/* Write to Configuration register */
+	wiringPiI2CWriteReg8 (fd, PWR_MGMT_1, 0x00);	/* Write to power management register */
+	wiringPiI2CWriteReg8 (fd, CONFIG, 0b00000000);		/* Write to Configuration register */
 	wiringPiI2CWriteReg8 (fd, GYRO_CONFIG, 0);	/* Write to Gyro Configuration register */
-	wiringPiI2CWriteReg8 (fd, INT_ENABLE, 0x01);	/*Write to interrupt enable register */
+	wiringPiI2CWriteReg8 (fd, INT_ENABLE, 0x00);	/*Write to interrupt enable register */
 
 	} 
 short read_raw_data(int addr){
@@ -63,7 +63,7 @@ int main(){
 	u_int32_t t1, t2;
     double elapsedTime;
 	t1 = millis();
-	
+	int i = 0;
 
 	while(1)
 	{
@@ -85,10 +85,18 @@ int main(){
 		Gx = Gyro_x/131;
 		//Gy = Gyro_y/131;
 		//Gz = Gyro_z/131;
-		t2 = millis();
 		
-		thetaA = 180.0/3.1415* atan2(-Ay,sqrt(pow(Ax,2)+ pow(Az,2)));
+		t2 = millis();
 		elapsedTime = (t2 - t1)/1000.0;
+		double frek = 1.0/elapsedTime;
+		t1 = t2;
+		i++;
+		if( i%100 == 0){
+			printf("Running with dt: %f at frequency %f \n",elapsedTime,frek);
+		}
+		/*
+		thetaA = 180.0/3.1415* atan2(-Ay,sqrt(pow(Ax,2)+ pow(Az,2)));
+		
 		thetaG = thetaG + Gx * elapsedTime; // deg/s * s = deg
 
   
@@ -96,11 +104,11 @@ int main(){
 
 		theta = 0.98 * thetaG + 0.02 * thetaA;
 
-		t1 = t2;
+		
 
 		printf("\n Theta=%.3f °\tThetaG=%.3f °\tThetaA=%.3f °\ttime=%f s\n",theta,thetaG,thetaA,elapsedTime);
 		delay(1);
-		
+		*/
 	}
 	return 0;
 }
