@@ -69,15 +69,12 @@ def main(write_to_disk = False):
         input_data = np.expand_dims(input_data, axis=0)
         input_data = np.swapaxes(input_data, 1, 3)
         pred = inference_step(interpreter, input_data, input_details, output_details)
-        #print("iteration freq: " + str(1 / (time.time() - t0)) + "Hz")
-        #p_prev = pred
-        pred = a*(pred) + (1-a)*pred
+        #pred = a*(pred) + (1-a)*pred
         p_prev = pred
-        print(pred)
+        print(f'{pred[0][0]:.2f}')
 
-
-
-        #f.write(str(pred))
+        if write_to_disk:
+            f.write(str(pred[0][0]))
 
         # TODO: JIT
 
