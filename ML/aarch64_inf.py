@@ -48,7 +48,9 @@ def inference_step(interpreter, input_data, input_details, output_details):
     return output_data
 
 
-def main():
+def main(write_to_disk = False):
+    if write_to_disk:
+        f = open('timeseries.txt', 'w')
     resolution = 128
     cap, interpreter = initialize(resolution)
     t0 = time.time()
@@ -67,9 +69,10 @@ def main():
         pred = inference_step(interpreter, input_data, input_details, output_details)
         #print("iteration freq: " + str(1 / (time.time() - t0)) + "Hz")
         print(pred)
+        f.write(str(pred))
 
         # TODO: JIT
 
 
 if __name__ == "__main__":
-    main()
+    main(write_to_disk=True)
