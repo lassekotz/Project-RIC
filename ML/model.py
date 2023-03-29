@@ -152,7 +152,7 @@ def get_model(modelname):
     return model
 
 if __name__ == '__main__':
-    H, W, = 224, 224
+    H, W, = 128, 128
 
     image_path = './Data/BigDataset'
     all_transforms, no_transform, current_transform = generate_transforms(image_path, H, W)
@@ -160,8 +160,8 @@ if __name__ == '__main__':
     batch_size = 32
     train_loader, val_loader, test_loader = generate_dataloader(dataset, batch_size, [.8, .1, .1])
 
-    # model = get_model("mobilenet_v2")
-    model = get_model("LinearModel")
+    model = get_model("mobilenet_v2")
+    # model = get_model("LinearModel")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device, dtype=torch.float32)

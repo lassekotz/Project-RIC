@@ -49,7 +49,7 @@ def inference_step(interpreter, input_data, input_details, output_details):
 
 
 def main():
-    resolution = (128, 128)
+    resolution = 128
     cap, interpreter = initialize(resolution)
     t0 = time.time()
     input_details = interpreter.get_input_details()
@@ -60,11 +60,13 @@ def main():
         if not ret:
             raise RuntimeError("failed to read frame")
         image = image[:, :, [2, 1, 0]]
+        image = image/255
         input_data = np.array(image, dtype=np.float32)
         input_data = np.expand_dims(input_data, axis=0)
         input_data = np.swapaxes(input_data, 1, 3)
         pred = inference_step(interpreter, input_data, input_details, output_details)
-        print("iteration freq: " + str(1 / (time.time() - t0)) + "Hz")
+        #print("iteration freq: " + str(1 / (time.time() - t0)) + "Hz")
+        print(pred)
 
         # TODO: JIT
 
