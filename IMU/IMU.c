@@ -85,10 +85,14 @@ int main(){
 		Gx = Gyro_x/131;
 		//Gy = Gyro_y/131;
 		//Gz = Gyro_z/131;
-		t2 = millis();
 		
-		thetaA = 180.0/3.1415* atan2(-Ay,sqrt(pow(Ax,2)+ pow(Az,2)));
+		t2 = millis();
 		elapsedTime = (t2 - t1)/1000.0;
+		double frek = 1.0/elapsedTime;
+		printf("Running with dt: %f at frequency %f ",elapsedTime,frek);
+		/*
+		thetaA = 180.0/3.1415* atan2(-Ay,sqrt(pow(Ax,2)+ pow(Az,2)));
+		
 		thetaG = thetaG + Gx * elapsedTime; // deg/s * s = deg
 
   
@@ -100,7 +104,7 @@ int main(){
 
 		printf("\n Theta=%.3f °\tThetaG=%.3f °\tThetaA=%.3f °\ttime=%f s\n",theta,thetaG,thetaA,elapsedTime);
 		delay(1);
-		
+		/*
 	}
 	return 0;
 }
