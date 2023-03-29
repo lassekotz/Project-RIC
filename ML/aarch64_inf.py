@@ -71,7 +71,7 @@ def main(write_to_disk = False):
         pred = inference_step(interpreter, input_data, input_details, output_details)
         #pred = a*(pred) + (1-a)*pred
         p_prev = pred
-        print(f'{pred[0][0]:.2f}')
+        print(f'{pred[0][0]:.2f}' + "\n")
 
         if write_to_disk:
             f.write(str(pred[0][0]))
