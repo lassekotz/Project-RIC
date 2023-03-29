@@ -63,7 +63,7 @@ int main(){
 	u_int32_t t1, t2;
     double elapsedTime;
 	t1 = millis();
-	
+	int i = 0;
 
 	while(1)
 	{
@@ -89,7 +89,11 @@ int main(){
 		t2 = millis();
 		elapsedTime = (t2 - t1)/1000.0;
 		double frek = 1.0/elapsedTime;
-		printf("Running with dt: %f at frequency %f ",elapsedTime,frek);
+		t1 = t2;
+		i++;
+		if( i%100 == 0){
+			printf("Running with dt: %f at frequency %f \n",elapsedTime,frek);
+		}
 		/*
 		thetaA = 180.0/3.1415* atan2(-Ay,sqrt(pow(Ax,2)+ pow(Az,2)));
 		
@@ -100,11 +104,11 @@ int main(){
 
 		theta = 0.98 * thetaG + 0.02 * thetaA;
 
-		t1 = t2;
+		
 
 		printf("\n Theta=%.3f °\tThetaG=%.3f °\tThetaA=%.3f °\ttime=%f s\n",theta,thetaG,thetaA,elapsedTime);
 		delay(1);
-		/*
+		*/
 	}
 	return 0;
 }

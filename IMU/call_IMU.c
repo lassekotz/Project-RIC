@@ -33,11 +33,11 @@ u_int32_t oldTimu;
 
 void MPU6050_Init(){
 	fd = wiringPiI2CSetup(MPU);   /*Initializes I2C with device Address*/
-	//wiringPiI2CWriteReg8 (fd, SMPLRT_DIV, 0x07);	/* Write to sample rate register */
-	//wiringPiI2CWriteReg8 (fd, PWR_MGMT_1, 0x01);	/* Write to power management register */
-	//wiringPiI2CWriteReg8 (fd, CONFIG, 0);		/* Write to Configuration register */
-	//wiringPiI2CWriteReg8 (fd, GYRO_CONFIG, 24);	/* Write to Gyro Configuration register */
-	//wiringPiI2CWriteReg8 (fd, INT_ENABLE, 0x01);	/*Write to interrupt enable register */
+	wiringPiI2CWriteReg8 (fd, SMPLRT_DIV, 0x07);	/* Write to sample rate register */
+	wiringPiI2CWriteReg8 (fd, PWR_MGMT_1, 0x00);	/* Write to power management register */
+	wiringPiI2CWriteReg8 (fd, CONFIG, 0);		/* Write to Configuration register */
+	wiringPiI2CWriteReg8 (fd, GYRO_CONFIG, 0);	/* Write to Gyro Configuration register */
+	wiringPiI2CWriteReg8 (fd, INT_ENABLE, 0);	/*Write to interrupt enable register */
 	oldTimu = millis();
 	} 
 short read_raw_data(int addr){

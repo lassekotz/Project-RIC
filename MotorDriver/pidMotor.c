@@ -14,8 +14,8 @@ double oldErr,ITerm; //Error variables for angles
 double verrorSum, lastvRef; //Integral error for velocity controller 
 float kp, ki, kd,Tf;
 float kpv, kiv; //PI constans for velocity controller 
-const double maxU = 6; //Maximum voltage we can send
-const double minU = -6;  
+const double maxU = 700; //Maximum voltage we can send
+const double minU = -700;  
 //Motor regulator variables
 double diffESum;
 unsigned long oldTmR;
@@ -46,14 +46,15 @@ float angleController(float angle,float v, float vref,int verbose){
    //printf("a = %f \n",a);
    //printf("error: %f   eFilt: %f \n",error,eFilt);
    double dErr = (eFilt-oldErrFilt)/dt;
+   //printf("Filtered error = %f \n",dErr);
    
-
    //Angle PID controller 
    ITerm += (ki * dt * error); //Prevent oversaturation of intergral error 
    if(ITerm> maxU){
       ITerm= maxU;}
    else if(ITerm< minU){
       ITerm= minU;}
+
    float u = kp*error + ITerm + kd*dErr;
    if(verbose){
       printf("Pterm: %f  iTERM: %f, kd %f\n",kp*error,ITerm,kd*dErr);
