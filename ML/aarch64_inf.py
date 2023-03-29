@@ -73,6 +73,8 @@ def main(write_to_disk = False):
         #p_prev = pred
         pred = a*(pred) + (1-a)*pred
         p_prev = pred
+        print(pred)
+
 
 
         #f.write(str(pred))
