@@ -80,7 +80,7 @@ def main(write_to_disk = False):
         if write_to_disk:
             f.write(str(pred[0][0]) + "\n")
         if i%100 == 0:
-            print(f'{i/(tTot)}' + " Hz sampling")
+            print(f'{tTot/i}' + " Hz sampling")
             tTot = 0
             i = 0
         i += 1
