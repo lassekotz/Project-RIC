@@ -30,7 +30,7 @@ def initialize(resolution=128):
     # rawCapture = PiRGBArray(camera, size=camera.resolution)
     print("CAMERA INITIALIZED!")
     print("LOADING MODEL...")
-    interpreter = tflite.Interpreter(model_path="trained_models/" + model + "/" + model + "_quant.tflite")
+    interpreter = tflite.Interpreter(model_path="trained_models/" + model + "/" + model + ".tflite")
     interpreter.allocate_tensors()
     print("MODEL LOADED!")
 
