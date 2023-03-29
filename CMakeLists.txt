@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_subdirectory(MotorDriver)
 add_subdirectory(IMU)
+add_subdirectory(Kalman)
 include_directories(MotorDriver/)
 link_directories(MotorDriver/)
 

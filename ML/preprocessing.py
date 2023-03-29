@@ -162,7 +162,7 @@ def generate_transforms(image_path, H, W):
 
     reshape_transform = transforms.Compose([
         transforms.Resize((H, W)),
-        transforms.Grayscale(3),
+        #transforms.Grayscale(3),
         transforms.ToTensor()
         ])
 
@@ -172,7 +172,7 @@ def generate_dataloader(dataset, batch_size, props):
     lengths = [int(p * len(dataset)) for p in props]
     lengths[-1] = len(dataset) - sum(lengths[:-1])
     train_set, val_set, test_set = random_split(dataset, lengths, generator=torch.Generator().manual_seed(42))
-    train_loader = DataLoader(train_set, batch_size, shuffle=False)
+    train_loader = DataLoader(train_set, batch_size, shuffle=True)
     val_loader = DataLoader(val_set, batch_size, shuffle=True)
     test_loader = DataLoader(test_set)
 

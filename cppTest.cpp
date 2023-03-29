@@ -27,9 +27,9 @@ float gr, gp, gy;
 float accX, accY, accZ;
 
 // Sampling times
-const float TIMU = 0.01;
-const float Tmotor = 0.05;
-const float Tpid = 0.05;
+const float TIMU = 0.001;
+const float Tmotor = 0.9;
+const float Tpid = 0.9;
 
 unsigned long curTime;
 unsigned long lastIMUtime, lastmotorTime, lastpidTime;
@@ -78,12 +78,13 @@ int main( int argc, char *argv[] ){
             imu.getGyro(&gr, &gp, &gy);
             imu.getAccel(&accX, &accY, &accZ);
             double roll  = atan(accY / sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
-            curTheta = kalman.getAngle(roll, gr, dtIMU);
+            curTheta = -kalman.getAngle(roll, gr, dtIMU);
             
-            std::cout << "CurTheta = "<< curTheta << std::endl;
+            //std::cout << "CurTheta = "<< curTheta << std::endl;
 
             //Keep track of last time used
             lastIMUtime = curTime;
+            printf("time = %f \n",dtIMU);
         }
 
         float dtPID = (curTime-lastpidTime)/1000.0f;
