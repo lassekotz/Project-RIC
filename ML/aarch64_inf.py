@@ -58,7 +58,7 @@ def main(write_to_disk = False):
     output_details = interpreter.get_output_details()
     a = 0.8
     p_prev = 0
-    i = 0
+    i = 1
     t0 = time.time()
     tTot = 0
     while True:
