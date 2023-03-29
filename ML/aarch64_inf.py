@@ -82,6 +82,7 @@ def main(write_to_disk = False):
         if i%100 == 0:
             print(f'{i/(tTot)}' + " Hz sampling")
             tTot = 0
+            i = 0
         i += 1
 
         # TODO: JIT
