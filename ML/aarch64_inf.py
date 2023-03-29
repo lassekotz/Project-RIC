@@ -60,6 +60,7 @@ def main(write_to_disk = False):
     p_prev = 0
     i = 0
     t0 = time.time()
+    tTot = 0
     while True:
         ret, image = cap.read()
         if not ret:
@@ -69,7 +70,9 @@ def main(write_to_disk = False):
         input_data = np.array(image, dtype=np.float32)
         input_data = np.expand_dims(input_data, axis=0)
         input_data = np.swapaxes(input_data, 1, 3)
+        tt = time.time()
         pred = inference_step(interpreter, input_data, input_details, output_details)
+        tTot = tTot + (time.time() - tt)
         #pred = a*(pred) + (1-a)*pred
         # print(f'{pred[0][0]:.2f}' + "\n")
         p_prev = pred
@@ -77,7 +80,8 @@ def main(write_to_disk = False):
         if write_to_disk:
             f.write(str(pred[0][0]) + "\n")
         if i%100 == 0:
-            print(f'{i/(time.time() - t0)}' + " Hz predictions")
+            print(f'{i/(tTot)}' + " Hz sampling")
+            tTot = 0
         i += 1
 
         # TODO: JIT
