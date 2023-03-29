@@ -56,6 +56,8 @@ def main(write_to_disk = False):
     t0 = time.time()
     input_details = interpreter.get_input_details()
     output_details = interpreter.get_output_details()
+    a = 0.8
+    p_prev = 0
     while True:
         t0 = time.time()
         ret, image = cap.read()
@@ -68,8 +70,12 @@ def main(write_to_disk = False):
         input_data = np.swapaxes(input_data, 1, 3)
         pred = inference_step(interpreter, input_data, input_details, output_details)
         #print("iteration freq: " + str(1 / (time.time() - t0)) + "Hz")
-        print(pred)
-        f.write(str(pred))
+        #p_prev = pred
+        pred = a*(pred) + (1-a)*pred
+        p_prev = pred
+
+
+        #f.write(str(pred))
 
         # TODO: JIT
 
