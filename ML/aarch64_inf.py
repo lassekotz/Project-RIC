@@ -68,10 +68,11 @@ def main(write_to_disk = False):
         input_data = np.array(image, dtype=np.float32)
         input_data = np.expand_dims(input_data, axis=0)
         input_data = np.swapaxes(input_data, 1, 3)
+        t0 = time.time()
         pred = inference_step(interpreter, input_data, input_details, output_details)
         #pred = a*(pred) + (1-a)*pred
         p_prev = pred
-        t0 = time.time()
+
         #print(f'{pred[0][0]:.2f}' + "\n")
         print(f'{time.time() - t0}:.2f Hz predictions')
         if write_to_disk:
