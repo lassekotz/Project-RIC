@@ -30,7 +30,7 @@ def initialize(resolution=128):
     # rawCapture = PiRGBArray(camera, size=camera.resolution)
     print("CAMERA INITIALIZED!")
     print("LOADING MODEL...")
-    interpreter = tflite.Interpreter(model_path="trained_models/" + model + "/" + model + "_quant.tflite")
+    interpreter = tflite.Interpreter(model_path="trained_models/" + model + "/" + model + ".tflite")
     interpreter.allocate_tensors()
     print("MODEL LOADED!")
 
@@ -56,8 +56,12 @@ def main(write_to_disk = False):
     t0 = time.time()
     input_details = interpreter.get_input_details()
     output_details = interpreter.get_output_details()
+    a = 0.8
+    p_prev = 0
+    i = 1
+    t0 = time.time()
+    tTot = 0
     while True:
-        t0 = time.time()
         ret, image = cap.read()
         if not ret:
             raise RuntimeError("failed to read frame")
@@ -66,13 +70,23 @@ def main(write_to_disk = False):
         input_data = np.array(image, dtype=np.float32)
         input_data = np.expand_dims(input_data, axis=0)
         input_data = np.swapaxes(input_data, 1, 3)
+        tt = time.time()
         pred = inference_step(interpreter, input_data, input_details, output_details)
-        #print("iteration freq: " + str(1 / (time.time() - t0)) + "Hz")
-        print(pred)
-        f.write(str(pred))
+        tTot = tTot + (time.time() - tt)
+        #pred = a*(pred) + (1-a)*pred
+        # print(f'{pred[0][0]:.2f}' + "\n")
+        p_prev = pred
+
+        if write_to_disk:
+            f.write(str(pred[0][0]) + "\n")
+        if i%100 == 0:
+            print(f'{tTot/i}' + " Hz sampling")
+            tTot = 0
+            i = 0
+        i += 1
 
         # TODO: JIT
 
 
 if __name__ == "__main__":
-    main(write_to_disk=True)
+    main(write_to_disk=False)
