@@ -66,10 +66,7 @@ def main(write_to_disk = False):
         cv2.imshow('frame', image)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-    cap.release()
-    # Destroy all the windows
-    cv2.destroyAllWindows()
-    '''
+
         if not ret:
             raise RuntimeError("failed to read frame")
         image = image[:, :, [2, 1, 0]]
@@ -91,9 +88,12 @@ def main(write_to_disk = False):
             tTot = 0
             i = 0
         i += 1
-
         # TODO: JIT
-    '''
+    cap.release()
+    # Destroy all the windows
+    cv2.destroyAllWindows()
+
+
 
 if __name__ == "__main__":
     main(write_to_disk=False)
