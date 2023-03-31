@@ -26,8 +26,9 @@ def plot_error_distr(errors_list, bins=20):
 
     fix, (ax1, ax2) = plt.subplots(1, 2)
 
-    ax1.hist(errors_np, bins)
+    ax1.hist(errors_np, bins=60)
     ax1.set_title('Error distribution')
+    ax1.set_xlim(-10, 10)
     ax2.plot(errors_list)
     ax2.set_title('Errors over time')
     plt.show()
@@ -86,6 +87,16 @@ def plot_results(train_losses, val_losses):
     plt.grid()
     plt.show()
 
+def fourier(errors_list):
+    x = np.array(errors_list)
+    fourier = np.fft.fft(x)
+    freq = np.fft.fftfreq(len(x), .1)
+    plt.xlabel('w')
+    plt.ylabel('')
+    plt.title('Fourier Transform')
+    plt.plot(freq, abs(fourier)**2)
+    plt.show()
+    #print(y)
 
 if __name__ == '__main__':
 
@@ -106,10 +117,11 @@ if __name__ == '__main__':
         t = targets[i]
         p = preds[i]
         MAE += abs(t-p)
-        errors_list.append(MAE)
+        errors_list.append(t-p)
     MAE = MAE/len(preds)
 
     plot_pred_space(targets, preds, MAE)
     plot_pred_target_distributions(targets, preds, bins=30)
     plot_pred_space_heatmap(targets, preds, MAE)
     plot_error_distr(errors_list)
+    #fourier(errors_list)
