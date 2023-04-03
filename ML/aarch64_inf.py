@@ -25,7 +25,7 @@ def initialize(resolution=128):
 
     print("CAMERA INITIALIZED!")
     print("LOADING MODEL...")
-    interpreter = edgetpu.make_interpreter(model_path="trained_models/" + model + "/" + model + ".tflite")
+    interpreter = edgetpu.make_interpreter(model_path_or_content="trained_models/" + model + "/" + model + ".tflite")
     interpreter.allocate_tensors()
     print("MODEL LOADED!")
 
