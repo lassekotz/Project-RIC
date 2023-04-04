@@ -27,11 +27,12 @@ int fd;
 
 void MPU6050_Init(){
 	//int wiringPiI2CWriteReg8 (int fd, int reg, int data) 
-	wiringPiI2CWriteReg8 (fd, SMPLRT_DIV, 0x07);	/* Write to sample rate register */
+	wiringPiI2CWriteReg8 (fd, SMPLRT_DIV, 0x00);	/* Write to sample rate register */
 	wiringPiI2CWriteReg8 (fd, PWR_MGMT_1, 0x00);	/* Write to power management register */
-	wiringPiI2CWriteReg8 (fd, CONFIG, 0b00000000);		/* Write to Configuration register */
-	wiringPiI2CWriteReg8 (fd, GYRO_CONFIG, 0);	/* Write to Gyro Configuration register */
+	wiringPiI2CWriteReg8 (fd, CONFIG, 0x00);		/* Write to Configuration register */
+	wiringPiI2CWriteReg8 (fd, GYRO_CONFIG, 0x0);	/* Write to Gyro Configuration register */
 	wiringPiI2CWriteReg8 (fd, INT_ENABLE, 0x00);	/*Write to interrupt enable register */
+	printf("Int fd = %d \n",fd);
 
 	} 
 short read_raw_data(int addr){
@@ -69,20 +70,30 @@ int main(){
 	{
 		
 		/*Read raw value of Accelerometer and gyroscope from MPU6050*/
+		/*
 		Acc_x = read_raw_data(ACCEL_XOUT_H);
 		Acc_y = read_raw_data(ACCEL_YOUT_H);
 		Acc_z = read_raw_data(ACCEL_ZOUT_H);
-		
+		*/
 		Gyro_x = read_raw_data(GYRO_XOUT_H);
-		//Gyro_y = read_raw_data(GYRO_YOUT_H);
+		Gyro_x = read_raw_data(GYRO_XOUT_H);
+		Gyro_x = read_raw_data(GYRO_XOUT_H);
+		Gyro_x = read_raw_data(GYRO_XOUT_H);
+		Gyro_x = read_raw_data(GYRO_XOUT_H);
+		Gyro_y = read_raw_data(GYRO_YOUT_H);
 		//Gyro_z = read_raw_data(GYRO_ZOUT_H);
 		
 		/* Divide raw value by sensitivity scale factor */
+		/*
 		Ax = Acc_x/16384.0;
 		Ay = Acc_y/16384.0;
 		Az = Acc_z/16384.0;
-		
+		*/
 		Gx = Gyro_x/131;
+		Gx = Gyro_x/131;
+		Gx = Gyro_x/131;
+		Gx = Gyro_x/131;
+		
 		//Gy = Gyro_y/131;
 		//Gz = Gyro_z/131;
 		
