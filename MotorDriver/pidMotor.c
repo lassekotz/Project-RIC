@@ -18,6 +18,7 @@ const double maxU = 700; //Maximum voltage we can send
 const double minU = -700;  
 //Motor regulator variables
 double diffESum;
+double OldDiffE = 0;
 unsigned long oldTmR;
 float kpm,kim,kdm;
 float Ts; //Sample rate
@@ -81,14 +82,21 @@ float motorRegulator(float v1, float v2,float diffRef){
    //Velocity errors between motors
    double diffE = diffRef-(v1-v2);
    diffESum += diffE*dt;
+   double diffEder = (diffE-OldDiffE)/dt; 
 
    //Velocity PI controller 
-   float u = kpm*diffE + kim*diffESum;
+   float u = kpm*diffE + kim*diffESum+kdm*diffEder;
 
    //Store time for next loop
    oldTmR = curTmR;
-   
+   OldDiffE = diffE;
    return u;
+}
+
+void initMotRegParam(float Kpm, float Kim,float Kdm){
+   kpm = Kpm;
+   kim = Kim;
+   kdm = Kdm;
 }
 
 void initRegParam(float Kp, float Ki, float Kd, float Kpv, float Kiv){
