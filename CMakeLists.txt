@@ -124,6 +124,7 @@ add_executable(motorFollow motorFollow.c)
 target_link_libraries(motorFollow PUBLIC wiringPi)
 target_link_libraries(motorFollow PUBLIC motorControl)
 target_link_libraries(motorFollow PUBLIC pidController)
+target_link_libraries(motorFollow PUBLIC m)
 
 
 target_include_directories(motorFollow PUBLIC
