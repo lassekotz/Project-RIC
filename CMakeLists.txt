@@ -115,3 +115,20 @@ target_include_directories(ricpp PUBLIC
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 target_link_libraries(ricpp PRIVATE Threads::Threads)
+
+# Motor follower test
+
+add_executable(motorFollow motorFollow.c)
+
+
+target_link_libraries(motorFollow PUBLIC wiringPi)
+target_link_libraries(motorFollow PUBLIC motorControl)
+target_link_libraries(motorFollow PUBLIC pidController)
+target_link_libraries(motorFollow PUBLIC m)
+
+
+target_include_directories(motorFollow PUBLIC
+                          "${PROJECT_BINARY_DIR}"
+                          "${PROJECT_SOURCE_DIR}/MotorDriver"
+                          )
+
