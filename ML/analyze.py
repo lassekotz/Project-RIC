@@ -121,7 +121,7 @@ if __name__ == '__main__':
     MAE = MAE/len(preds)
 
     plot_pred_space(targets, preds, MAE)
-    plot_pred_target_distributions(targets, preds, bins=30)
+    plot_pred_target_distributions(targets, preds, bins=50)
     plot_pred_space_heatmap(targets, preds, MAE)
     plot_error_distr(errors_list)
     #fourier(errors_list)
