@@ -18,7 +18,7 @@ extern "C" {
 float curTheta;
 float u = 0;
 int desPower;
-int dir;
+int dir,dir2;
 float* speed;
 MPU6050 imu(0x68,0);
 Kalman kalman;
@@ -28,11 +28,14 @@ float accX, accY, accZ;
 
 // Sampling times
 const float TIMU = 0.01;
-const float Tmotor = 0.01;
-const float Tpid = 0.01;
+const float Tmotor = 0.005;
+const float Tpid = 0.005;
 
 unsigned long curTime;
 unsigned long lastIMUtime, lastmotorTime, lastpidTime;
+
+// Motor syncing
+float uM2;
 
 void setup(){
     wiringPiSetupGpio(); //Setup and use defult pin numbering
@@ -57,6 +60,7 @@ int main( int argc, char *argv[] ){
     float Kpv = (float)atof(argv[4]);
     float Kiv = (float)atof(argv[5]);
     initRegParam( Kp , Ki, Kd, Kpv, Kiv);
+    initMotRegParam( 10.0, 10.0, 10.0);
 
     setup();
 
@@ -98,7 +102,9 @@ int main( int argc, char *argv[] ){
             speed = calcSpeeds(0);
             //Calc u 
             u =angleController(curTheta,(speed[0]+speed[1])/2.0, 0.0,0);
+            uM2 = motorRegulator(speed[0], speed[1], 0);
             lastpidTime = curTime;
+            
         }
         
         float dtMotor = (curTime-lastmotorTime)/1000.0f;
@@ -112,7 +118,15 @@ int main( int argc, char *argv[] ){
             else{
                 dir = 1;
             }
-            accuateMotor(desPower,dir,desPower,dir);
+
+            if(uM2<0){
+                dir2 = 1; //Maybe the other way? Test and see 
+            }
+            else{
+                dir2 = 0;
+            }
+
+            accuateMotor(desPower,dir,abs(ceil(uM2)),dir2);
             lastmotorTime = curTime;
         }
 
