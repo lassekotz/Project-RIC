@@ -41,6 +41,7 @@ float angleController(float angle,float v, float vref,int verbose){
    //Velocity PI controller 
    float angleRef = kpv*verror + kiv*verrorSum; //Acts as desired angle for next pid controller
    
+   
    // Keep track of angle errors 
    double error = angleRef-angle;
    float eFilt = a*angle+(1-a)*oldErrFilt; //Low Pass filter on meassurment
