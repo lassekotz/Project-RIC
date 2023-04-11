@@ -84,13 +84,13 @@ int main( int argc, char *argv[] ){
             curTheta = -kalman.getAngle(roll, gr, dtIMU);
             
             
-            //std::cout << "CurTheta = "<< curTheta << std::endl;
+            std::cout << "CurTheta = "<< curTheta << std::endl;
 
             //Keep track of last time used
             lastIMUtime = curTime;
-            if(dtIMU> TIMU*1.1){
-                printf("Too slow time = %f \n",dtIMU);
-            }
+            //if(dtIMU> TIMU*1.1){
+            //    printf("Too slow time = %f \n",dtIMU);
+            //}
         }
 
         float dtPID = (curTime-lastpidTime)/1000.0f;
