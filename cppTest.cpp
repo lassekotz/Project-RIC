@@ -20,7 +20,7 @@ float u = 0;
 int desPower;
 int dir;
 float* speed;
-MPU6050 imu(0x68);
+//MPU6050 imu(0x68);
 Kalman kalman;
 double kalTheta;
 float gr, gp, gy;
@@ -28,7 +28,7 @@ float accX, accY, accZ;
 
 // Sampling times
 const float TIMU = 0.002;
-const float Tmotor = 0.0025;
+const float Tmotor = 0.005;
 const float Tpid = 0.0025;
 
 unsigned long curTime;
@@ -37,7 +37,7 @@ unsigned long lastIMUtime, lastmotorTime, lastpidTime;
 void setup(){
     wiringPiSetupGpio(); //Setup and use defult pin numbering
 
-    imu.getAngle(0,&curTheta); //Calculate first value and input to filter 
+    //imu.getAngle(0,&curTheta); //Calculate first value and input to filter 
     kalman.setAngle(curTheta); 
     
 
@@ -78,8 +78,8 @@ int main( int argc, char *argv[] ){
 
             //Kalman filter
             
-            imu.getGyro(&gr, &gp, &gy);
-            imu.getAccel(&accX, &accY, &accZ);
+            //imu.getGyro(&gr, &gp, &gy);
+            //imu.getAccel(&accX, &accY, &accZ);
             double roll  = atan(accY / sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
             curTheta = -kalman.getAngle(roll, gr, dtIMU);
             
