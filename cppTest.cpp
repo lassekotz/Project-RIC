@@ -20,16 +20,16 @@ float u = 0;
 int desPower;
 int dir;
 float* speed;
-//MPU6050 imu(0x68);
+MPU6050 imu(0x68,0);
 Kalman kalman;
 double kalTheta;
 float gr, gp, gy;
 float accX, accY, accZ;
 
 // Sampling times
-const float TIMU = 0.002;
-const float Tmotor = 0.005;
-const float Tpid = 0.0025;
+const float TIMU = 0.01;
+const float Tmotor = 0.01;
+const float Tpid = 0.01;
 
 unsigned long curTime;
 unsigned long lastIMUtime, lastmotorTime, lastpidTime;
@@ -84,12 +84,12 @@ int main( int argc, char *argv[] ){
             curTheta = -kalman.getAngle(roll, gr, dtIMU);
             
             
-            //std::cout << "CurTheta = "<< curTheta << std::endl;
+            std::cout << "CurTheta = "<< curTheta << std::endl;
 
             //Keep track of last time used
             lastIMUtime = curTime;
             if(dtIMU> TIMU*1.1){
-                printf("Too slow time = %f \n",dtIMU);
+               printf("Too slow time = %f \n",dtIMU);
             }
         }
 
@@ -120,9 +120,12 @@ int main( int argc, char *argv[] ){
 
 
         //Check for failure
-        if(abs(curTheta)>50){
+        if(abs(curTheta)>15){
             accuateMotor(0,1,0,1);
             free(speed);
+            accuateMotor(0,1,0,1);
+            delay(10);
+            accuateMotor(0,1,0,1);
             exit(1);
         }
     }
