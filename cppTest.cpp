@@ -60,7 +60,7 @@ int main( int argc, char *argv[] ){
     float Kpv = (float)atof(argv[4]);
     float Kiv = (float)atof(argv[5]);
     initRegParam( Kp , Ki, Kd, Kpv, Kiv);
-    initMotRegParam( 10.0, 10.0, 10.0);
+    initMotRegParam( 30.0, 10.0, 10.0);
 
     setup();
 
