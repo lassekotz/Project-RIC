@@ -71,16 +71,18 @@ int main( int argc, char *argv[] ){
         if(dtIMU>=TIMU){
             //Update IMU
 
-
+            /*
             imu.getAngle(0,&curTheta); //Uncomment to use complementary filter
             printf("Angle= %f \n",curTheta);
+            */
+
             //Kalman filter
-            /*
+            
             imu.getGyro(&gr, &gp, &gy);
             imu.getAccel(&accX, &accY, &accZ);
             double roll  = atan(accY / sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
             curTheta = -kalman.getAngle(roll, gr, dtIMU);
-            */
+            
             
             //std::cout << "CurTheta = "<< curTheta << std::endl;
 
