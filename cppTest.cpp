@@ -28,8 +28,8 @@ float accX, accY, accZ;
 
 // Sampling times
 const float TIMU = 0.01;
-const float Tmotor = 0.01;
-const float Tpid = 0.01;
+const float Tmotor = 0.001;
+const float Tpid = 0.001;
 
 unsigned long curTime;
 unsigned long lastIMUtime, lastmotorTime, lastpidTime;
@@ -60,7 +60,7 @@ int main( int argc, char *argv[] ){
     float Kpv = (float)atof(argv[4]);
     float Kiv = (float)atof(argv[5]);
     initRegParam( Kp , Ki, Kd, Kpv, Kiv);
-    initMotRegParam( 30.0, 10.0, 10.0);
+    initMotRegParam( 40.0, 10.0, 10.0);
 
     setup();
 

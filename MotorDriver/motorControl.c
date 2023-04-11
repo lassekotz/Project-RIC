@@ -175,6 +175,8 @@ int initMotorPins(){
 
     //Init array for speeds
     speeds =(float*)malloc(2*sizeof(float));
+    speeds[0] = 0;
+    speeds[1] = 0;
 
 
     // Hardware interupt for encoders
