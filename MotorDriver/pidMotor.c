@@ -20,7 +20,7 @@ const double minU = -700;
 double diffESum;
 double OldDiffE = 0;
 unsigned long oldTmR;
-float kpm,kim,kdm; // 200 100 10 seems to work good 
+float kpm,kim,kdm; // 50 10 10 seems to work good 
 float Ts; //Sample rate
 float a;
 float oldErrFilt = 0;

@@ -105,10 +105,10 @@ int main( int argc, char *argv[] ){
             desPower = fabs(u)+150; //Add 150 to account for startup torque 
             
             if(u<0){
-                dir = 1; //Maybe the other way? Test and see 
+                dir = 0; //Maybe the other way? Test and see 
             }
             else{
-                dir = 0;
+                dir = 1;
             }
             accuateMotor(desPower,dir,desPower,dir);
             lastmotorTime = curTime;
