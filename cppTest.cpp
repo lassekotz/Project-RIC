@@ -28,8 +28,8 @@ float accX, accY, accZ;
 
 // Sampling times
 const float TIMU = 0.01;
-const float Tmotor = 0.005;
-const float Tpid = 0.005;
+const float Tmotor = 0.01;
+const float Tpid = 0.01;
 
 unsigned long curTime;
 unsigned long lastIMUtime, lastmotorTime, lastpidTime;
@@ -40,7 +40,7 @@ float uM2;
 void setup(){
     wiringPiSetupGpio(); //Setup and use defult pin numbering
 
-    //imu.getAngle(0,&curTheta); //Calculate first value and input to filter 
+    imu.getAngle(0,&curTheta); //Calculate first value and input to filter 
     kalman.setAngle(curTheta); 
     
 
@@ -88,7 +88,7 @@ int main( int argc, char *argv[] ){
             curTheta = -kalman.getAngle(roll, gr, dtIMU);
             
             
-            std::cout << "CurTheta = "<< curTheta << std::endl;
+            //std::cout << "CurTheta = "<< curTheta << std::endl;
 
             //Keep track of last time used
             lastIMUtime = curTime;
@@ -125,7 +125,7 @@ int main( int argc, char *argv[] ){
             else{
                 dir2 = 0;
             }
-
+            //printf("Des power: %f \n",u);
             accuateMotor(desPower,dir,abs(ceil(uM2)),dir2);
             lastmotorTime = curTime;
         }
