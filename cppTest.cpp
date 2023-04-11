@@ -82,8 +82,8 @@ int main( int argc, char *argv[] ){
 
             //Kalman filter
             
-            //imu.getGyro(&gr, &gp, &gy);
-            //imu.getAccel(&accX, &accY, &accZ);
+            imu.getGyro(&gr, &gp, &gy);
+            imu.getAccel(&accX, &accY, &accZ);
             double roll  = atan(accY / sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
             curTheta = -kalman.getAngle(roll, gr, dtIMU);
             
