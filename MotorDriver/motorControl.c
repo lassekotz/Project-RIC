@@ -62,6 +62,7 @@ void readEncoder2(){
 float* calcSpeeds(int verbose){
     curTv = millis();
     dtv = (curTv-oldTv)/1000.0;
+    printf("dtv = %f \n",dtv);
     speeds[0] = (pos1-oldPos1)/(2.0*dtv)*wToV;
     speeds[1] = (pos2-oldPos2)/(2.0*dtv)*wToV;
     oldPos1 = pos1;

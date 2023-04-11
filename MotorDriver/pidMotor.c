@@ -33,7 +33,7 @@ float angleController(float angle,float v, float vref,int verbose){
    // Keeping track of time
    u_int curTcontroller = millis();
    double dt = (double)(curTcontroller-oldTcontroller);
-
+   printf("v = %f \n",v);
    //Velocity errors 
    double verror = vref-v;
    verrorSum += verror*dt;

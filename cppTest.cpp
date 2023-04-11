@@ -28,8 +28,8 @@ float accX, accY, accZ;
 
 // Sampling times
 const float TIMU = 0.01;
-const float Tmotor = 0.001;
-const float Tpid = 0.001;
+const float Tmotor = 0.01;
+const float Tpid = 0.01;
 
 unsigned long curTime;
 unsigned long lastIMUtime, lastmotorTime, lastpidTime;
@@ -60,7 +60,7 @@ int main( int argc, char *argv[] ){
     float Kpv = (float)atof(argv[4]);
     float Kiv = (float)atof(argv[5]);
     initRegParam( Kp , Ki, Kd, Kpv, Kiv);
-    initMotRegParam( 40.0, 10.0, 10.0);
+    initMotRegParam( 4000.0, 0.0, 300.0);
 
     setup();
 
@@ -68,6 +68,7 @@ int main( int argc, char *argv[] ){
     lastmotorTime = millis(); 
     lastpidTime = millis();
     std::cout << "Starting up " << std::endl;
+    delay(100);
     for(EVER){
 
         curTime = millis();
@@ -99,7 +100,7 @@ int main( int argc, char *argv[] ){
 
         float dtPID = (curTime-lastpidTime)/1000.0f;
         if(dtPID>=Tpid){
-            speed = calcSpeeds(0);
+            speed = calcSpeeds(1);
             //Calc u 
             u =angleController(curTheta,(speed[0]+speed[1])/2.0, 0.0,0);
             uM2 = motorRegulator(speed[0], speed[1], 0);
@@ -125,7 +126,7 @@ int main( int argc, char *argv[] ){
             else{
                 dir2 = 0;
             }
-            //printf("Des power: %f \n",u);
+            printf("Des power: %f \n",u);
             accuateMotor(desPower,dir,abs(ceil(uM2)),dir2);
             lastmotorTime = curTime;
         }
