@@ -60,7 +60,7 @@ int main( int argc, char *argv[] ){
     float Kpv = (float)atof(argv[4]);
     float Kiv = (float)atof(argv[5]);
     initRegParam( Kp , Ki, Kd, Kpv, Kiv);
-    initMotRegParam( 4000.0, 0.0, 300.0);
+    initMotRegParam( 4600.0, 1.0, 300.0);
 
     setup();
 
@@ -89,7 +89,7 @@ int main( int argc, char *argv[] ){
             curTheta = -kalman.getAngle(roll, gr, dtIMU);
             
             
-            //std::cout << "CurTheta = "<< curTheta << std::endl;
+            std::cout << "CurTheta = "<< curTheta << std::endl;
 
             //Keep track of last time used
             lastIMUtime = curTime;
@@ -100,7 +100,7 @@ int main( int argc, char *argv[] ){
 
         float dtPID = (curTime-lastpidTime)/1000.0f;
         if(dtPID>=Tpid){
-            speed = calcSpeeds(1);
+            speed = calcSpeeds(0);
             //Calc u 
             u =angleController(curTheta,(speed[0]+speed[1])/2.0, 0.0,0);
             uM2 = motorRegulator(speed[0], speed[1], 0);
@@ -126,7 +126,6 @@ int main( int argc, char *argv[] ){
             else{
                 dir2 = 0;
             }
-            printf("Des power: %f \n",u);
             accuateMotor(desPower,dir,abs(ceil(uM2)),dir2);
             lastmotorTime = curTime;
         }
@@ -135,7 +134,7 @@ int main( int argc, char *argv[] ){
 
 
         //Check for failure
-        if(abs(curTheta)>15){
+        if(abs(curTheta)>25){
             accuateMotor(0,1,0,1);
             free(speed);
             accuateMotor(0,1,0,1);

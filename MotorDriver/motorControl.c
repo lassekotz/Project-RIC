@@ -62,7 +62,6 @@ void readEncoder2(){
 float* calcSpeeds(int verbose){
     curTv = millis();
     dtv = (curTv-oldTv)/1000.0;
-    printf("dtv = %f \n",dtv);
     speeds[0] = (pos1-oldPos1)/(2.0*dtv)*wToV;
     speeds[1] = (pos2-oldPos2)/(2.0*dtv)*wToV;
     oldPos1 = pos1;
@@ -135,9 +134,9 @@ void accuateMotor(int power1,int dir1,int power2,int dir2){
     
 
     /*
-    if(power1 < 100 && fabs(curSpeed)<0.1){ //
-        accuateMotor(100,dir1,100,dir2);
-        delay(1);
+    if(power1 < 250 && fabs(curSpeed)<0.1){ //
+        accuateMotor(300,dir1,300,dir2);
+        delay(3);
     } */
     // Direction motor 1
     if(dir1 == 0){

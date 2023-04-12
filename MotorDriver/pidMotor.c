@@ -33,7 +33,6 @@ float angleController(float angle,float v, float vref,int verbose){
    // Keeping track of time
    u_int curTcontroller = millis();
    double dt = (double)(curTcontroller-oldTcontroller);
-   printf("v = %f \n",v);
    //Velocity errors 
    double verror = vref-v;
    verrorSum += verror*dt;
@@ -41,6 +40,7 @@ float angleController(float angle,float v, float vref,int verbose){
    //Velocity PI controller 
    float angleRef = kpv*verror + kiv*verrorSum; //Acts as desired angle for next pid controller
    
+   angleRef = angleRef-1.0;
    
    // Keep track of angle errors 
    double error = angleRef-angle;
