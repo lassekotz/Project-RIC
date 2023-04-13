@@ -20,7 +20,7 @@ const double minU = -700;
 double diffESum;
 double OldDiffE = 0;
 unsigned long oldTmR;
-float kpm,kim,kdm; // 200 100 10 seems to work good 
+float kpm,kim,kdm; // 10 10 10 seems to work good 
 float Ts; //Sample rate
 float a;
 float oldErrFilt = 0;
@@ -33,13 +33,14 @@ float angleController(float angle,float v, float vref,int verbose){
    // Keeping track of time
    u_int curTcontroller = millis();
    double dt = (double)(curTcontroller-oldTcontroller);
-
    //Velocity errors 
    double verror = vref-v;
    verrorSum += verror*dt;
 
    //Velocity PI controller 
    float angleRef = kpv*verror + kiv*verrorSum; //Acts as desired angle for next pid controller
+   
+   angleRef = angleRef-1.0;
    
    // Keep track of angle errors 
    double error = angleRef-angle;

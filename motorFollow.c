@@ -25,7 +25,7 @@ PI_THREAD (motor_thread){
         else{
             dir1 = 1;
         }
-        speed = calcSpeeds(0);
+        speed = calcSpeeds(1);
         float u = motorRegulator(speed[0], speed[1], 0);
         printf("speed 0  = %f and speed 1 = %f \n",speed[0],speed[1]);
         if(u<0){

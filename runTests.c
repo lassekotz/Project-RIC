@@ -29,7 +29,7 @@ int main(){
     printf("Stop motors \n");
     accuateMotor(0,1,0,1);
     delay(100);
-    accuateMotor(550,1,500,0);
+    accuateMotor(550,0,500,0);
     printf("Motors should now run at half speed backwards for 3 seconds \n");
     delay(3000);
     accuateMotor(0,1,0,1);

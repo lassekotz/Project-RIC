@@ -134,9 +134,9 @@ void accuateMotor(int power1,int dir1,int power2,int dir2){
     
 
     /*
-    if(power1 < 100 && fabs(curSpeed)<0.1){ //
-        accuateMotor(100,dir1,100,dir2);
-        delay(1);
+    if(power1 < 250 && fabs(curSpeed)<0.1){ //
+        accuateMotor(300,dir1,300,dir2);
+        delay(3);
     } */
     // Direction motor 1
     if(dir1 == 0){
@@ -175,6 +175,8 @@ int initMotorPins(){
 
     //Init array for speeds
     speeds =(float*)malloc(2*sizeof(float));
+    speeds[0] = 0;
+    speeds[1] = 0;
 
 
     // Hardware interupt for encoders

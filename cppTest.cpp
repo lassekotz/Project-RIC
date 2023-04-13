@@ -18,21 +18,24 @@ extern "C" {
 float curTheta;
 float u = 0;
 int desPower;
-int dir;
+int dir,dir2;
 float* speed;
-MPU6050 imu(0x68);
+MPU6050 imu(0x68,0);
 Kalman kalman;
 double kalTheta;
 float gr, gp, gy;
 float accX, accY, accZ;
 
 // Sampling times
-const float TIMU = 0.002;
-const float Tmotor = 0.0025;
-const float Tpid = 0.0025;
+const float TIMU = 0.01;
+const float Tmotor = 0.01;
+const float Tpid = 0.01;
 
 unsigned long curTime;
 unsigned long lastIMUtime, lastmotorTime, lastpidTime;
+
+// Motor syncing
+float uM2;
 
 void setup(){
     wiringPiSetupGpio(); //Setup and use defult pin numbering
@@ -57,6 +60,7 @@ int main( int argc, char *argv[] ){
     float Kpv = (float)atof(argv[4]);
     float Kiv = (float)atof(argv[5]);
     initRegParam( Kp , Ki, Kd, Kpv, Kiv);
+    initMotRegParam( 4600.0, 1.0, 300.0);
 
     setup();
 
@@ -64,6 +68,7 @@ int main( int argc, char *argv[] ){
     lastmotorTime = millis(); 
     lastpidTime = millis();
     std::cout << "Starting up " << std::endl;
+    delay(100);
     for(EVER){
 
         curTime = millis();
@@ -71,23 +76,25 @@ int main( int argc, char *argv[] ){
         if(dtIMU>=TIMU){
             //Update IMU
 
-
+            /*
             imu.getAngle(0,&curTheta); //Uncomment to use complementary filter
             printf("Angle= %f \n",curTheta);
+            */
+
             //Kalman filter
-            /*
+            
             imu.getGyro(&gr, &gp, &gy);
             imu.getAccel(&accX, &accY, &accZ);
             double roll  = atan(accY / sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
             curTheta = -kalman.getAngle(roll, gr, dtIMU);
-            */
             
-            //std::cout << "CurTheta = "<< curTheta << std::endl;
+            
+            std::cout << "CurTheta = "<< curTheta << std::endl;
 
             //Keep track of last time used
             lastIMUtime = curTime;
             if(dtIMU> TIMU*1.1){
-                printf("Too slow time = %f \n",dtIMU);
+               printf("Too slow time = %f \n",dtIMU);
             }
         }
 
@@ -96,7 +103,9 @@ int main( int argc, char *argv[] ){
             speed = calcSpeeds(0);
             //Calc u 
             u =angleController(curTheta,(speed[0]+speed[1])/2.0, 0.0,0);
+            uM2 = motorRegulator(speed[0], speed[1], 0);
             lastpidTime = curTime;
+            
         }
         
         float dtMotor = (curTime-lastmotorTime)/1000.0f;
@@ -105,12 +114,19 @@ int main( int argc, char *argv[] ){
             desPower = fabs(u)+150; //Add 150 to account for startup torque 
             
             if(u<0){
-                dir = 1; //Maybe the other way? Test and see 
+                dir = 0; //Maybe the other way? Test and see 
             }
             else{
-                dir = 0;
+                dir = 1;
             }
-            accuateMotor(desPower,dir,desPower,dir);
+
+            if(uM2<0){
+                dir2 = 1; //Maybe the other way? Test and see 
+            }
+            else{
+                dir2 = 0;
+            }
+            accuateMotor(desPower,dir,abs(ceil(uM2)),dir2);
             lastmotorTime = curTime;
         }
 
@@ -118,9 +134,12 @@ int main( int argc, char *argv[] ){
 
 
         //Check for failure
-        if(abs(curTheta)>50){
+        if(abs(curTheta)>25){
             accuateMotor(0,1,0,1);
             free(speed);
+            accuateMotor(0,1,0,1);
+            delay(10);
+            accuateMotor(0,1,0,1);
             exit(1);
         }
     }
