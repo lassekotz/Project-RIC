@@ -46,9 +46,10 @@ def compare_conversions(all_preds):
         'onnx': 'b'
     }
     plt.plot([-30, 30], [-30, 30], 'r-')
-    for key in all_preds:
-        preds, targets = all_preds[key][0], all_preds[key][1]
-        plt.scatter(preds, targets, .5, color_dict[key])
+    for key in all_preds.keys():
+        for i in range(len(all_preds[key])):
+            preds, targets = all_preds[key][i][0], all_preds[key][i][1]
+            plt.scatter(preds, targets, .5, color_dict[key])
     plt.title(f'Prediction space, MAE = ')
     plt.legend([key for key in color_dict.keys()])
 
