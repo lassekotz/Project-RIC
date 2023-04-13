@@ -40,7 +40,7 @@ def openvino_inf():
     model_xml = "trained_models/MobileNetV2/MobileNetV2.xml"
     model = ie.read_model(model=model_xml)
     compiled_model = ie.compile_model(model=model, device_name="CPU")
-    input_layer = compiled_model.input(0)
+    #input_layer = compiled_model.input(0)
     output_layer = compiled_model.output(0)
 
     preds_and_labels_openvino = []
@@ -61,6 +61,11 @@ def compare_conversions(all_preds):
         'pt': 'r',
         'onnx': 'b',
         'openvino': 'g'
+    }
+    marker_dict = {
+        'pt': '.',
+        'onnx': '*',
+        'openvino': 'x'
     }
     plt.plot([-30, 30], [-30, 30], 'r-')
     for key in all_preds.keys():
