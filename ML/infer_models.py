@@ -48,7 +48,9 @@ def openvino_inf():
     for x, y in test_loader:
         input_data = np.array(x)
         pred = compiled_model(input_data)[output_layer]
-        print(pred)
+        preds_and_labels_openvino.append((pred.item(), y.item()))
+
+    return preds_and_labels_openvino
 
 
 def edgetpu_tflite_inf():
@@ -57,7 +59,8 @@ def edgetpu_tflite_inf():
 def compare_conversions(all_preds):
     color_dict = {
         'pt': 'r',
-        'onnx': 'b'
+        'onnx': 'b',
+        'openvino': 'g'
     }
     plt.plot([-30, 30], [-30, 30], 'r-')
     for key in all_preds.keys():
@@ -93,5 +96,6 @@ if __name__ == '__main__':
 
     all_preds['pt'] = preds_and_labels_pt
     all_preds['onnx'] = preds_and_labels_onnx
+    all_preds['openvino'] = preds_and_labels_openvino
 
     compare_conversions(all_preds)
