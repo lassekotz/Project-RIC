@@ -21,10 +21,12 @@ def onnx_inf():
     onnx_model = onnx.load("./trained_models/MobileNetV2/MobileNetV2.onnx")
     onnx.checker.check_model(onnx_model)
     ort_sess = ort.InferenceSession("./trained_models/MobileNetV2/MobileNetV2.onnx")
+    preds_and_labels_onnx = []
     for x, y in test_loader:
-        outputs = ort_sess.run(None, {'input_1': np.array(x*255)})
-        print(outputs)
-        #pred, actual = classes
+        outputs = ort_sess.run(None, {'input_1': np.array(x)})
+        pred = outputs[0][0][0].item()
+        label = y.item()
+        preds_and_labels_onnx.append(pred, label)
 
 def tflite_inf():
     pass
@@ -44,4 +46,4 @@ if __name__ == '__main__':
     dataset = ImagesDataset(image_path, no_transform)
     _, _, test_loader = generate_dataloader(dataset, batch_size, [.8, .19, .01])
     preds_and_labels_pt = pytorch_inf()
-    #onnx_inf()
+    onnx_inf()
