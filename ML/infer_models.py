@@ -51,7 +51,7 @@ def compare_conversions(all_preds):
             preds, targets = all_preds[key][i][0], all_preds[key][i][1]
             plt.scatter(preds, targets, .5, color_dict[key])
     plt.title(f'Prediction space, MAE = ')
-    plt.legend([key for key in color_dict.keys()])
+    plt.legend(['ideal'] + [key for key in color_dict.keys()])
 
     plt.xlabel('Predicted angle')
     plt.ylabel('Actual angle')
