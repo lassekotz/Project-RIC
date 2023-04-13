@@ -7,6 +7,7 @@ import numpy as np
 from torch import nn
 from preprocessing import generate_dataloader, ImagesDataset, generate_transforms
 import matplotlib.pyplot as plt
+from openvino.runtime import Core
 
 def pytorch_inf():
     model = models.mobilenet_v2(pretrained=True)
@@ -35,7 +36,20 @@ def tflite_inf():
     pass
 
 def openvino_inf():
-    pass
+    ie = Core()
+    model_xml = "trained_models/MobileNetV2/MobileNetV2.xml"
+    model = ie.read_model(model=model_xml)
+    compiled_model = ie.compile_model(model=model, device_name="CPU")
+    input_layer = compiled_model.input(0)
+    output_layer = compiled_model.output(0)
+
+    preds_and_labels_openvino = []
+
+    for x, y in test_loader:
+        input_data = np.array(x)
+        pred = compiled_model(input_data)[output_layer]
+        print(pred)
+
 
 def edgetpu_tflite_inf():
     pass
@@ -47,8 +61,8 @@ def compare_conversions(all_preds):
     }
     plt.plot([-30, 30], [-30, 30], 'r-')
     for key in all_preds.keys():
+        predss, targetss = [], []
         for i in range(len(all_preds[key])):
-            predss, targetss = [], []
             predss.append(all_preds[key][i][0])
             targetss.append(all_preds[key][i][1])
         plt.scatter(predss, targetss, .5, color_dict[key])
