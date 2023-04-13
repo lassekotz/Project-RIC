@@ -1,6 +1,14 @@
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
+import pathlib
+
+import onnx
+from onnx_tf.backend import prepare
+import tensorflow as tf
+import torch
+#from model import test
+import os
 
 def view_label_distr(filepath, bins=10):
     with open(filepath) as f:
@@ -51,13 +59,13 @@ def plot_pred_space(targets, preds, MAE):
 
     return None
 
-def plot_pred_space_heatmap(targets, preds, MAE):
+def plot_pred_space_heatmap(targets, preds, MAE, bins = 200):
     heatmap, xedges, yedges = np.histogram2d(preds, targets, bins=200)
     extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
 
     plt.clf()
     plt.imshow(heatmap.T, extent=extent, origin='lower')
-    plt.title(f'Prediction space, MAE = ' + f'{MAE:.2f}')
+    plt.title(f'Prediction space, MAE = ' + f'{MAE:.2f}. No. of bins = ' + f'{bins:.0f}')
     plt.xlabel('Predicted angle')
     plt.ylabel('Actual angle')
     plt.colorbar()
@@ -97,6 +105,13 @@ def fourier(errors_list):
     plt.plot(freq, abs(fourier)**2)
     plt.show()
     #print(y)
+
+def compare_conversions():
+    path = "trained_models/MobileNetV2/MobileNetV2"
+    onnx_model = onnx.load(path + ".onnx")
+    tflite_interpreter = tf.lite.Interpreter(model_path=path + ".tflite")
+
+
 
 if __name__ == '__main__':
 

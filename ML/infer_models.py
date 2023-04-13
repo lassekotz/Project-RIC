@@ -6,6 +6,7 @@ from torchvision import models
 import numpy as np
 from torch import nn
 from preprocessing import generate_dataloader, ImagesDataset, generate_transforms
+import matplotlib.pyplot as plt
 
 def pytorch_inf():
     model = models.mobilenet_v2(pretrained=True)
@@ -28,14 +29,31 @@ def onnx_inf():
         label = y.item()
         preds_and_labels_onnx.append(pred, label)
 
+    return preds_and_labels_onnx
+
 def tflite_inf():
+    pass
+
+def openvino_inf():
     pass
 
 def edgetpu_tflite_inf():
     pass
 
-def openvino_inf():
-    pass
+def compare_conversions(all_preds):
+    plt.plot([-30, 30], [-30, 30], 'r-')
+    for key in all_preds:
+        preds, targets = all_preds[key][0], all_preds[key][1]
+        plt.scatter(preds, targets, .5)
+        plt.title(f'Prediction space, MAE = ')
+        plt.legend(['Ideal', 'Predictions'])
+        plt.xlabel('Predicted angle')
+        plt.ylabel('Actual angle')
+        plt.grid()
+        plt.xticks()
+        plt.yticks()
+    plt.show()
+
 
 if __name__ == '__main__':
     device = "cpu"
@@ -45,5 +63,12 @@ if __name__ == '__main__':
     all_transforms, no_transform, current_transform = generate_transforms(image_path, H, W)
     dataset = ImagesDataset(image_path, no_transform)
     _, _, test_loader = generate_dataloader(dataset, batch_size, [.8, .19, .01])
+
+    all_preds = {}
     preds_and_labels_pt = pytorch_inf()
-    onnx_inf()
+    preds_and_labels_onnx = onnx_inf()
+
+    all_preds['pt'] = preds_and_labels_pt
+    all_preds['onnx'] = preds_and_labels_onnx
+
+    compare_conversions(all_preds)
