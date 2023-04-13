@@ -48,8 +48,9 @@ def compare_conversions(all_preds):
     plt.plot([-30, 30], [-30, 30], 'r-')
     for key in all_preds.keys():
         for i in range(len(all_preds[key])):
-            preds, targets = all_preds[key][i][0], all_preds[key][i][1]
-            plt.scatter(preds, targets, .5, color_dict[key])
+            predss, targetss = [], []
+            preds, targets = predss.append(all_preds[key][i][0]), targetss.append(all_preds[key][i][1])
+        plt.scatter(predss, targetss, .5, color_dict[key])
     plt.title(f'Prediction space, MAE = ')
     plt.legend(['ideal'] + [key for key in color_dict.keys()])
 
