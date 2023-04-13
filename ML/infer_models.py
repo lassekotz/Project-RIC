@@ -27,7 +27,7 @@ def onnx_inf():
         outputs = ort_sess.run(None, {'input_1': np.array(x)})
         pred = outputs[0][0][0].item()
         label = y.item()
-        preds_and_labels_onnx.append(pred, label)
+        preds_and_labels_onnx.append((pred, label))
 
     return preds_and_labels_onnx
 
@@ -41,17 +41,22 @@ def edgetpu_tflite_inf():
     pass
 
 def compare_conversions(all_preds):
+    color_dict = {
+        'pt': 'r',
+        'onnx': 'b'
+    }
     plt.plot([-30, 30], [-30, 30], 'r-')
     for key in all_preds:
         preds, targets = all_preds[key][0], all_preds[key][1]
-        plt.scatter(preds, targets, .5)
-        plt.title(f'Prediction space, MAE = ')
-        plt.legend(['Ideal', 'Predictions'])
-        plt.xlabel('Predicted angle')
-        plt.ylabel('Actual angle')
-        plt.grid()
-        plt.xticks()
-        plt.yticks()
+        plt.scatter(preds, targets, .5, color_dict[key])
+    plt.title(f'Prediction space, MAE = ')
+    plt.legend([key for key in color_dict.keys()])
+
+    plt.xlabel('Predicted angle')
+    plt.ylabel('Actual angle')
+    plt.grid()
+    plt.xticks()
+    plt.yticks()
     plt.show()
 
 
@@ -67,6 +72,7 @@ if __name__ == '__main__':
     all_preds = {}
     preds_and_labels_pt = pytorch_inf()
     preds_and_labels_onnx = onnx_inf()
+    preds_and_labels_openvino = openvino_inf()
 
     all_preds['pt'] = preds_and_labels_pt
     all_preds['onnx'] = preds_and_labels_onnx
