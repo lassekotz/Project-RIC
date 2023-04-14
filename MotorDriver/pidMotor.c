@@ -32,7 +32,7 @@ float angleController(float angle,float v, float vref,int verbose){
 
    // Keeping track of time
    u_int curTcontroller = millis();
-   double dt = (double)(curTcontroller-oldTcontroller);
+   double dt = (double)(curTcontroller-oldTcontroller)/1000.0;
    //Velocity errors 
    double verror = vref-v;
    verrorSum += verror*dt;
@@ -40,7 +40,7 @@ float angleController(float angle,float v, float vref,int verbose){
    //Velocity PI controller 
    float angleRef = kpv*verror + kiv*verrorSum; //Acts as desired angle for next pid controller
    
-   angleRef = angleRef-1.0;
+   angleRef = angleRef-0.3;
    
    // Keep track of angle errors 
    double error = angleRef-angle;
@@ -57,7 +57,11 @@ float angleController(float angle,float v, float vref,int verbose){
    else if(ITerm< minU){
       ITerm= minU;}
 
+   
    float u = kp*error + ITerm + kd*dErr;
+   if(error>15){
+      u = kp*1.9*error + ITerm + kd*dErr;  
+   }
    if(verbose){
       printf("Pterm: %f  iTERM: %f, kd %f\n",kp*error,ITerm,kd*dErr);
       printf("angleRef: %f \n",angleRef);
@@ -106,6 +110,6 @@ void initRegParam(float Kp, float Ki, float Kd, float Kpv, float Kiv){
    kd = Kd;
    kpv = Kpv;
    kiv = Kiv;
-   a = 0.8;
+   a = 0.4;
 }
 
