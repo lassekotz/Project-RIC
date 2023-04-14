@@ -14,7 +14,7 @@ double oldErr,ITerm; //Error variables for angles
 double verrorSum, lastvRef; //Integral error for velocity controller 
 float kp, ki, kd,Tf;
 float kpv, kiv; //PI constans for velocity controller 
-const double maxU = 700; //Maximum voltage we can send
+const double maxU = 700; //Maximum PWM we can send through integral accumulation
 const double minU = -700;  
 //Motor regulator variables
 double diffESum;
@@ -78,7 +78,7 @@ float motorRegulator(float v1, float v2,float diffRef){
 
    // Keeping track of time
    u_int curTmR = millis();
-   double dt = (double)(curTmR-oldTmR);
+   double dt = (double)(curTmR-oldTmR)/1000.0;
 
    //Velocity errors between motors
    double diffE = diffRef-(v1-v2);
