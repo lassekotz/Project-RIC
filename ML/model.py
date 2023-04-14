@@ -51,7 +51,7 @@ class CNN(torch.nn.Module):
         o = self.output(o)
 
         return o
-def test(test_loader, model, device):
+def test(test_loader, model, device, write=True):
     preds_and_labels = [] #TODO: Kör denna med bilderna från kontoret
     for (x, y) in tqdm(test_loader, desc=f'Computing test data'):
         model.eval()
@@ -59,10 +59,11 @@ def test(test_loader, model, device):
         labels = labels.float()
         preds = model.forward(inputs).to(device)
         preds_and_labels.append((labels.item(), preds.item()))
-    file = open('./Results/' + model.__class__.__name__ + "/test_results.txt", 'w')
-    for items in preds_and_labels:
-        strr = str(items[0]) + ", " + str(items[1]) + "\n"
-        file.write(strr)
+    if write:
+        file = open('./Results/' + model.__class__.__name__ + "/test_results.txt", 'w')
+        for items in preds_and_labels:
+            strr = str(items[0]) + ", " + str(items[1]) + "\n"
+            file.write(strr)
 
     return preds_and_labels
 def validate(model, loss_fn, val_loader, device):
