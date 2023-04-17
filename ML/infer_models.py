@@ -51,6 +51,24 @@ def tflite_inf():
 
     return preds_and_labels_tflite
 
+def tflite_quant_inf():
+    interpreter = tf.lite.Interpreter(model_path="trained_models/MobileNetV2/MobileNetV2_quant.tflite")
+    interpreter.allocate_tensors()
+    output = interpreter.get_output_details()[0]
+    input = interpreter.get_input_details()[0]
+
+    preds_and_labels_quant_tflite = []
+
+
+    for x,  y in test_loader:
+        input_data = x
+        interpreter.set_tensor(input['index'], input_data)
+        interpreter.invoke()
+        pred = interpreter.get_tensor(output[0]['index'])
+        preds_and_labels_quant_tflite.append((pred.item(), y.item()))
+
+    return preds_and_labels_quant_tflite
+
 def openvino_inf():
     ie = Core()
     model_xml = "trained_models/MobileNetV2/MobileNetV2.xml"
@@ -117,6 +135,7 @@ if __name__ == '__main__':
     preds_and_labels_onnx = onnx_inf()
     preds_and_labels_openvino = openvino_inf()
     preds_and_labels_tflite = tflite_inf()
+    preds_and_labels_quant_tflite = tflite_quant_inf()
 
     all_preds['pt'] = preds_and_labels_pt
     all_preds['onnx'] = preds_and_labels_onnx
