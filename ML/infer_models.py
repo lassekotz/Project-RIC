@@ -36,17 +36,17 @@ def onnx_inf():
 def tflite_inf():
     interpreter = tf.lite.Interpreter(model_path="trained_models/MobileNetV2/MobileNetV2.tflite")
     interpreter.allocate_tensors()
-    output = interpreter.get_output_details()[0]
-    input = interpreter.get_input_details()[0]
+    output_details = interpreter.get_output_details()
+    input_details = interpreter.get_input_details()
 
     preds_and_labels_tflite = []
 
 
     for x,  y in test_loader:
         input_data = x
-        interpreter.set_tensor(input['index'], input_data)
+        interpreter.set_tensor(input_details[0]['index'], input_data)
         interpreter.invoke()
-        pred = interpreter.get_tensor(output[0]['index'])
+        pred = interpreter.get_tensor(output_details[0]['index'])
         preds_and_labels_tflite.append((pred.item(), y.item()))
 
     return preds_and_labels_tflite
@@ -54,17 +54,17 @@ def tflite_inf():
 def tflite_quant_inf():
     interpreter = tf.lite.Interpreter(model_path="trained_models/MobileNetV2/MobileNetV2_quant.tflite")
     interpreter.allocate_tensors()
-    output = interpreter.get_output_details()[0]
-    input = interpreter.get_input_details()[0]
+    output_details = interpreter.get_output_details()
+    input_details = interpreter.get_input_details()
 
     preds_and_labels_quant_tflite = []
 
 
     for x,  y in test_loader:
         input_data = x
-        interpreter.set_tensor(input['index'], input_data)
+        interpreter.set_tensor(input_details[0]['index'], input_data)
         interpreter.invoke()
-        pred = interpreter.get_tensor(output[0]['index'])
+        pred = interpreter.get_tensor(output_details[0]['index'])
         preds_and_labels_quant_tflite.append((pred.item(), y.item()))
 
     return preds_and_labels_quant_tflite
@@ -95,13 +95,15 @@ def compare_conversions(all_preds):
         'pt': 'r',
         'onnx': 'b',
         'openvino': 'g',
-        'tflite': 'y'
+        'tflite': 'y',
+        'quant_tflite': 'o'
     }
     marker_dict = {
         'pt': '.',
         'onnx': '*',
         'openvino': 'x',
-        'tflite': 'v'
+        'tflite': 'v',
+        'quant_tflite': 'o'
     }
     plt.plot([-30, 30], [-30, 30], 'r-')
     for key in all_preds.keys():
@@ -128,7 +130,7 @@ if __name__ == '__main__':
     batch_size = 32
     all_transforms, no_transform, current_transform = generate_transforms(image_path, H, W)
     dataset = ImagesDataset(image_path, no_transform)
-    _, _, test_loader = generate_dataloader(dataset, batch_size, [.8, .1, .1])
+    _, _, test_loader = generate_dataloader(dataset, batch_size, [.8, .19, .01])
 
     all_preds = {}
     preds_and_labels_pt = pytorch_inf()
@@ -141,5 +143,6 @@ if __name__ == '__main__':
     all_preds['onnx'] = preds_and_labels_onnx
     all_preds['openvino'] = preds_and_labels_openvino
     all_preds['tflite'] = preds_and_labels_tflite
+    all_preds['quant_tflite'] = preds_and_labels_quant_tflite
 
     compare_conversions(all_preds)
