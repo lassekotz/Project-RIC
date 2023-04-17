@@ -8,6 +8,7 @@ from torch import nn
 from preprocessing import generate_dataloader, ImagesDataset, generate_transforms
 import matplotlib.pyplot as plt
 from openvino.runtime import Core
+import tensorflow as tf
 
 def pytorch_inf():
     model = models.mobilenet_v2(pretrained=True)
@@ -33,7 +34,20 @@ def onnx_inf():
     return preds_and_labels_onnx
 
 def tflite_inf():
-    pass
+    interpreter = tf.lite.Interpreter(model_path="trained_models/MobileNetV2/MobileNetV2.tflite")
+    interpreter.allocate_tensors()
+    output = interpreter.get_output_details()[0]
+    input = interpreter.get_input_details()[0]
+
+    preds_and_labels_tflite = []
+
+
+    for x,  y in test_loader:
+        input_data = x
+        interpreter.set_tensor(input['index'], input_data)
+        interpreter.invoke()
+        pred = interpreter.get_tensor(output[0]['index'])
+        preds_and_labels_tflite.append((pred.item(), y.item()))
 
 def openvino_inf():
     ie = Core()
