@@ -49,6 +49,8 @@ def tflite_inf():
         pred = interpreter.get_tensor(output[0]['index'])
         preds_and_labels_tflite.append((pred.item(), y.item()))
 
+    return preds_and_labels_tflite
+
 def openvino_inf():
     ie = Core()
     model_xml = "trained_models/MobileNetV2/MobileNetV2.xml"
@@ -74,12 +76,14 @@ def compare_conversions(all_preds):
     color_dict = {
         'pt': 'r',
         'onnx': 'b',
-        'openvino': 'g'
+        'openvino': 'g',
+        'tflite': 'y'
     }
     marker_dict = {
         'pt': '.',
         'onnx': '*',
-        'openvino': 'x'
+        'openvino': 'x',
+        'tflite': 'v'
     }
     plt.plot([-30, 30], [-30, 30], 'r-')
     for key in all_preds.keys():
@@ -112,9 +116,11 @@ if __name__ == '__main__':
     preds_and_labels_pt = pytorch_inf()
     preds_and_labels_onnx = onnx_inf()
     preds_and_labels_openvino = openvino_inf()
+    preds_and_labels_tflite = tflite_inf()
 
     all_preds['pt'] = preds_and_labels_pt
     all_preds['onnx'] = preds_and_labels_onnx
     all_preds['openvino'] = preds_and_labels_openvino
+    all_preds['tflite'] = preds_and_labels_tflite
 
     compare_conversions(all_preds)
