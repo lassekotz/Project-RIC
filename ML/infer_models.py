@@ -16,7 +16,7 @@ def pytorch_inf():
     model.classifier[1] = nn.Linear(num_features, 1)
     model.load_state_dict(torch.load("./trained_models/MobileNetV2/MobileNetV2.pt"))
     model.eval()
-    preds_and_labels_pt = test(test_loader, model, device, write=True)
+    preds_and_labels_pt = test(test_loader, model, device, write=False)
 
     return preds_and_labels_pt
 
@@ -106,7 +106,7 @@ if __name__ == '__main__':
     batch_size = 32
     all_transforms, no_transform, current_transform = generate_transforms(image_path, H, W)
     dataset = ImagesDataset(image_path, no_transform)
-    _, _, test_loader = generate_dataloader(dataset, batch_size, [.8, .19, .01])
+    _, _, test_loader = generate_dataloader(dataset, batch_size, [.8, .1, .1])
 
     all_preds = {}
     preds_and_labels_pt = pytorch_inf()
