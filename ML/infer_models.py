@@ -75,17 +75,16 @@ def tflite_quant_inf():
 
 
    for (x, y) in tqdm(test_loader, desc='quant predictions'):
-       #input_data = ((x*255 - 127).type(torch.int8)).swapaxes(1, 3).swapaxes(1, 2)
        input_scale, input_zero_point = input_details[0]["quantization"]
        output_scale, output_zero_point = output_details[0]["quantization"]
-       input_data = (x / input_scale + input_zero_point).type(torch.int8).swapaxes(1, 3).swapaxes(1, 2)
-
+       input_data = (x / input_scale - input_zero_point).type(torch.int8).swapaxes(1, 3).swapaxes(1, 2)
+       #input_data = np.clip((x/input_scale + input_zero_point).round(), -2^(7)+1, 2^(7) - 1)
 
        interpreter.set_tensor(input_details[0]['index'], input_data)
        interpreter.invoke()
        pred = interpreter.get_tensor(output_details[0]['index'])
-       #pred = (pred / output_scale + output_zero_point)
-       pred = (float(pred) - output_zero_point)*output_scale
+       #pred = (float(pred) - output_zero_point)*output_scale
+       pred = pred*output_scale
        preds_and_labels_quant_tflite.append((pred, y.item()))
 
 
