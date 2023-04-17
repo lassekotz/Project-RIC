@@ -61,7 +61,7 @@ def tflite_quant_inf():
 
 
     for x,  y in test_loader:
-        input_data = x
+        input_data = x.dtype(torch.int8)
         interpreter.set_tensor(input_details[0]['index'], input_data)
         interpreter.invoke()
         pred = interpreter.get_tensor(output_details[0]['index'])
