@@ -7,7 +7,6 @@ import numpy as np
 from torch import nn
 from preprocessing import generate_dataloader, ImagesDataset, generate_transforms
 import matplotlib.pyplot as plt
-from openvino.runtime import Core
 import tensorflow as tf
 from tqdm import tqdm
 
@@ -77,14 +76,14 @@ def tflite_quant_inf():
    for (x, y) in tqdm(test_loader, desc='quant predictions'):
        input_scale, input_zero_point = input_details[0]["quantization"]
        output_scale, output_zero_point = output_details[0]["quantization"]
-       input_data = (x / input_scale - input_zero_point).type(torch.int8).swapaxes(1, 3).swapaxes(1, 2)
+       input_data = (x / input_scale - input_zero_point).type(torch.uint8).swapaxes(1, 3).swapaxes(1, 2)
        #input_data = np.clip((x/input_scale + input_zero_point).round(), -2^(7)+1, 2^(7) - 1)
 
        interpreter.set_tensor(input_details[0]['index'], input_data)
        interpreter.invoke()
        pred = interpreter.get_tensor(output_details[0]['index'])
-       #pred = (float(pred) - output_zero_point)*output_scale
-       pred = pred*output_scale
+       pred = (float(pred) - output_zero_point)*output_scale
+       #pred = (pred-output_zero_point)*output_scale
        preds_and_labels_quant_tflite.append((pred, y.item()))
 
 
@@ -92,6 +91,7 @@ def tflite_quant_inf():
 
 
 def openvino_inf():
+   from openvino.runtime import Core
    ie = Core()
    model_xml = "trained_models/MobileNetV2/MobileNetV2.xml"
    model = ie.read_model(model=model_xml)
@@ -118,18 +118,18 @@ def edgetpu_tflite_inf():
    pass
 
 
-def compare_conversions(all_preds):
+def compare_conversions(all_preds, MAE_quant):
    color_dict = {
-       'pt': 'r',
+       #'pt': 'r',
        'onnx': 'b',
-       'openvino': 'g',
+       #'openvino': 'g',
        'tflite': 'y',
        'quant_tflite': 'orange'
    }
    marker_dict = {
-       'pt': '.',
+       #'pt': '.',
        'onnx': '*',
-       'openvino': 'x',
+       #'openvino': 'x',
        'tflite': 'v',
        'quant_tflite': 'o'
    }
@@ -139,8 +139,8 @@ def compare_conversions(all_preds):
        for i in range(len(all_preds[key])):
            predss.append(all_preds[key][i][0])
            targetss.append(all_preds[key][i][1])
-       plt.scatter(predss, targetss, 10, color_dict[key], marker_dict[key])
-   plt.title(f'Prediction space, MAE = ')
+       plt.scatter(predss, targetss, 15, color_dict[key], marker_dict[key])
+   plt.title(f'Prediction space, MAE = {MAE_quant:.2f}')
    plt.legend(['ideal'] + [key for key in color_dict.keys()])
 
 
@@ -161,23 +161,28 @@ if __name__ == '__main__':
    batch_size = 32
    all_transforms, no_transform, current_transform = generate_transforms(image_path, H, W)
    dataset = ImagesDataset(image_path, no_transform)
-   _, _, test_loader = generate_dataloader(dataset, batch_size, [.8, .199, .001])
+   _, _, test_loader = generate_dataloader(dataset, batch_size, [.8, .19, .01])
 
 
    all_preds = {}
-   preds_and_labels_pt = pytorch_inf()
+   #preds_and_labels_pt = pytorch_inf()
    preds_and_labels_onnx = onnx_inf()
-   preds_and_labels_openvino = openvino_inf()
+   #preds_and_labels_openvino = openvino_inf()
    preds_and_labels_tflite = tflite_inf()
    preds_and_labels_quant_tflite = tflite_quant_inf()
 
+   MAE = 0
+   for (pred, label) in preds_and_labels_quant_tflite:
+       MAE += abs(pred-label)
+   MAE_quant = MAE/len(preds_and_labels_quant_tflite)
 
-   all_preds['pt'] = preds_and_labels_pt
+
+   #all_preds['pt'] = preds_and_labels_pt
    all_preds['onnx'] = preds_and_labels_onnx
-   all_preds['openvino'] = preds_and_labels_openvino
+   #all_preds['openvino'] = preds_and_labels_openvino
    all_preds['tflite'] = preds_and_labels_tflite
    all_preds['quant_tflite'] = preds_and_labels_quant_tflite
 
 
-   compare_conversions(all_preds)
+   compare_conversions(all_preds, MAE_quant)
 
