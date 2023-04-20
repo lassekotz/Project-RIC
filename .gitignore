@@ -1,7 +1,4 @@
 *.jpg
-*.onnx
-*.tflite
-*.pb
 build/
 Simulink/
 .vscode/
