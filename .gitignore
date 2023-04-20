@@ -2,3 +2,6 @@
 build/
 Simulink/
 .vscode/
+ML/trained_models/LinearModel/
+ML/trained_models/CNN/
+ML/trained_models/VGG/
