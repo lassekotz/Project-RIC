@@ -5,3 +5,4 @@ Simulink/
 ML/trained_models/LinearModel/
 ML/trained_models/CNN/
 ML/trained_models/VGG/
+ML/__pycache__/
