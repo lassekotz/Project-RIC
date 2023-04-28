@@ -20,18 +20,19 @@ extern "C" {
 #define RAD_TO_DEG 57.2957795;
 
 float curTheta;
+float predictedTheta;
 float u = 0;
 int desPower;
 int dir,dir2;
 float* speed;
-MPU6050 imu(0x68,0);
+MPU6050 imu(0x68,1);
 Kalman kalman;
 double kalTheta;
 float gr, gp, gy;
 float accX, accY, accZ;
 
 // Sampling times
-const float TIMU = 0.01;
+const float TIMU = 0.1;
 const float Tmotor = 0.01;
 const float Tpid = 0.01;
 
@@ -89,6 +90,14 @@ int main( int argc, char *argv[] ){
     lastpidTime = millis();
     std::cout << "Starting up " << std::endl;
     delay(100);
+    char const* const fileName = "IMU_vs_ML.txt"; 
+    FILE *fp = fopen(fileName, "w");
+    if (fp == NULL)
+        {
+            printf("Error opening the file %s", fileName);
+            return -1;
+        }
+    int p = 0;
     for(EVER){
 
         curTime = millis();
@@ -96,11 +105,11 @@ int main( int argc, char *argv[] ){
         if(dtIMU>=TIMU){
             //Update IMU
 
-            /*
+            
             imu.getAngle(0,&curTheta); //Uncomment to use complementary filter
             printf("Angle= %f \n",curTheta);
             
-
+            /*
             //Kalman filter
             
             imu.getGyro(&gr, &gp, &gy);
@@ -109,17 +118,30 @@ int main( int argc, char *argv[] ){
             curTheta = -kalman.getAngle(roll, gr, dtIMU);
             */
 
-           //Read from shared memory
-           curTheta = *((float*)shared_memory_ptr);
+            //Read from shared memory
+            predictedTheta = *((float*)shared_memory_ptr);
             
-            std::cout << "CurTheta = "<< curTheta << std::endl;
+            std::cout << "Prediction = "<< predictedTheta << std::endl;
 
             //Keep track of last time used
             lastIMUtime = curTime;
             if(dtIMU> TIMU*1.1){
                printf("Too slow time = %f \n",dtIMU);
             }
+            
+            
+            fprintf(fp, "%f,%f, %f\n", curTheta, predictedTheta, p*TIMU);
+            
+            if (p > 100)
+            {
+                break;
+            }
+            p++ ;
+            
         }
+        
+        
+        
 
         float dtPID = (curTime-lastpidTime)/1000.0f;
         if(dtPID>=Tpid){
@@ -169,6 +191,7 @@ int main( int argc, char *argv[] ){
             exit(1);
         }
     }
+    fclose(fp);
 }
 
 
