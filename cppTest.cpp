@@ -60,7 +60,7 @@ int main( int argc, char *argv[] ){
     float Kpv = (float)atof(argv[4]);
     float Kiv = (float)atof(argv[5]);
     initRegParam( Kp , Ki, Kd, Kpv, Kiv);
-    initMotRegParam( 4600.0, 1.0, 300.0);
+    initMotRegParam( 3000.0, 30.0, 300.0);
 
     setup();
 
@@ -111,7 +111,7 @@ int main( int argc, char *argv[] ){
         float dtMotor = (curTime-lastmotorTime)/1000.0f;
         if(dtMotor>=Tmotor){
             //desPower = fabs(u*1024.0/12.0)+100.0;
-            desPower = fabs(u)+150; //Add 150 to account for startup torque 
+            desPower = fabs(u)+140; //Add 150 to account for startup torque 
             
             if(u<0){
                 dir = 0; //Maybe the other way? Test and see 
