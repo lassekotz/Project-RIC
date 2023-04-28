@@ -4,6 +4,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include <MPU6050.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <unistd.h>
+#include <iostream>
 // Include project libraries 
 extern "C" {
 #include "motorControl.h"
