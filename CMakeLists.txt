@@ -132,3 +132,21 @@ target_include_directories(motorFollow PUBLIC
                           "${PROJECT_SOURCE_DIR}/MotorDriver"
                           )
 
+
+#Main                          
+add_executable(main main.c)
+
+
+target_link_libraries(main PUBLIC wiringPi)
+target_link_libraries(main PUBLIC MPU6050)
+target_link_libraries(main PUBLIC motorControl)
+target_link_libraries(main PUBLIC pidController)
+target_link_libraries(main PUBLIC Kalmanlib)
+target_link_libraries(main PRIVATE stdc++fs)
+target_link_libraries(main PRIVATE rt)
+
+
+target_include_directories(motorFollow PUBLIC
+                          "${PROJECT_BINARY_DIR}"
+                          "${PROJECT_SOURCE_DIR}/MotorDriver"
+                          )
