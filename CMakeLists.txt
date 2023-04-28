@@ -134,7 +134,7 @@ target_include_directories(motorFollow PUBLIC
 
 
 #Main                          
-add_executable(main main.c)
+add_executable(main main.cpp)
 
 
 target_link_libraries(main PUBLIC wiringPi)
