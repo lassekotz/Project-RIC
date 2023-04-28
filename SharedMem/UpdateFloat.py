@@ -29,3 +29,9 @@ while True:
         print(i)
         
     time.sleep(1)
+#    if i > 5:
+#        break
+    
+    
+shared.close()
+shared.unlink()
