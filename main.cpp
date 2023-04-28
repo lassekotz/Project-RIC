@@ -106,7 +106,7 @@ int main( int argc, char *argv[] ){
             */
 
            //Read from shared memory
-           float curTheta = *((float*)shared_memory_ptr);
+           curTheta = *((float*)shared_memory_ptr);
             
             std::cout << "CurTheta = "<< curTheta << std::endl;
 

@@ -146,7 +146,17 @@ target_link_libraries(main PRIVATE stdc++fs)
 target_link_libraries(main PRIVATE rt)
 
 
-target_include_directories(motorFollow PUBLIC
+target_include_directories(main PUBLIC
                           "${PROJECT_BINARY_DIR}"
                           "${PROJECT_SOURCE_DIR}/MotorDriver"
                           )
+
+target_include_directories(main PUBLIC
+                          "${PROJECT_BINARY_DIR}"
+                          "${PROJECT_SOURCE_DIR}/Kalman"
+                          )
+
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+target_link_libraries(main PRIVATE Threads::Threads)
+
