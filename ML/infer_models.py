@@ -17,7 +17,7 @@ def pytorch_inf():
    model.classifier[1] = nn.Linear(num_features, 1)
    model.load_state_dict(torch.load("./trained_models/MobileNetV2/MobileNetV2.pt"))
    model.eval()
-   preds_and_labels_pt = test(test_loader, model, device, write=False)
+   preds_and_labels_pt = test(test_loader, model, device, write=True)
 
 
    return preds_and_labels_pt
@@ -96,7 +96,6 @@ def openvino_inf():
    model_xml = "trained_models/MobileNetV2/MobileNetV2.xml"
    model = ie.read_model(model=model_xml)
    compiled_model = ie.compile_model(model=model, device_name="CPU")
-   #input_layer = compiled_model.input(0)
    output_layer = compiled_model.output(0)
 
 
@@ -155,13 +154,14 @@ def compare_conversions(all_preds, MAE_quant):
 
 
 if __name__ == '__main__':
-   device = "cpu"
+   device = ("cuda" if torch.cuda.is_available() else "cpu")
    H, W = 128, 128
    image_path = './Data/BigDataset'
    batch_size = 32
    all_transforms, no_transform, current_transform = generate_transforms(image_path, H, W)
    dataset = ImagesDataset(image_path, no_transform)
-   _, _, test_loader = generate_dataloader(dataset, batch_size, [.8, .19, .01])
+   #_, _, test_loader = generate_dataloader(dataset, batch_size, [.8, .19, .01])
+   train_loader, val_loader, test_loader = torch.load("Data/Dataloaders/train_loader.pth"), torch.load("Data/Dataloaders/val_loader.pth"), torch.load("Data/Dataloaders/test_loader.pth")
 
 
    all_preds = {}

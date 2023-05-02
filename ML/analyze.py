@@ -31,13 +31,19 @@ def view_label_distr(filepath, bins=10):
 
 
 def plot_error_distr(errors_list, bins=20):
+    #errors_list = errors_list.clip(-10, 10)
     errors_np = np.array(errors_list)
+    mean = np.mean(errors_np)
+    std = np.std(errors_np)
 
     fix, (ax1, ax2) = plt.subplots(1, 2)
 
-    ax1.hist(errors_np, bins=60)
+    _, bins, _ = ax1.hist(errors_np, bins=500, density=True)
+    ax1.plot(bins, 1/(std*np.sqrt(2*np.pi)) * np.exp(- (bins-mean)**2 / (2*std**2)))
+    ax1.grid()
     ax1.set_title('Error distribution')
     ax1.set_xlim(-10, 10)
+    ax2.grid()
     ax2.plot(errors_list)
     ax2.set_title('Errors over time')
     plt.show()
@@ -112,7 +118,7 @@ def compare_conversions():
     onnx_model = onnx.load(path + ".onnx")
     tflite_interpreter = tf.lite.Interpreter(model_path=path + ".tflite")
 
-def visualize_feature_maps():
+def visualize_feature_maps(): #TODO: bucket feature maps into standard-deviations of error-list
     model = get_model("mobilenet_v2")
     model_weights = []
     conv_layers = []
@@ -144,28 +150,15 @@ def visualize_feature_maps():
             gray_scale = gray_scale / feature_map.shape[0]
 
             fig, axs = plt.subplots(2)
-            axs[0].imshow(gray_scale.detach().numpy())
+            axs[0].imshow(gray_scale.detach().numpy(), cmap="Greys")
             axs[1].imshow(x.squeeze(0).swapaxes(0, 2).swapaxes(0, 1))
             plt.show()
-            #break
-        #break
-
-
-
-        #image = layer(image)
-        #outputs.append(image)
-        #names.append(str(layer))
-
-    for feature_map in outputs:
-        print(feature_map.shape)
-
-    pass # TODO: implement plotting of feature maps in different error-ranges; MAE 0-mean, MAE mean-std1, MAE mean-std2
 
 
 
 
 if __name__ == '__main__':
-    '''
+
     datapath = './Results/MobileNetV2/test_results.txt'
 
     with open(datapath) as f:
@@ -191,6 +184,6 @@ if __name__ == '__main__':
     plot_pred_target_distributions(targets, preds, bins=50)
     plot_pred_space_heatmap(targets, preds, MAE)
     plot_error_distr(errors_list)
-    '''
+
     test_loader = torch.load("Data/Dataloaders/test_loader.pth")
     visualize_feature_maps()
