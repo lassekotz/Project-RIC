@@ -41,8 +41,9 @@ def plot_error_distr(errors_list, bins=20):
     _, bins, _ = ax1.hist(errors_np, bins=500, density=True)
     ax1.plot(bins, 1/(std*np.sqrt(2*np.pi)) * np.exp(- (bins-mean)**2 / (2*std**2)))
     ax1.grid()
-    ax1.set_title('Error distribution')
+    ax1.set_title('Probability density of errors')
     ax1.set_xlim(-10, 10)
+    ax1.legend(['Errors', f'Gaussian, \u03C3 = {std:.2f}, \u03BC = {mean:.2f}'])
     ax2.grid()
     ax2.plot(errors_list)
     ax2.set_title('Errors over time')
@@ -150,8 +151,13 @@ def visualize_feature_maps(): #TODO: bucket feature maps into standard-deviation
             gray_scale = gray_scale / feature_map.shape[0]
 
             fig, axs = plt.subplots(2)
-            axs[0].imshow(gray_scale.detach().numpy(), cmap="Greys")
+            axs[0].axis("off")
+            axs[0].imshow(gray_scale.detach().numpy(), cmap="viridis")
+            axs[0].set_title("conv2d feature map")
+
             axs[1].imshow(x.squeeze(0).swapaxes(0, 2).swapaxes(0, 1))
+            axs[1].axis("off")
+            axs[1].set_title("Input image")
             plt.show()
 
 
