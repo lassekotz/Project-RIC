@@ -2,12 +2,13 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import pathlib
-
+from torchvision import models
 import onnx
 from onnx_tf.backend import prepare
 import tensorflow as tf
 import torch
-#from model import test
+from torch import nn
+from model import test, get_model
 import os
 
 def view_label_distr(filepath, bins=10):
@@ -111,11 +112,62 @@ def compare_conversions():
     onnx_model = onnx.load(path + ".onnx")
     tflite_interpreter = tf.lite.Interpreter(model_path=path + ".tflite")
 
+def visualize_feature_maps():
+    model = get_model("mobilenet_v2")
+    model_weights = []
+    conv_layers = []
+    nr_of_conv2d = 0
+    model_children = list(model.children())
+    for i in range(len(model_children)):
+        if type(model_children[i]) == nn.Conv2d:
+            nr_of_conv2d += 1
+            model_weights.append(model_children[i].weight)
+            conv_layers.append(model_children[i])
+        elif type(model_children[i]) == nn.Sequential:
+            for j in range(len(model_children[i])):
+                for child in model_children[i][j].children():
+                    if type(child) == nn.Conv2d:
+                        nr_of_conv2d += 1
+                        model_weights.append(child.weight)
+                        conv_layers.append(child)
+    outputs = []
+    names = []
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
+    model.eval()
+    test_loader = torch.load("Data/Dataloaders/test_loader.pth")
+    for layer in conv_layers:
+        for (x, y) in test_loader:
+            feature_map = layer(x)
+            feature_map = feature_map.squeeze(0)
+            gray_scale = torch.sum(feature_map, 0)
+            gray_scale = gray_scale / feature_map.shape[0]
+
+            fig, axs = plt.subplots(2)
+            axs[0].imshow(gray_scale.detach().numpy())
+            axs[1].imshow(x.squeeze(0).swapaxes(0, 2).swapaxes(0, 1))
+            plt.show()
+            #break
+        #break
+
+
+
+        #image = layer(image)
+        #outputs.append(image)
+        #names.append(str(layer))
+
+    for feature_map in outputs:
+        print(feature_map.shape)
+
+    pass # TODO: implement plotting of feature maps in different error-ranges; MAE 0-mean, MAE mean-std1, MAE mean-std2
+
+
 
 
 if __name__ == '__main__':
-
+    '''
     datapath = './Results/MobileNetV2/test_results.txt'
+
     with open(datapath) as f:
         lines = f.readlines()
         targets = []
@@ -139,4 +191,6 @@ if __name__ == '__main__':
     plot_pred_target_distributions(targets, preds, bins=50)
     plot_pred_space_heatmap(targets, preds, MAE)
     plot_error_distr(errors_list)
-    #fourier(errors_list)
+    '''
+    test_loader = torch.load("Data/Dataloaders/test_loader.pth")
+    visualize_feature_maps()
