@@ -133,7 +133,7 @@ int main( int argc, char *argv[] ){
             }
             
             
-            fprintf(fp, "%f,%f, %f\n", curTheta, predictedTheta, p*TIMU);
+            fprintf(fp, "%f,%f,%f,%f,%f,%f\n", curTheta, predictedTheta, accTheta, gyroTheta, kalmanAcc, kalmanTheta);
             
             if (p > 100)
             {
