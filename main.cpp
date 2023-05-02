@@ -4,6 +4,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include <MPU6050.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <unistd.h>
+#include <iostream>
 // Include project libraries 
 extern "C" {
 #include "motorControl.h"
@@ -16,18 +20,19 @@ extern "C" {
 #define RAD_TO_DEG 57.2957795;
 
 float curTheta;
+float predictedTheta;
 float u = 0;
 int desPower;
 int dir,dir2;
 float* speed;
-MPU6050 imu(0x68,0);
+MPU6050 imu(0x68,1);
 Kalman kalman;
 double kalTheta;
 float gr, gp, gy;
 float accX, accY, accZ;
 
 // Sampling times
-const float TIMU = 0.01;
+const float TIMU = 0.1;
 const float Tmotor = 0.01;
 const float Tpid = 0.01;
 
@@ -40,8 +45,8 @@ float uM2;
 void setup(){
     wiringPiSetupGpio(); //Setup and use defult pin numbering
 
-    imu.getAngle(0,&curTheta); //Calculate first value and input to filter 
-    kalman.setAngle(curTheta); 
+    //imu.getAngle(0,&curTheta); //Calculate first value and input to filter 
+    //kalman.setAngle(curTheta); 
     
 
     initMotorPins(); //Initializes pins and hardware interupts for motors
@@ -64,11 +69,35 @@ int main( int argc, char *argv[] ){
 
     setup();
 
+    // Open the named shared memory region
+    int shared_memory_fd = shm_open("currAngle", O_RDONLY, 0666);
+    if (shared_memory_fd == -1) {
+        std::cerr << "Failed to open shared memory object\n";
+        return 1;
+    }
+    
+
+    // Map the shared memory region into this process's address space
+    void* shared_memory_ptr = mmap(NULL, sizeof(float), PROT_READ, MAP_SHARED, shared_memory_fd, 0);
+    if (shared_memory_ptr == MAP_FAILED) {
+        std::cerr << "Failed to map shared memory object\n";
+        close(shared_memory_fd);
+        return 1;
+    }
+
     lastIMUtime = millis();
     lastmotorTime = millis(); 
     lastpidTime = millis();
     std::cout << "Starting up " << std::endl;
     delay(100);
+    char const* const fileName = "IMU_vs_ML.txt"; 
+    FILE *fp = fopen(fileName, "w");
+    if (fp == NULL)
+        {
+            printf("Error opening the file %s", fileName);
+            return -1;
+        }
+    int p = 0;
     for(EVER){
 
         curTime = millis();
@@ -76,27 +105,43 @@ int main( int argc, char *argv[] ){
         if(dtIMU>=TIMU){
             //Update IMU
 
-            /*
+            
             imu.getAngle(0,&curTheta); //Uncomment to use complementary filter
             printf("Angle= %f \n",curTheta);
-            */
-
+            
+            /*
             //Kalman filter
             
             imu.getGyro(&gr, &gp, &gy);
             imu.getAccel(&accX, &accY, &accZ);
             double roll  = atan(accY / sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
             curTheta = -kalman.getAngle(roll, gr, dtIMU);
+            */
+
+            //Read from shared memory
+            predictedTheta = *((float*)shared_memory_ptr);
             
-            
-            std::cout << "CurTheta = "<< curTheta << std::endl;
+            std::cout << "Prediction = "<< predictedTheta << std::endl;
 
             //Keep track of last time used
             lastIMUtime = curTime;
             if(dtIMU> TIMU*1.1){
                printf("Too slow time = %f \n",dtIMU);
             }
+            
+            
+            fprintf(fp, "%f,%f, %f\n", curTheta, predictedTheta, p*TIMU);
+            
+            if (p > 100)
+            {
+                break;
+            }
+            p++ ;
+            
         }
+        
+        
+        
 
         float dtPID = (curTime-lastpidTime)/1000.0f;
         if(dtPID>=Tpid){
@@ -140,9 +185,13 @@ int main( int argc, char *argv[] ){
             accuateMotor(0,1,0,1);
             delay(10);
             accuateMotor(0,1,0,1);
+            munmap(shared_memory_ptr, sizeof(float));
+            close(shared_memory_fd);
+            accuateMotor(0,1,0,1);
             exit(1);
         }
     }
+    fclose(fp);
 }
 
 
