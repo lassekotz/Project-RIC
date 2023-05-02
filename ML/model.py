@@ -5,7 +5,6 @@ from tqdm import tqdm
 from tflite_conversion import save_and_convert_model
 from preprocessing import ImagesDataset, generate_dataloader, generate_transforms
 from torchvision import models
-from analyze import plot_results
 
 class LinearModel(torch.nn.Module):
     def __init__(self):
@@ -52,18 +51,21 @@ class CNN(torch.nn.Module):
 
         return o
 def test(test_loader, model, device, write=True):
-    preds_and_labels = [] #TODO: Kör denna med bilderna från kontoret
+    preds_and_labels = []
     for (x, y) in tqdm(test_loader, desc=f'Computing test data'):
         model.eval()
         inputs, labels = x.to(device), y.to(device)
         labels = labels.float()
         preds = model.forward(inputs).to(device)
         preds_and_labels.append((labels.item(), preds.item()))
+
     if write:
         file = open('./Results/' + model.__class__.__name__ + "/test_results.txt", 'w')
         for items in preds_and_labels:
             strr = str(items[0]) + ", " + str(items[1]) + "\n"
             file.write(strr)
+        file.close()
+        file = open('')
 
     return preds_and_labels
 def validate(model, loss_fn, val_loader, device):
@@ -153,6 +155,7 @@ def get_model(modelname):
     return model
 
 if __name__ == '__main__':
+    from analyze import plot_results
     H, W, = 128, 128
 
     image_path = './Data/BigDataset'
@@ -160,6 +163,9 @@ if __name__ == '__main__':
     dataset = ImagesDataset(image_path, no_transform)
     batch_size = 32
     train_loader, val_loader, test_loader = generate_dataloader(dataset, batch_size, [.8, .1, .1])
+    torch.save(train_loader, "Data/Dataloaders/train_loader.pth")
+    torch.save(val_loader, "Data/Dataloaders/val_loader.pth")
+    torch.save(test_loader, "Data/Dataloaders/test_loader.pth")
 
     model = get_model("mobilenet_v2")
     # model = get_model("LinearModel")
