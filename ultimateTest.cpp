@@ -109,8 +109,8 @@ int main( int argc, char *argv[] ){
             //Update IMU
 
             
-            imu.getAngle(0,&curTheta); //Uncomment to use complementary filter
-            printf("Angle= %f \n",curTheta);
+            //imu.getAngle(0,&curTheta); //Uncomment to use complementary filter
+            //printf("Angle= %f \n",curTheta);
             
             /*
             //Kalman filter

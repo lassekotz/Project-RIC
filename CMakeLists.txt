@@ -98,7 +98,7 @@ target_include_directories(sysId PUBLIC
 
 add_executable(ricpp cppTest.cpp)
 target_link_libraries(ricpp PUBLIC wiringPi)
-target_link_libraries(ricpp PUBLIC MPU6050)
+target_link_libraries(ricpp PUBLIC IMUlib)
 target_link_libraries(ricpp PUBLIC motorControl)
 target_link_libraries(ricpp PUBLIC pidController)
 target_link_libraries(ricpp PUBLIC Kalmanlib)
@@ -138,7 +138,7 @@ add_executable(main main.cpp)
 
 
 target_link_libraries(main PUBLIC wiringPi)
-target_link_libraries(main PUBLIC MPU6050)
+target_link_libraries(main PUBLIC IMUlib)
 target_link_libraries(main PUBLIC motorControl)
 target_link_libraries(main PUBLIC pidController)
 target_link_libraries(main PUBLIC Kalmanlib)
@@ -165,7 +165,7 @@ add_executable(ult ultimateTest.cpp)
 
 
 target_link_libraries(ult PUBLIC wiringPi)
-target_link_libraries(ult PUBLIC MPU6050)
+target_link_libraries(ult PUBLIC IMUlib)
 target_link_libraries(ult PUBLIC motorControl)
 target_link_libraries(ult PUBLIC pidController)
 target_link_libraries(ult PUBLIC Kalmanlib)
@@ -186,3 +186,7 @@ target_include_directories(ult PUBLIC
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 target_link_libraries(main PRIVATE Threads::Threads)
+
+# Calibration
+add_executable(calibrate Calibrate.cpp)
+target_link_libraries(ult PUBLIC IMUlib)
