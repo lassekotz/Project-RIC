@@ -160,3 +160,29 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 target_link_libraries(main PRIVATE Threads::Threads)
 
+#Ultimate test 
+add_executable(ult ultimateTest.cpp)
+
+
+target_link_libraries(ult PUBLIC wiringPi)
+target_link_libraries(ult PUBLIC MPU6050)
+target_link_libraries(ult PUBLIC motorControl)
+target_link_libraries(ult PUBLIC pidController)
+target_link_libraries(ult PUBLIC Kalmanlib)
+target_link_libraries(ult PRIVATE stdc++fs)
+target_link_libraries(ult PRIVATE rt)
+
+
+target_include_directories(ult PUBLIC
+                          "${PROJECT_BINARY_DIR}"
+                          "${PROJECT_SOURCE_DIR}/MotorDriver"
+                          )
+
+target_include_directories(ult PUBLIC
+                          "${PROJECT_BINARY_DIR}"
+                          "${PROJECT_SOURCE_DIR}/Kalman"
+                          )
+
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+target_link_libraries(main PRIVATE Threads::Threads)
