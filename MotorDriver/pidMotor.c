@@ -110,6 +110,6 @@ void initRegParam(float Kp, float Ki, float Kd, float Kpv, float Kiv){
    kd = Kd;
    kpv = Kpv;
    kiv = Kiv;
-   a = 0.4;
+   a = 0.049;
 }
 

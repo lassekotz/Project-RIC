@@ -2,10 +2,36 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <iostream>
+#include <MPU6050.h>
+#include <wiringPi.h>
 
 
+MPU6050 imu(0x68,0);
+
+void setup(){
+    wiringPiSetupGpio(); //Setup and use defult pin numbering
+    
+    //imu.getAngle(0,&curTheta); //Calculate first value and input to filter 
+    //kalman.setAngle(curTheta); 
+    
+
+    initMotorPins(); //Initializes pins and hardware interupts for motors
+    //setupFirstValue();
+}
 
 int main() {
+    if( argc != 6 ){
+        printf("Wrong number of arguments, you had %d \n",argc);
+        exit(2);
+    }
+    float Kp = (float)atof(argv[1]);
+    float Ki = (float)atof(argv[2]);
+    float Kd = (float)atof(argv[3]);
+    float Kpv = (float)atof(argv[4]);
+    float Kiv = (float)atof(argv[5]);
+    initRegParam( Kp , Ki, Kd, Kpv, Kiv);
+    initMotRegParam( 3000.0, 30.0, 300.0);
+    
     // Open the named shared memory region
     int shared_memory_fd = shm_open("currAngle", O_RDONLY, 0666);
     if (shared_memory_fd == -1) {
@@ -30,7 +56,7 @@ int main() {
         // Read the binary data from shared memory and convert it to a float
         float shared_float = *((float*)shared_memory_ptr);
 
-
+        // CALL ON IMU
 
         // Print the float value
         std::cout << "Shared float value: " << shared_float << std::endl;
