@@ -182,11 +182,21 @@ target_include_directories(ult PUBLIC
                           "${PROJECT_BINARY_DIR}"
                           "${PROJECT_SOURCE_DIR}/Kalman"
                           )
+                          
+target_include_directories(ult PUBLIC
+                          "${PROJECT_BINARY_DIR}"
+                          "${PROJECT_SOURCE_DIR}/IMU"
+                          )
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
-target_link_libraries(main PRIVATE Threads::Threads)
+target_link_libraries(ult PRIVATE Threads::Threads)
 
 # Calibration
 add_executable(calibrate Calibrate.cpp)
-target_link_libraries(ult PUBLIC IMUlib)
+target_link_libraries(calibrate PUBLIC IMUlib)
+target_link_libraries(calibrate PRIVATE Threads::Threads)
+target_include_directories(calibrate PUBLIC
+                          "${PROJECT_BINARY_DIR}"
+                          "${PROJECT_SOURCE_DIR}/IMU"
+                          )
