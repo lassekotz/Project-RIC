@@ -83,11 +83,19 @@ def plot_pred_space_heatmap(targets, preds, MAE, bins = 200):
     plt.show()
 
 
-def plot_pred_target_distributions(targets, preds, bins=20):
+def plot_pred_target_distributions(targets, preds, bins=15):
     fix, (ax1, ax2) = plt.subplots(1, 2)
 
-    ax1.hist(targets, bins)
+    vals_np = np.array(targets)
+    mean = np.mean(vals_np)
+
+    ax1.axvline(x=mean, color='r', label='axvline - full height')
+    ax1.hist(targets, bins, edgecolor='grey')
     ax1.set_title('Target distribution')
+    ax1.set_xlabel('Target')
+    ax1.set_ylabel('Frequenzy')
+    ax1.legend([f'mean = {mean:.2f}', 'labels'])
+
     ax2.hist(preds, bins)
     ax2.set_title('Prediction distribution')
     plt.show()
@@ -121,6 +129,9 @@ def compare_conversions():
 
 def visualize_feature_maps(): #TODO: bucket feature maps into standard-deviations of error-list
     model = get_model("mobilenet_v2")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.load_state_dict(torch.load("./trained_models/MobileNetV2/MobileNetV2.pt", device))
+    model.to(device)
     model_weights = []
     conv_layers = []
     nr_of_conv2d = 0
@@ -143,7 +154,9 @@ def visualize_feature_maps(): #TODO: bucket feature maps into standard-deviation
     model.to(device)
     model.eval()
     test_loader = torch.load("Data/Dataloaders/test_loader.pth")
+    res = test(test_loader, model, device, write=False)
     for layer in conv_layers:
+        i = 0
         for (x, y) in test_loader:
             feature_map = layer(x)
             feature_map = feature_map.squeeze(0)
@@ -153,12 +166,13 @@ def visualize_feature_maps(): #TODO: bucket feature maps into standard-deviation
             fig, axs = plt.subplots(2)
             axs[0].axis("off")
             axs[0].imshow(gray_scale.detach().numpy(), cmap="viridis")
-            axs[0].set_title("conv2d feature map")
+            axs[0].set_title(f"conv2d feature map. MAE = {abs(res[i][0] - res[i][1]):.2f}")
 
             axs[1].imshow(x.squeeze(0).swapaxes(0, 2).swapaxes(0, 1))
             axs[1].axis("off")
             axs[1].set_title("Input image")
             plt.show()
+            i += 1
 
 
 
@@ -187,7 +201,7 @@ if __name__ == '__main__':
     MAE = MAE/len(preds)
 
     plot_pred_space(targets, preds, MAE)
-    plot_pred_target_distributions(targets, preds, bins=50)
+    plot_pred_target_distributions(targets, preds, bins=20)
     plot_pred_space_heatmap(targets, preds, MAE)
     plot_error_distr(errors_list)
 

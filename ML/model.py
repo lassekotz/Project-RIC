@@ -65,7 +65,7 @@ def test(test_loader, model, device, write=True):
             strr = str(items[0]) + ", " + str(items[1]) + "\n"
             file.write(strr)
         file.close()
-        file = open('')
+        #file = open('')
 
     return preds_and_labels
 def validate(model, loss_fn, val_loader, device):
