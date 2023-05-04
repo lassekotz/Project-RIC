@@ -53,12 +53,12 @@ def plot_error_distr(errors_list, bins=20):
 
 
 def plot_pred_space(targets, preds, MAE):
-    plt.scatter(preds, targets, .5)
+    plt.scatter(targets, preds, .5)
     plt.plot([-30, 30], [-30, 30], 'r-')
     plt.title(f'Prediction space, MAE = ' + f'{MAE:.2f}')
     plt.legend(['Ideal', 'Predictions'])
-    plt.xlabel('Predicted angle')
-    plt.ylabel('Actual angle')
+    plt.ylabel('Predicted angle')
+    plt.xlabel('Actual angle')
     plt.grid()
     plt.xticks()
     plt.yticks()
