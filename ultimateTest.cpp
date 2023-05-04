@@ -39,7 +39,7 @@ float accX, accY, accZ;
 
 // Sampling times
 const float TIMU = 0.1;
-const float Tpid = 0.01;
+const float Tpid = 0.005;
 
 unsigned long curTime;
 unsigned long lastIMUtime, lastmotorTime, lastpidTime;
