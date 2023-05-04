@@ -65,7 +65,7 @@ def main(write_to_disk = False):
     while True:
         tt = time.time()
         ret, image = cap.read()
-        cv2.imshow('frame', image)
+        #cv2.imshow('frame', image)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 

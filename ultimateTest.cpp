@@ -135,7 +135,7 @@ int main( int argc, char *argv[] ){
             
             fprintf(fp, "%f,%f,%f,%f,%f,%f\n", curTheta, predictedTheta, accTheta, gyroTheta, kalmanAcc, kalmanTheta);
             
-            if (p > 100)
+            if (p > 1000)
             {
                 break;
             }
@@ -162,6 +162,7 @@ int main( int argc, char *argv[] ){
             //Kalman filtering 
             kalmanAcc = -kalman.getAngle(accTheta, gr, dtPID); //Kalman with accelerometer and gyro 
             kalmanTheta = -kalmanML.getAngle(*((float*)shared_memory_ptr),gr,dtPID);
+            lastpidTime = curTime;
         }
         
         
@@ -170,7 +171,7 @@ int main( int argc, char *argv[] ){
 
 
         //Check for failure
-        if(abs(curTheta)>25){
+        if(abs(curTheta)>30){
             accuateMotor(0,1,0,1);
             free(speed);
             accuateMotor(0,1,0,1);
