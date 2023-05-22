@@ -68,7 +68,7 @@ def plot_pred_space(targets, preds, MAE):
     return None
 
 def plot_pred_space_heatmap(targets, preds, MAE, bins = 200):
-    heatmap, xedges, yedges = np.histogram2d(preds, targets, bins=200)
+    heatmap, xedges, yedges = np.histogram2d(preds, targets, bins=bins)
     extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
 
     plt.clf()
@@ -148,8 +148,7 @@ def visualize_feature_maps(): #TODO: bucket feature maps into standard-deviation
                         nr_of_conv2d += 1
                         model_weights.append(child.weight)
                         conv_layers.append(child)
-    outputs = []
-    names = []
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
     model.eval()
@@ -164,17 +163,20 @@ def visualize_feature_maps(): #TODO: bucket feature maps into standard-deviation
             gray_scale = gray_scale / feature_map.shape[0]
 
             fig, axs = plt.subplots(2)
-            axs[0].axis("off")
-            axs[0].imshow(gray_scale.detach().numpy(), cmap="viridis")
-            axs[0].set_title(f"conv2d feature map. MAE = {abs(res[i][0] - res[i][1]):.2f}")
 
-            axs[1].imshow(x.squeeze(0).swapaxes(0, 2).swapaxes(0, 1))
+            axs[0].imshow(x.squeeze(0).swapaxes(0, 2).swapaxes(0, 1))
+            axs[0].axis("off")
+            axs[0].set_title("Input image")
+
             axs[1].axis("off")
-            axs[1].set_title("Input image")
+            axs[1].imshow(gray_scale.detach().numpy(), cmap="viridis")
+            axs[1].set_title(f"conv2d feature map. MAE = {abs(res[i][0] - res[i][1]):.2f}")
+
+
+
+
             plt.show()
             i += 1
-
-
 
 
 if __name__ == '__main__':
@@ -202,7 +204,7 @@ if __name__ == '__main__':
 
     plot_pred_space(targets, preds, MAE)
     plot_pred_target_distributions(targets, preds, bins=20)
-    plot_pred_space_heatmap(targets, preds, MAE)
+    plot_pred_space_heatmap(targets, preds, MAE, bins=50)
     plot_error_distr(errors_list)
 
     test_loader = torch.load("Data/Dataloaders/test_loader.pth")
