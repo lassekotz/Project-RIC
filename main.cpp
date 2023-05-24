@@ -90,6 +90,7 @@ int main( int argc, char *argv[] ){
     lastpidTime = millis();
     std::cout << "Starting up " << std::endl;
     delay(100);
+    /*
     char const* const fileName = "IMU_vs_ML.txt"; 
     FILE *fp = fopen(fileName, "w");
     if (fp == NULL)
@@ -97,7 +98,8 @@ int main( int argc, char *argv[] ){
             printf("Error opening the file %s", fileName);
             return -1;
         }
-    int p = 0;
+    */
+    //int p = 0;
     for(EVER){
 
         curTime = millis();
@@ -106,8 +108,8 @@ int main( int argc, char *argv[] ){
             //Update IMU
 
             
-            imu.getAngle(0,&curTheta); //Uncomment to use complementary filter
-            printf("Angle= %f \n",curTheta);
+            //imu.getAngle(0,&curTheta); //Uncomment to use complementary filter
+            //printf("Angle= %f \n",curTheta);
             
             /*
             //Kalman filter
@@ -130,13 +132,8 @@ int main( int argc, char *argv[] ){
             }
             
             
-            fprintf(fp, "%f,%f, %f\n", curTheta, predictedTheta, p*TIMU);
+            //fprintf(fp, "%f,%f, %f\n", curTheta, predictedTheta, p*TIMU);
             
-            if (p > 100)
-            {
-                break;
-            }
-            p++ ;
             
         }
         
@@ -147,7 +144,7 @@ int main( int argc, char *argv[] ){
         if(dtPID>=Tpid){
             speed = calcSpeeds(1);
             //Calc u 
-            u =angleController(curTheta,(speed[0]+speed[1])/2.0, 0.0,0);
+            u =angleController(predictedTheta,(speed[0]+speed[1])/2.0, 0.0,0);
             uM2 = motorRegulator(speed[0], speed[1], 0);
             lastpidTime = curTime;
             
