@@ -32,7 +32,7 @@ float gr, gp, gy;
 float accX, accY, accZ;
 
 // Sampling times
-const float TIMU = 0.1;
+const float TIMU = 0.01;
 const float Tmotor = 0.01;
 const float Tpid = 0.01;
 
@@ -145,7 +145,7 @@ int main( int argc, char *argv[] ){
 
         float dtPID = (curTime-lastpidTime)/1000.0f;
         if(dtPID>=Tpid){
-            speed = calcSpeeds(0);
+            speed = calcSpeeds(1);
             //Calc u 
             u =angleController(curTheta,(speed[0]+speed[1])/2.0, 0.0,0);
             uM2 = motorRegulator(speed[0], speed[1], 0);
